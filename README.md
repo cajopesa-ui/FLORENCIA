@@ -23,6 +23,9 @@ las calles recomendadas, el transporte público y lo que vais marcando los dos e
 | Notas, hora o día | Dentro de la ficha de cada lugar |
 | Añadir un lugar nuevo | Mantén pulsado el mapa, o «＋ Añadir lugar» |
 | Ver a la otra persona | Botón 👥 (sale cuando tiene la app abierta) |
+| Chat (texto, fotos, voz, ubicación) | Toca el punto morado de la otra persona, o el botón 💬 |
+| Mensaje de voz | En el chat, 🎤 → habla (máx. 1 min) → ➤ Enviar |
+| Borrar un mensaje tuyo | 🗑 junto a la hora del mensaje |
 | Centrar en ti | Botón 📍 |
 | Transporte y billetes | Botón 🚌 |
 | Qué se ve en el mapa | Botón ⚙️ |
@@ -44,6 +47,7 @@ style.css             el aspecto
 app.js                la lógica (mapa, GPS, sincronización)
 config.js             la dirección de la base de datos (clave pública)
 datos/florencia.json  lugares, calles y transporte (sale de tus 4 ficheros)
+chat.js               el chat (texto, fotos, voz y ubicación)
 sw.js                 copia la app y el mapa para que funcione con mala cobertura
 manifest.webmanifest  para instalarla como app
 iconos/               iconos

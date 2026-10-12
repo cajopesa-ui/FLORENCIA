@@ -144,7 +144,8 @@ async function refrescar() {
     servidor = data.estado || {};
     posiciones = data.posiciones || [];
     ultimaLectura = Date.now();
-    almacen.guardar('flo-cache', { servidor, posiciones });
+    recibirMensajes(data.mensajes || []);
+    almacen.guardar('flo-cache', { servidor, posiciones, mensajes });
     pintar();
   } catch (e) {
     console.warn('No se pudo leer', e);
@@ -333,12 +334,13 @@ function pintarOtros() {
     const minutos = (Date.now() - new Date(p.actualizado).getTime()) / 60000;
     const icono = L.divIcon({
       className: '', iconSize: [30, 30], iconAnchor: [15, 15],
-      html: `<div class="otro ${minutos > 10 ? 'antiguo' : ''}">${esc(p.nombre.charAt(0).toUpperCase())}</div>`
+      html: `<div class="otro ${minutos > 10 ? 'antiguo' : ''}">${esc(p.nombre.charAt(0).toUpperCase())}${noLeidos() ? `<span class="insignia">${noLeidos()}</span>` : ''}</div>`
     });
     const texto = `${esc(p.nombre)} · ${haceCuanto(p.actualizado)}`;
     let m = marcasOtros.get(p.nombre);
     if (!m) {
-      m = L.marker([p.lat, p.lng], { icon: icono, zIndexOffset: 1000 }).addTo(mapa);
+      m = L.marker([p.lat, p.lng], { icon: icono, zIndexOffset: 1000, title: `Escribir a ${p.nombre}` }).addTo(mapa);
+      m.on('click', () => abrirChat()); // tocar su punto abre el chat
       m.bindTooltip(texto, { permanent: true, direction: 'top', offset: [0, -14], className: 'etq-otro' });
       marcasOtros.set(p.nombre, m);
     } else {
@@ -792,13 +794,14 @@ function iniciarApp() {
   $('#entrada').hidden = true;
   $('#app').hidden = false;
   const cache = almacen.leer('flo-cache', null);
-  if (cache) { servidor = cache.servidor || {}; posiciones = cache.posiciones || []; }
+  if (cache) { servidor = cache.servidor || {}; posiciones = cache.posiciones || []; mensajes = cache.mensajes || []; }
   diaSel = elegirDiaInicial();
   crearMapa();
   conectarEventos();
   plegarPanel(!!ajustes.plegado);
   pintar();
   setTimeout(verDiaEnMapa, 50);
+  iniciarChat();
   conectar();
   refrescar();
   iniciarGPS();
@@ -837,7 +840,8 @@ async function entrar(e) {
     almacen.guardar('flo-sesion', sesion);
     servidor = data.estado || {};
     posiciones = data.posiciones || [];
-    almacen.guardar('flo-cache', { servidor, posiciones });
+    mensajes = data.mensajes || [];
+    almacen.guardar('flo-cache', { servidor, posiciones, mensajes });
     iniciarApp();
   } catch (err) {
     console.warn(err);

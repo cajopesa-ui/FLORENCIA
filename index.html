@@ -55,6 +55,7 @@
     <div id="mapa" class="mapa"></div>
 
     <div class="flotantes">
+      <button class="flotante" id="btn-chat" aria-label="Chat">💬<span id="chat-insignia" class="insignia" hidden>0</span></button>
       <button class="flotante" id="btn-otro" aria-label="Ver a la otra persona" hidden>👥</button>
       <button class="flotante" id="btn-centrar" aria-label="Centrar en mi posición">📍</button>
     </div>
@@ -81,7 +82,35 @@
     <div id="ventana-contenido"></div>
   </dialog>
 
+  <!-- Chat -->
+  <dialog id="chat" class="chat">
+    <header class="chat-cab">
+      <button class="icono-btn" id="chat-cerrar" aria-label="Volver al mapa">←</button>
+      <h2 id="chat-titulo">Chat</h2>
+      <span id="chat-estado" class="chat-estado"></span>
+    </header>
+    <div id="chat-mensajes" class="chat-mensajes"></div>
+    <div id="chat-barra" class="chat-barra">
+      <button class="icono-btn" id="chat-foto" aria-label="Enviar foto">📷</button>
+      <input type="file" id="chat-archivo" accept="image/*" hidden>
+      <button class="icono-btn" id="chat-ubic" aria-label="Enviar mi ubicación">📍</button>
+      <textarea id="chat-texto" rows="1" maxlength="2000" placeholder="Mensaje"></textarea>
+      <button class="chat-boton" id="chat-micro" aria-label="Grabar mensaje de voz">🎤</button>
+      <button class="chat-boton" id="chat-enviar" aria-label="Enviar" hidden>➤</button>
+    </div>
+    <div id="chat-grabando" class="chat-barra chat-grabando" hidden>
+      <span class="punto-rojo"></span>
+      <span>Grabando <b id="chat-reloj">0:00</b> <small>(máx. 1 min)</small></span>
+      <button class="btn" id="chat-grab-cancelar">✕ Cancelar</button>
+      <button class="btn btn-principal" id="chat-grab-enviar">➤ Enviar</button>
+    </div>
+  </dialog>
+
+  <!-- Foto a pantalla completa -->
+  <dialog id="foto-grande" class="foto-grande"><img alt="Foto"></dialog>
+
   <script src="config.js"></script>
   <script src="app.js"></script>
+  <script src="chat.js"></script>
 </body>
 </html>
