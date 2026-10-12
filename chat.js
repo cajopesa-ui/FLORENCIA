@@ -95,7 +95,7 @@ function pintarMensajes() {
   const caja = $('#chat-mensajes');
   const abajo = caja.scrollHeight - caja.scrollTop - caja.clientHeight < 80;
   if (!mensajes.length) {
-    caja.innerHTML = '<p class="chat-vacio">Aún no hay mensajes.<br>Escribe algo, manda una foto 📷 o un audio 🎤</p>';
+    caja.innerHTML = '<p class="chat-vacio">Aún no hay mensajes.<br>Escribe algo, haz una foto 📷, elige una de la galería 🖼️<br>o manda un audio 🎤</p>';
     return;
   }
   caja.innerHTML = mensajes.map((m) => {
@@ -326,8 +326,11 @@ function iniciarChat() {
   $('#chat-texto').addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey && !('ontouchstart' in window)) { e.preventDefault(); enviarTexto(); }
   });
-  $('#chat-foto').onclick = () => $('#chat-archivo').click();
-  $('#chat-archivo').onchange = (e) => { enviarFoto(e.target.files[0]); e.target.value = ''; };
+  $('#chat-foto').onclick = () => $('#chat-camara').click();     // 📷 cámara
+  $('#chat-galeria').onclick = () => $('#chat-archivo').click(); // 🖼️ galería
+  for (const id of ['#chat-camara', '#chat-archivo']) {
+    $(id).onchange = (e) => { enviarFoto(e.target.files[0]); e.target.value = ''; };
+  }
   $('#chat-ubic').onclick = enviarUbicacion;
   $('#chat-micro').onclick = empezarGrabacion;
   $('#chat-grab-cancelar').onclick = cancelarGrabacion;

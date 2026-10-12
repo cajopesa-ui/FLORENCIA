@@ -91,7 +91,10 @@
     </header>
     <div id="chat-mensajes" class="chat-mensajes"></div>
     <div id="chat-barra" class="chat-barra">
-      <button class="icono-btn" id="chat-foto" aria-label="Enviar foto">📷</button>
+      <button class="icono-btn" id="chat-foto" aria-label="Hacer una foto">📷</button>
+      <button class="icono-btn" id="chat-galeria" aria-label="Elegir foto de la galería">🖼️</button>
+      <!-- capture="environment": abre directamente la cámara trasera -->
+      <input type="file" id="chat-camara" accept="image/*" capture="environment" hidden>
       <input type="file" id="chat-archivo" accept="image/*" hidden>
       <button class="icono-btn" id="chat-ubic" aria-label="Enviar mi ubicación">📍</button>
       <textarea id="chat-texto" rows="1" maxlength="2000" placeholder="Mensaje"></textarea>

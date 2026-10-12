@@ -270,8 +270,9 @@ input, textarea, select { font: inherit; }
   display: flex; align-items: flex-end; gap: 4px; background: var(--superficie);
   padding: 8px 8px calc(8px + var(--abajo)); border-top: 1px solid var(--borde);
 }
+.chat-barra .icono-btn { width: 34px; }
 .chat-barra textarea {
-  flex: 1; border: 1px solid var(--borde); border-radius: 20px; padding: 9px 14px; font-size: 16px;
+  flex: 1; min-width: 0; border: 1px solid var(--borde); border-radius: 20px; padding: 9px 14px; font-size: 16px;
   resize: none; max-height: 110px; background: #fff; color: var(--texto);
 }
 .chat-boton {
