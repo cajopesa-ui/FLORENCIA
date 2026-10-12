@@ -1,0 +1,284 @@
+====================================================================
+PROMPT PARA CREAR LA APP DE VIAJE PARA UNA NUEVA CIUDAD
+(réplica exacta de la app "Florencia": https://florencia-viaje.netlify.app
+ código fuente de referencia: https://github.com/cajopesa-ui/FLORENCIA)
+====================================================================
+
+Copia este texto en una sesión nueva y rellena los datos de la sección 0.
+
+--------------------------------------------------------------------
+0. DATOS DEL NUEVO VIAJE (rellenar)
+--------------------------------------------------------------------
+- Ciudad: ____________________
+- Fechas del viaje: del ___ al ___ de ________ de ____
+- Zona horaria de la ciudad (IANA, ej. Europe/Rome): ____________
+- Repositorio de GitHub: ____________________
+- Ficheros que te adjunto (mismo formato que en Florencia):
+    1) <ciudad>_visitas.txt          -> por día: visitas con hora, tipo y horario;
+                                        más "Opcional:" con visitas opcionales
+    2) <ciudad>_calles_imprescindibles.txt -> calles por día con tipo y nota
+    3) <ciudad>_calles_fuera_de_ruta.txt   -> calles por día con tipo y nota
+    4) <ciudad>_transporte.txt       -> cuándo usar transporte, líneas, billetes, avisos
+- Nombres de las dos personas que la usarán (opcional): ____________
+- Código de acceso de 4 dígitos que queremos: ____ (si no, genera uno al azar)
+
+Soy programador principiante: explícamelo todo en español, sencillo y
+paso a paso. Antes de programar, enséñame un resumen de cómo quedará
+y espera a que te diga "adelante".
+
+--------------------------------------------------------------------
+1. QUÉ ES LA APP
+--------------------------------------------------------------------
+Una app web (PWA) para el móvil, compartida entre DOS personas que
+viajan juntas. Muestra un mapa con el GPS en tiempo real, las visitas
+de cada día, las calles recomendadas y el transporte público. Los
+cambios (visitado, notas, horas, lugares nuevos, chat) se sincronizan
+en tiempo real entre los dos móviles y NO se pierden al borrar los
+datos del navegador.
+
+Debe ser IDÉNTICA a la de Florencia en funciones, aspecto y estructura
+de archivos; solo cambian los datos de la ciudad, las fechas y la
+zona horaria.
+
+--------------------------------------------------------------------
+2. TECNOLOGÍA (no cambiar)
+--------------------------------------------------------------------
+- HTML + CSS + JavaScript "a pelo", sin frameworks ni compilación.
+- Mapa: Leaflet 1.9.4 (unpkg) con teselas de OpenStreetMap
+  (tile.openstreetmap.org, con crossOrigin: '' para poder cachearlas).
+- Base de datos compartida: Supabase (proyecto NUEVO, gratis, región
+  eu-west-3) usando supabase-js 2.45.4 UMD desde jsdelivr.
+  Usar la clave "anon" (legacy JWT) en config.js.
+- Publicación: Netlify (sitio nuevo "<ciudad>-viaje"), con netlify.toml.
+  El código también se sube a la rama main del repositorio de GitHub.
+- Coordenadas: Nominatim de OpenStreetMap (1 petición/segundo, con
+  User-Agent propio y viewbox de la ciudad). Para las calles usar
+  polygon_geojson=1 y dedupe=0 y unir todos los tramos (highway) de
+  cada calle. Si alguna calle no sale, trazarla a mano y avisarme.
+  Revisa que cada lugar caiga dentro de la ciudad y avísame si algún
+  texto de mis ficheros no cuadra con la ubicación real.
+
+Archivos (mismos nombres):
+  index.html, style.css, app.js, chat.js, config.js,
+  datos/<ciudad>.json, sw.js, manifest.webmanifest, netlify.toml,
+  iconos/icono.svg + icono-180.png + icono-192.png + icono-512.png
+  (icono con un monumento típico de la ciudad, generado con Chromium/
+  Playwright a partir del SVG), README.md en español.
+Código comentado en español, nombres de variables y funciones en español.
+
+--------------------------------------------------------------------
+3. DATOS DE LA CIUDAD (datos/<ciudad>.json)
+--------------------------------------------------------------------
+Generar el JSON con un script a partir de mis 4 ficheros, copiando mis
+textos tal cual. Estructura:
+{
+  "dias": [{ "fecha":"AAAA-MM-DD", "nombre":"Martes 17", "corto":"Mar 17",
+             "color":"#c2410c", "zona":"Uffizi y Oltrarno" }, ...],
+      colores por día: #c2410c, #1d4ed8, #047857 (y más si hay más días)
+  "consejos": { "AAAA-MM-DD": ["consejo del día", ...] },
+      (sacados de mis ficheros: atardecer, bus, "todo a pie", etc.)
+  "lugares": [{ "id","dia","nombre","tipo","hora"(o null si opcional),
+                "horario" (texto), "cierra":"HH:MM" (si aplica),
+                "nota","opcional":bool,"lat","lng" }],
+  "calles": [{ "id","dia","grupo":"imprescindible"|"fuera","nombre",
+               "tipo","nota","trazado":[[[lat,lng],...], ...] }],
+               (coordenadas redondeadas a 5 decimales)
+  "transporte": { "resumen", "cuando":[...], "billetes":[...], "aviso",
+                  "busCerca":[ids de lugares donde conviene el bus] },
+  "avisoGeneral": "Recuerda comprobar los horarios..."
+}
+Calcula la hora del atardecer de esa ciudad en esas fechas para el
+aviso del atardecer si hay un mirador.
+
+--------------------------------------------------------------------
+4. BASE DE DATOS (Supabase) Y SEGURIDAD
+--------------------------------------------------------------------
+Acceso con un CÓDIGO DE 4 DÍGITOS compartido (no hay cuentas ni email).
+Las tablas tienen RLS activado SIN políticas y se revocan permisos a
+anon/authenticated: nadie puede leerlas directamente. Todo pasa por
+funciones RPC "security definer" (search_path = '') que comprueban el
+código. Las funciones devuelven {ok:false} en vez de lanzar excepción
+(para que el registro de intentos fallidos no se deshaga).
+
+Tablas:
+  config(id=1, codigo_hash)              -> código cifrado con pgcrypto
+                                           (extensions.crypt / gen_salt('bf'))
+  estado(clave pk, valor jsonb, autor, actualizado)
+        claves: "lugar:<id>", "calle:<id>", "extra:<id>" (lugar añadido)
+        valor = parche que se fusiona (valor || nuevo): visitado, comentario,
+        hora, dia, borrado, por (quién hizo el último cambio), y en extras
+        también nombre, lat, lng, nota
+  posiciones(nombre pk, lat, lng, precision, actualizado)
+  intentos_fallidos(id, momento)
+  mensajes(id, de, tipo in(texto,foto,audio,ubicacion), texto,
+           dato (data URL base64 de foto/audio), lat, lng, duracion,
+           borrado bool default false, creado)
+
+Funciones:
+  _codigo_ok(codigo)  interna, sin permiso para anon. Si hay >=100 fallos
+                      en la última hora -> false (bloqueo 1 h). Si falla:
+                      registra el intento + pg_sleep(1). Borra intentos >1 día.
+  leer(codigo) -> {ok, estado:{clave:valor}, posiciones (últimas 12 h),
+                   mensajes (últimos 300 no borrados, SIN el dato, con
+                   tiene_dato)}
+  guardar(codigo, clave, parche jsonb, autor) -> upsert fusionando.
+        Límites: clave <=100, parche objeto <=5000 caracteres, <=2000 filas.
+  mi_posicion(codigo, nombre, lat, lng, precision)
+  enviar_mensaje(codigo, de, tipo, texto, dato, lat, lng, duracion)
+        Límites: texto <=2000, dato <=1.500.000 caracteres, foto debe
+        empezar por data:image/, audio por data:audio/, <=5000 mensajes.
+  mensaje_archivo(codigo, id) -> {ok, dato}  (fotos/audios se piden aparte)
+  borrar_mensaje(codigo, id, de) -> marca borrado=true y vacía dato/texto
+        (solo el autor). Se hace con UPDATE, no DELETE.
+
+Los avisos del linter de Supabase "SECURITY DEFINER ejecutable por anon"
+son esperados (las funciones comprueban el código).
+
+Tiempo real: canal Realtime de Supabase "broadcast" que solo envía
+"cambio" (nunca datos). Al recibirlo, el otro móvil llama a leer().
+Respaldo: leer() cada 10 s con la app visible, al volver a la app y al
+recuperar conexión.
+
+--------------------------------------------------------------------
+5. FUNCIONES DE LA APP (todas)
+--------------------------------------------------------------------
+ENTRADA
+- Pantalla con nombre + código de 4 dígitos (teclado numérico).
+  Se comprueba con leer(). Mensaje "Código incorrecto (si fallas muchas
+  veces se bloquea una hora)" o "No hay conexión".
+- Sesión guardada en localStorage. Si el código cambia en el servidor,
+  la app vuelve a pedirlo ("Vuelve a escribir el código") sin perder
+  cambios pendientes.
+- Cada persona debe usar un nombre distinto (la posición va por nombre).
+
+CABECERA
+- Pestañas de días con su color (+ "HOY" el día actual) y "Todo".
+  Se deslizan si no caben. Al cambiar de día el mapa encuadra ese día.
+- Punto de sincronización: verde (al día), naranja (enviando), gris (sin red).
+- Botones 🚌 (transporte) y ⚙️ (ajustes).
+
+MAPA
+- Mi posición con GPS (watchPosition, alta precisión): punto azul +
+  círculo de precisión. Si estoy en la ciudad, la primera vez centra en mí.
+- Visitas numeradas 1, 2, 3… por orden de hora y coloreadas por día.
+  Opcionales: círculo blanco con borde del color y "+". Lugares
+  añadidos: "★" cuadrado. Visitados: gris con ✔.
+- Calles: línea continua (imprescindibles) o de puntos (fuera de ruta),
+  con una línea invisible ancha encima para tocarlas fácil con el dedo.
+- La otra persona: círculo morado con su inicial y etiqueta
+  "Nombre · hace X min" (semitransparente si hace >10 min). Tocarlo
+  ABRE EL CHAT. Muestra insignia roja con mensajes sin leer.
+- Botones flotantes a la derecha (suben y bajan con el panel):
+  💬 chat (con insignia), 👥 ir a la otra persona (solo si hay posición),
+  📍 centrar en mí y seguirme (se desactiva al arrastrar el mapa).
+- Mantener pulsado el mapa = añadir lugar nuevo.
+
+PANEL INFERIOR (zona de datos)
+- Botón "▼ Ocultar" / "▲ Mostrar" y también deslizar el dedo
+  (abajo oculta, arriba muestra). Oculto deja solo una barra con
+  "▶ Siguiente: <lugar> · <hora> · <distancia>" (tocarla lo abre).
+  Recuerda si estaba oculto.
+- Avisos (solo si el día seleccionado es hoy, con hora de la ciudad):
+  "⏰ X cierra a las HH:MM (quedan N min)" si quedan <=60 min (rojo <=30);
+  aviso de atardecer si aplica; "🚌 Para bajar: buses…" si estoy a
+  <350 m de un lugar de busCerca. Más los consejos del día (💡).
+- Tarjeta "▶ SIGUIENTE · DÍA": primera visita no hecha por orden de
+  hora, con hora, distancia y minutos a pie, botones 🧭 Cómo llegar
+  (Google Maps a pie), ✔ Hecho y Ver. Si todo hecho: "¡Visitas del día
+  completadas! 🎉".
+- Lista: Visitas, Opcionales, Añadidos por vosotros, Calles
+  imprescindibles, Calles fuera de ruta; con distancia a cada una.
+  En "Todo", agrupado por día. Botones "＋ Añadir lugar" y "🔎 Ver el día".
+- Distancia: metros/km y minutos a pie (distancia ×1,3 / 80 m/min).
+  Si estoy a más de 50 km: "N km (estás lejos)".
+
+FICHA DE LUGAR O CALLE (ventana que sube desde abajo)
+- Nombre, tipo, chip del día, distancia, horario, nota del fichero.
+- Recuadro de bus en los lugares de busCerca + botón "🚌 En bus"
+  (Google Maps en transporte público).
+- 🧭 Cómo llegar (en calles: al punto más cercano de la calle).
+- ✔ Visitado / ✔ Recorrida / ↩︎ Desmarcar.
+- Cambiar hora prevista y día. Notas compartidas con "💾 Guardar nota".
+- "Último cambio: <nombre>". En lugares añadidos: 🗑 Borrar (con confirmación).
+
+AVISO AL PASAR CERCA
+- Si paso a <50 m de una calle del día no recorrida: aviso
+  "📍 Estás junto a <calle>" con su nota + vibración (una vez por calle;
+  se puede desactivar en ajustes). Tocarlo abre la ficha.
+
+TRANSPORTE (🚌): resumen, cuándo conviene, billetes, aviso, enlace a la
+web de la empresa de transporte local y aviso general de horarios.
+
+AJUSTES (⚙️): ver opcionales / calles imprescindibles / calles fuera de
+ruta / ocultar visitados / avisos de calles cercanas; "🔄 Actualizar
+ahora"; "Salir" (avisa si hay cambios sin enviar).
+
+SIN CONEXIÓN
+- Los cambios se guardan en una cola en localStorage, se ven al momento
+  y se envían solos al volver la red (estado = servidor + pendientes).
+- Último estado guardado en caché para abrir la app sin red.
+- Service worker (sw.js): archivos de la app "primero red, si falla
+  caché"; librerías CDN y teselas del mapa "primero caché" (máx. 3000
+  teselas); Supabase nunca se cachea. Constante VERSION que hay que
+  subir en cada cambio (ciudad-v1, v2…).
+
+CHAT (chat.js)
+- Pantalla completa. Se abre tocando el punto de la otra persona o 💬.
+- Barra: 📷 cámara (input con capture="environment"), 🖼️ galería
+  (input sin capture) — SEPARADOS, porque en Android un solo botón solo
+  ofrece la galería —, 📍 enviar mi ubicación, cuadro de texto que crece,
+  🎤 grabar voz (se cambia por ➤ cuando hay texto).
+- Fotos reducidas a máx. 1280 px, JPEG calidad 0,72; si hay texto
+  escrito, va como pie de foto. Tocar una foto la abre en grande.
+- Voz: MediaRecorder, preferir audio/mp4 (se oye en iPhone y Android),
+  si no webm/opus; 32 kbps; máx. 60 s; barra "Grabando 0:05" con
+  ✕ Cancelar y ➤ Enviar.
+- Ubicación: burbuja "📍 Ubicación de X", al tocarla cierra el chat y
+  centra el mapa ahí con un globo.
+- Burbujas mías a la derecha (color claro), del otro a la izquierda con
+  su nombre; hora (o fecha si no es hoy). 🗑 en las mías para borrar.
+- Fotos/audios se descargan aparte con mensaje_archivo y se guardan en
+  memoria como URL de blob.
+- Mensaje nuevo con el chat cerrado: aviso arriba "💬 Nombre: texto"
+  (tocarlo abre el chat) + vibración + contador de no leídos.
+- Sin red no se envía: "Sin conexión: no se ha enviado" y el texto se
+  queda escrito.
+
+DISEÑO
+- Móvil primero, márgenes seguros (safe-area), color principal terracota
+  #7c2d12 (o uno típico de la nueva ciudad si prefieres), fondo crema
+  #faf7f2, textos con emojis como iconos, botones de mínimo 44 px.
+- Todo el texto que viene de la base de datos se escapa (esc()).
+- La fecha/hora "de hoy" se calcula con Intl en la zona horaria de la
+  ciudad, no la del móvil.
+
+--------------------------------------------------------------------
+6. CÓMO TRABAJAR (lo que aprendimos con Florencia)
+--------------------------------------------------------------------
+- Crea un proyecto de Supabase NUEVO para esta ciudad (el plan gratis
+  permite 2 activos; si no hay hueco, avísame antes).
+- Prueba con Playwright (Chromium en /opt/pw-browsers) simulando DOS
+  móviles: código malo/bueno, GPS falso en la ciudad, marcar visitado y
+  ver que llega al otro, notas, modo sin conexión y cola, borrar datos
+  del navegador y volver a entrar, panel ocultar/mostrar (tocar y
+  deslizar), chat con texto/foto/audio (micrófono falso)/ubicación,
+  botones de cámara y galería, y que todo cabe en un iPhone SE.
+  Sirve los archivos con page.route (el proxy no deja usar localhost).
+- En ese entorno los WebSocket no pasan por el proxy: el tiempo real no
+  se puede probar ahí; la sincronización cae al respaldo de 10 s.
+  Pídeme que lo compruebe con dos móviles reales.
+- Usa nombres de prueba y NO des permiso de GPS en las pruebas del chat
+  para no dejar posiciones en el mapa. Al terminar, deja la base de
+  datos vacía. Los DELETE por SQL piden mi confirmación: si se cancela,
+  dame el SQL y el enlace directo al SQL Editor del proyecto
+  (https://supabase.com/dashboard/project/<ref>/sql/new) y luego
+  comprueba que está vacía.
+- Publicar en Netlify: crear el sitio y desplegar con el comando que da
+  la herramienta. El permiso temporal caduca: si da 401, pide uno nuevo.
+  netlify.toml: publish ".", Content-Type application/manifest+json
+  para el manifest y Cache-Control no-cache para sw.js.
+- Haz commit y push a main en cada cambio y vuelve a publicar en
+  Netlify; sube VERSION en sw.js.
+- Al acabar dime: la URL, el código, cómo instalarla en iPhone y
+  Android, y recuérdame que Supabase gratis se pausa tras 7 días sin
+  uso (se reactiva con "Restore project").
