@@ -79,7 +79,11 @@ textos tal cual. Estructura:
   Día con DOS CIUDADES (ej. Pisa por la mañana y Lucca por la tarde):
     el día lleva "partes": [{ "id":"pisa","nombre":"Pisa","momento":"Mañana",
       "icono":"🌅","lat","lng" (centro) }, { "id":"lucca", ..., "icono":"🌇",
-      "desde":"14:20" (hora a partir de la que toca esa ciudad) }]
+      "desde":"14:20" (hora a partir de la que toca esa ciudad),
+      "corto":"Lucca" (nombre corto para el selector compacto),
+      "llegar":{"modo":"driving"|"transit"|"walking","texto":"Unos 10 min
+      en coche (7 km)"} (cómo se llega desde la ciudad anterior) }]
+    Sirve igual para 2, 3, 4 o más ciudades/pueblos en un día.
     y cada lugar/calle de ese día lleva "parte":"pisa" o "lucca".
   Cada día puede llevar "atardecer":"16:50" y "transporte":"<zona>".
   "consejos": { "AAAA-MM-DD": [...], "AAAA-MM-DD:<parte>": [...] },
@@ -88,7 +92,12 @@ textos tal cual. Estructura:
                 "horario" (texto), "cierra":"HH:MM" (si aplica),
                 "nota","opcional":bool,"lat","lng",
                 "antesAtardecer":true (aviso de atardecer, opcional),
-                "salida":true (tren/bus con hora: aviso "sale en N min") }],
+                "salida":true (tren/bus/coche con hora: aviso "sale en N min"),
+                "sinEncuadre":true (no cuenta al encuadrar el mapa: opcionales
+                lejanos) }],
+      Calles: "parte": null para lo que es de todo el día (ej. una carretera
+      panorámica entre pueblos): se dibuja en todas las ciudades del día,
+      lleva "sinEncuadre":true y en "Todo" se lista una sola vez.
       Un tren entre ciudades se pone como una visita más (ej. "🚆 Tren a
       Lucca (Pisa Centrale)" a las 14:20) para poder usar Guiarme hasta
       la estación.
@@ -181,6 +190,16 @@ CABECERA
   a mano ese día van a la ciudad más cercana. Al aparecer el selector,
   llamar a mapa.invalidateSize() y bajar la guía y los avisos (variable
   CSS --alto-cab).
+  Con MÁS DE 2 ciudades el selector es compacto: una fila deslizable de
+  botones "icono + nombre corto + hora de la primera visita"
+  (ej. "🍷 Greve 09:45"), centrando el activo.
+- TARJETA "SIGUIENTE CIUDAD": al hacer todas las visitas de una ciudad,
+  la tarjeta pasa a "✔ GREVE TERMINADO · SIGUIENTE → 🥩 Panzano", con el
+  texto de "llegar", la hora de la primera visita y los botones
+  "🚗 Ir en coche" / "🚆 Ir en tren / bus" (Google Maps en ese modo hasta
+  la primera visita) y "Ver Panzano".
+- Encuadre del mapa con maxZoom 16 (una ciudad con un solo punto no se
+  acerca de más).
 
 MAPA
 - Mi posición con GPS (watchPosition, alta precisión): punto azul +
@@ -210,7 +229,9 @@ PANEL INFERIOR (zona de datos)
   "🌅 El atardecer es hacia las X: no llegues tarde a Y" (lugares con
   antesAtardecer, 80 min antes); "🚆 Tren…: sale a las HH:MM (quedan N min)"
   (lugares con salida, 45 min antes, rojo <=15); "🚌 Para bajar: buses…" si estoy a
-  <350 m de un lugar de busCerca. Más los consejos del día (💡).
+  <350 m de un lugar de busCerca. Los consejos del día (y de la ciudad)
+  van PLEGADOS en una línea "💡 Consejos (n)" (<details>) para que la
+  tarjeta Siguiente se vea sin desplazar; los avisos siempre a la vista.
 - Tarjeta "▶ SIGUIENTE · DÍA": primera visita no hecha por orden de
   hora, con hora, distancia y minutos a pie. El nombre ("Uffizi ›") abre
   la ficha. Botones: 🧭 Guiarme (principal), 🗺️ Maps (Google Maps a pie)

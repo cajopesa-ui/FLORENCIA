@@ -101,7 +101,8 @@ let posiciones = [];                                // posiciones GPS de los dos
 let pendientes = almacen.leer('flo-pendientes', []); // cambios aún sin enviar
 let miPos = null;                                   // mi posición GPS
 let diaSel = null;                                  // fecha seleccionada o 'todo'
-const parteElegida = {};                            // días con dos ciudades: { fecha: 'pisa' } elegido a mano
+const parteElegida = {};
+let consejosAbiertos = false;                       // el desplegable de consejos                            // días con dos ciudades: { fecha: 'pisa' } elegido a mano
 let seguir = false;                                 // el mapa sigue mi posición
 let ultimaLectura = 0;                              // ms de la última lectura correcta
 const avisadas = new Set();                         // calles ya avisadas por cercanía
@@ -311,8 +312,17 @@ function pintarDias() {
   if (partes) {
     const color = diaInfo(diaSel).color, actual = parteActual(diaSel);
     nav.style.setProperty('--color-dia', color);
-    nav.innerHTML = partes.map((pt) => `<button class="parte ${pt.id === actual ? 'activa' : ''}" data-parte="${pt.id}">
-        ${pt.icono} <b>${esc(pt.nombre)}</b> <small>${esc(pt.momento.toLowerCase())}</small></button>`).join('');
+    const compacto = partes.length > 2;
+    nav.classList.toggle('compacto', compacto);
+    const lugares = todosLosLugares(estadoActual());
+    nav.innerHTML = partes.map((pt) => {
+      const primera = visitasDelDia(lugares, diaSel, pt.id)[0];
+      const sub = compacto ? (primera ? primera.hora : '') : pt.momento.toLowerCase();
+      return `<button class="parte ${pt.id === actual ? 'activa' : ''}" data-parte="${pt.id}">
+        ${pt.icono} <b>${esc(compacto ? pt.corto || pt.nombre : pt.nombre)}</b> <small>${esc(sub)}</small></button>`;
+    }).join('');
+    // Que la ciudad elegida quede a la vista si la fila se desliza
+    nav.querySelector('.activa')?.scrollIntoView({ block: 'nearest', inline: 'center' });
   }
   medirCabecera();
 }
@@ -451,18 +461,44 @@ function pintarPanel() {
       .some((l) => l && distancia(miPos, l) < 350);
     if (cercaBus) avisos.push('<div class="aviso">🚌 Para bajar: buses 12 y 13. Billete 2 € (90 min), puedes pagar acercando la tarjeta.</div>');
   }
-  const consejos = [...(DATOS.consejos[ref] || []), ...(parteRef ? DATOS.consejos[`${ref}:${parteRef}`] || [] : [])]
-    .map((c) => `<p class="consejo">💡 ${esc(c)}</p>`);
-  $('#avisos').innerHTML = avisos.join('') + consejos.join('');
+  // Consejos: plegados en una línea para no empujar la tarjeta "Siguiente" (los avisos siempre a la vista)
+  const consejos = [...(DATOS.consejos[ref] || []), ...(parteRef ? DATOS.consejos[`${ref}:${parteRef}`] || [] : [])];
+  $('#avisos').innerHTML = avisos.join('') + (consejos.length ? `
+    <details class="consejos" ${consejosAbiertos ? 'open' : ''}>
+      <summary>💡 Consejos (${consejos.length})</summary>
+      ${consejos.map((c) => `<p class="consejo">• ${esc(c)}</p>`).join('')}
+    </details>` : '');
+  $('#avisos .consejos')?.addEventListener('toggle', (e) => { consejosAbiertos = e.target.open; });
 
   // --- Siguiente visita ---
   const pendientesDia = visitasDelDia(lugares, ref, parteRef).filter((l) => !l.visitado);
   let sig = pendientesDia[0];
-  if (!sig && miPos) {
+  // ¿Terminada esta ciudad? Proponer la siguiente del día
+  const partesRef = partesDe(ref);
+  const siguienteParte = !sig && partesRef ? partesRef[partesRef.findIndex((pt) => pt.id === parteRef) + 1] : null;
+  if (siguienteParte) {
+    const destino = visitasDelDia(lugares, ref, siguienteParte.id)[0] || siguienteParte;
+    const modo = siguienteParte.llegar?.modo || 'driving';
+    const boton = { driving: '🚗 Ir en coche', transit: '🚆 Ir en tren / bus', walking: '🚶 Ir andando' }[modo] || '🗺️ Cómo ir';
+    $('#siguiente').innerHTML = `
+      <div class="siguiente">
+        <div class="etq">✔ ${esc(parteInfo(ref, parteRef).nombre.toUpperCase())} TERMINADO · SIGUIENTE</div>
+        <h2>${siguienteParte.icono} ${esc(siguienteParte.nombre)}</h2>
+        <div class="meta">${esc(siguienteParte.llegar?.texto || '')}${destino.hora ? ' · primera visita ' + esc(destino.hora) : ''}</div>
+        <div class="fila-botones">
+          <a class="btn btn-principal" href="${urlComoLlegar(destino.lat, destino.lng, modo)}" target="_blank" rel="noopener">${boton}</a>
+          <button class="btn" data-parte="${siguienteParte.id}">Ver ${esc(siguienteParte.nombre)}</button>
+        </div>
+      </div>`;
+    $('#panel-resumen').innerHTML = `<b>▶ Siguiente:</b> ${siguienteParte.icono} ${esc(siguienteParte.nombre)}`;
+  }
+  if (!sig && !siguienteParte && miPos) {
     sig = lugares.filter((l) => l.dia === ref && !l.visitado && enParte(l, ref))
       .sort((a, b) => distancia(miPos, a) - distancia(miPos, b))[0];
   }
-  if (sig) {
+  if (siguienteParte) {
+    // ya pintada arriba
+  } else if (sig) {
     const d = miPos ? textoDistancia(distancia(miPos, sig)) : 'activa el GPS para ver la distancia';
     $('#siguiente').innerHTML = `
       <div class="siguiente">
@@ -478,7 +514,7 @@ function pintarPanel() {
   } else {
     $('#siguiente').innerHTML = `<div class="siguiente"><div class="etq">${esc(diaInfo(ref).nombre.toUpperCase())}${parteRef ? ' · ' + esc(parteInfo(ref, parteRef).nombre.toUpperCase()) : ''}</div><h2>¡Visitas ${parteRef ? 'de ' + esc(parteInfo(ref, parteRef).nombre) : 'del día'} completadas! 🎉</h2></div>`;
   }
-  $('#panel-resumen').innerHTML = sig
+  if (!siguienteParte) $('#panel-resumen').innerHTML = sig
     ? `<b>▶ Siguiente:</b> ${esc(sig.nombre)}${sig.hora ? ' · ' + esc(sig.hora) : ''}${miPos ? ' · ' + esc(textoDistancia(distancia(miPos, sig)).split(' · ')[0]) : ''}`
     : '<b>🎉</b> Visitas del día completadas';
 
@@ -502,7 +538,8 @@ function pintarPanel() {
       const pt = parteInfo(fecha, parte);
       html += `<div class="titulo-parte" style="--color-dia:${info.color}">${pt.icono} ${esc(pt.momento)} · ${esc(pt.nombre)}</div>`;
     }
-    const deAqui = (x) => x.dia === fecha && (!parte || !x.parte || x.parte === parte);
+    const primeraParte = partesDe(fecha)?.[0].id;
+    const deAqui = (x) => x.dia === fecha && (!parte || x.parte === parte || (!x.parte && (diaSel !== 'todo' || parte === primeraParte)));
     const visitas = visitasDelDia(lugares, fecha, parte);
     const sinHora = lugares.filter((l) => deAqui(l) && l.clase === 'lugar' && !l.opcional && !l.hora);
     const opcionales = lugares.filter((l) => deAqui(l) && l.clase === 'lugar' && l.opcional);
@@ -799,12 +836,12 @@ function comprobarCalles() {
 function verDiaEnMapa() {
   const est = estadoActual();
   const puntos = [];
-  const ver = (x) => diaSel === 'todo' || (x.dia === diaSel && enParte(x));
+  const ver = (x) => !x.sinEncuadre && (diaSel === 'todo' || (x.dia === diaSel && enParte(x)));
   for (const l of todosLosLugares(est)) if (ver(l)) puntos.push([l.lat, l.lng]);
   for (const c of todasLasCalles(est)) if (ver(c)) c.trazado.forEach((lin) => lin.forEach((p) => puntos.push(p)));
   // Dejamos hueco abajo para que el panel no tape los puntos
   const altoPanel = $('#panel').offsetHeight;
-  if (puntos.length) mapa.fitBounds(puntos, { paddingTopLeft: [30, 30], paddingBottomRight: [30, altoPanel + 20] });
+  if (puntos.length) mapa.fitBounds(puntos, { paddingTopLeft: [30, 30], paddingBottomRight: [30, altoPanel + 20], maxZoom: 16 });
 }
 
 function crearMapa() {
@@ -824,6 +861,7 @@ function conectarEventos() {
     const el = e.target.closest('[data-dia],[data-parte],[data-ficha],[data-visto],[data-cerrar]');
     if (!el) return;
     if (el.dataset.parte) {
+      if (diaSel === 'todo') diaSel = diaReferencia();   // desde "Todo", saltar a ese día
       parteElegida[diaSel] = el.dataset.parte;
       pintar();
       setTimeout(verDiaEnMapa, 50);

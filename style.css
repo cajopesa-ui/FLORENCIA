@@ -336,3 +336,10 @@ input, textarea, select { font: inherit; }
 .guia { top: calc(var(--alto-cab, 56px) + 6px); }
 .toast { top: calc(var(--alto-cab, 56px) + 8px); }
 .app.guiando .toast { top: calc(var(--alto-cab, 56px) + 104px); }
+/* Más de dos ciudades: botones compactos en una fila que se desliza */
+.partes.compacto { overflow-x: auto; scrollbar-width: none; }
+.partes.compacto::-webkit-scrollbar { display: none; }
+.partes.compacto .parte { flex: none; font-size: 14px; padding: 5px 10px; min-height: 38px; white-space: nowrap; }
+.consejos { margin: 0 0 8px; }
+.consejos summary { color: var(--principal); font-weight: 700; font-size: 14px; padding: 4px 0; cursor: pointer; }
+.consejos .consejo { margin: 4px 0 4px 6px; }
