@@ -299,10 +299,13 @@ function pintarDias() {
   const botones = DATOS.dias.map((d) => {
     const activo = diaSel === d.fecha;
     const estilo = activo ? `background:${d.color};border-color:${d.color}` : `border-color:${d.color};color:${d.color}`;
-    return `<button class="dia ${activo ? 'activo' : ''}" style="${estilo}" data-dia="${d.fecha}">${esc(d.corto)}${d.fecha === hoy ? ' <span class="hoy">HOY</span>' : ''}</button>`;
+    const [semana, numero] = d.corto.split(' ');       // "Sáb 21" -> "Sáb" y "21"
+    return `<button class="dia ${activo ? 'activo' : ''}" style="${estilo}" data-dia="${d.fecha}" aria-label="${esc(d.nombre)}">
+        <span class="d-sem ${d.fecha === hoy ? 'hoy' : ''}">${d.fecha === hoy ? 'HOY' : esc(semana)}</span><span class="d-num">${esc(numero)}</span></button>`;
   });
   const todo = diaSel === 'todo';
-  botones.push(`<button class="dia ${todo ? 'activo' : ''}" style="${todo ? 'background:#374151;border-color:#374151' : ''}" data-dia="todo">Todo</button>`);
+  botones.push(`<button class="dia ${todo ? 'activo' : ''}" style="${todo ? 'background:#374151;border-color:#374151' : ''}" data-dia="todo" aria-label="Todos los días">
+      <span class="d-sem">Ver</span><span class="d-num txt">Todo</span></button>`);
   $('#dias').innerHTML = botones.join('');
 
   // Selector de ciudad (solo en los días con dos ciudades)
@@ -318,11 +321,13 @@ function pintarDias() {
     nav.innerHTML = partes.map((pt) => {
       const primera = visitasDelDia(lugares, diaSel, pt.id)[0];
       const sub = compacto ? (primera ? primera.hora : '') : pt.momento.toLowerCase();
+      if (compacto) {   // dos líneas: icono + hora arriba, pueblo abajo (caben 4 o más en el ancho)
+        return `<button class="parte ${pt.id === actual ? 'activa' : ''}" data-parte="${pt.id}" aria-label="${esc(pt.nombre)}">
+          <small>${pt.icono} ${esc(sub)}</small><b>${esc(pt.corto || pt.nombre)}</b></button>`;
+      }
       return `<button class="parte ${pt.id === actual ? 'activa' : ''}" data-parte="${pt.id}">
-        ${pt.icono} <b>${esc(compacto ? pt.corto || pt.nombre : pt.nombre)}</b> <small>${esc(sub)}</small></button>`;
+        ${pt.icono} <b>${esc(pt.nombre)}</b> <small>${esc(sub)}</small></button>`;
     }).join('');
-    // Que la ciudad elegida quede a la vista si la fila se desliza
-    nav.querySelector('.activa')?.scrollIntoView({ block: 'nearest', inline: 'center' });
   }
   medirCabecera();
 }

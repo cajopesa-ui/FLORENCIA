@@ -72,16 +72,25 @@ input, textarea, select { font: inherit; }
   padding: calc(6px + var(--arriba)) 8px 6px; background: var(--superficie);
   border-bottom: 1px solid var(--borde); z-index: 1000;
 }
-.dias { display: flex; gap: 5px; overflow-x: auto; flex: 1; scrollbar-width: none; }
-.dias::-webkit-scrollbar { display: none; }
+.dias { display: flex; gap: 4px; flex: 1; min-width: 0; }
+/* Todas las pestañas caben siempre: se reparten el ancho, en dos líneas (día de la semana / número) */
 .dia {
-  border: 2px solid var(--borde); background: var(--superficie);
-  border-radius: 999px; padding: 5px 10px; font-weight: 700; font-size: 14px; white-space: nowrap; flex: none;
+  flex: 1 1 0; min-width: 0; border: 2px solid var(--borde); background: var(--superficie);
+  border-radius: 10px; padding: 2px 0 3px; font-weight: 700;
+  display: flex; flex-direction: column; align-items: center; line-height: 1.1;
 }
+.dia .d-sem { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .3px; }
+.dia .d-num { font-size: 17px; font-weight: 800; }
+.dia .d-num.txt { font-size: 13px; padding-top: 2px; }
+.dia .d-sem.hoy { font-weight: 800; }
 .dia.activo { color: #fff; }
-.dia .hoy { font-size: 10px; vertical-align: super; }
-.cabecera-botones { display: flex; align-items: center; }
-.sync { width: 10px; height: 10px; border-radius: 50%; background: #9ca3af; margin: 0 4px; flex: none; }
+.cabecera-botones { display: flex; align-items: center; flex: none; }
+.cabecera-botones .icono-btn { width: 34px; }
+.con-punto { position: relative; }
+.sync {
+  position: absolute; top: 5px; right: 2px; width: 10px; height: 10px; border-radius: 50%;
+  background: #9ca3af; border: 2px solid var(--superficie);
+}
 .sync.ok { background: var(--ok); }
 .sync.pendiente { background: var(--aviso); }
 
@@ -336,10 +345,14 @@ input, textarea, select { font: inherit; }
 .guia { top: calc(var(--alto-cab, 56px) + 6px); }
 .toast { top: calc(var(--alto-cab, 56px) + 8px); }
 .app.guiando .toast { top: calc(var(--alto-cab, 56px) + 104px); }
-/* Más de dos ciudades: botones compactos en una fila que se desliza */
-.partes.compacto { overflow-x: auto; scrollbar-width: none; }
-.partes.compacto::-webkit-scrollbar { display: none; }
-.partes.compacto .parte { flex: none; font-size: 14px; padding: 5px 10px; min-height: 38px; white-space: nowrap; }
+/* Más de dos ciudades: todos los botones a la vista, en dos líneas (icono + hora / pueblo) */
+.partes.compacto { gap: 4px; }
+.partes.compacto .parte {
+  flex: 1 1 0; min-width: 0; padding: 3px 2px; min-height: 40px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.15;
+}
+.partes.compacto .parte small { font-size: 11px; white-space: nowrap; }
+.partes.compacto .parte b { font-size: 13px; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .consejos { margin: 0 0 8px; }
 .consejos summary { color: var(--principal); font-weight: 700; font-size: 14px; padding: 4px 0; cursor: pointer; }
 .consejos .consejo { margin: 4px 0 4px 6px; }

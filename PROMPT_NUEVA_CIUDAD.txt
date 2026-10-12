@@ -174,9 +174,15 @@ ENTRADA
 - Cada persona debe usar un nombre distinto (la posición va por nombre).
 
 CABECERA
-- Pestañas de días con su color (+ "HOY" el día actual) y "Todo".
-  Se deslizan si no caben. Al cambiar de día el mapa encuadra ese día.
-- Punto de sincronización: verde (al día), naranja (enviando), gris (sin red).
+- Pestañas de días con su color y "Todo". TODAS deben caber siempre a la
+  vista (no usar una fila que se desliza: el usuario no ve los días que
+  quedan fuera). Cada pestaña se reparte el ancho (flex: 1) en dos líneas:
+  día de la semana pequeño arriba ("SÁB", o "HOY" si es hoy) y número
+  grande abajo ("21"); la última "VER / Todo". Comprobar en iPhone SE
+  (320 px) que ninguna sale de la pantalla. Al cambiar de día el mapa
+  encuadra ese día.
+- Punto de sincronización como puntito en la esquina del botón ⚙️:
+  verde (al día), naranja (enviando), gris (sin red).
 - Botones 🚌 (transporte) y ⚙️ (ajustes).
 - DÍAS CON DOS CIUDADES: debajo de las pestañas sale un selector de dos
   botones grandes ("🌅 Pisa mañana" / "🌇 Lucca tarde") con el color del
@@ -190,9 +196,11 @@ CABECERA
   a mano ese día van a la ciudad más cercana. Al aparecer el selector,
   llamar a mapa.invalidateSize() y bajar la guía y los avisos (variable
   CSS --alto-cab).
-  Con MÁS DE 2 ciudades el selector es compacto: una fila deslizable de
-  botones "icono + nombre corto + hora de la primera visita"
-  (ej. "🍷 Greve 09:45"), centrando el activo.
+  Con MÁS DE 2 ciudades el selector es compacto y TAMBIÉN cabe entero:
+  botones que se reparten el ancho, en dos líneas: "icono + hora de la
+  primera visita" arriba y el nombre corto abajo (ej. "🍷 09:45" /
+  "Greve"). El nombre corto debe caber en 320 px (ej. "Costanza", no
+  "V. Costanza").
 - TARJETA "SIGUIENTE CIUDAD": al hacer todas las visitas de una ciudad,
   la tarjeta pasa a "✔ GREVE TERMINADO · SIGUIENTE → 🥩 Panzano", con el
   texto de "llegar", la hora de la primera visita y los botones

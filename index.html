@@ -46,9 +46,9 @@
     <header class="cabecera">
       <nav id="dias" class="dias" aria-label="Días"></nav>
       <div class="cabecera-botones">
-        <span id="sync" class="sync" title="Sincronización"></span>
         <button class="icono-btn" id="btn-bus" aria-label="Transporte">🚌</button>
-        <button class="icono-btn" id="btn-ajustes" aria-label="Ajustes">⚙️</button>
+        <!-- El puntito de la esquina es la conexión: verde, naranja (enviando) o gris (sin red) -->
+        <button class="icono-btn con-punto" id="btn-ajustes" aria-label="Ajustes">⚙️<span id="sync" class="sync" title="Sincronización"></span></button>
       </div>
     </header>
     <!-- Solo en los días con dos ciudades: elegir cuál ver -->

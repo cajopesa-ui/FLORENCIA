@@ -18,7 +18,7 @@ las calles recomendadas, el transporte público y lo que vais marcando los dos e
 |---|---|
 | Cambiar de día | Pestañas de arriba (Mar 17, Mié 18, Jue 19, Vie 20, Sáb 21, Todo) |
 | Viernes: Pisa o Lucca | Debajo de las pestañas: **🌅 Pisa · mañana** / **🌇 Lucca · tarde**. Se elige sola según dónde estés o la hora |
-| Sábado: los 4 pueblos | Fila deslizable **🅿️ V. Costanza · 🍷 Greve · 🥩 Panzano · 🏰 Castellina** (con la hora de cada uno). Al terminar uno, «Siguiente» propone el siguiente con **🚗 Ir en coche** |
+| Sábado: los 4 pueblos | Botones **🅿️ Costanza · 🍷 Greve · 🥩 Panzano · 🏰 Castellina** (con la hora de cada uno). Al terminar uno, «Siguiente» propone el siguiente con **🚗 Ir en coche** |
 | Consejos del día | Plegados en «💡 Consejos (n)»: tócalo para verlos |
 | Ver un lugar | Toca su marcador, su calle o su fila en la lista |
 | Ir a un sitio | **🧭 Guiarme**: flecha que apunta al destino (si apunta hacia arriba, vas bien) · **🗺️ Maps**: abre Google Maps |
@@ -35,7 +35,7 @@ las calles recomendadas, el transporte público y lo que vais marcando los dos e
 | Transporte y billetes | Botón 🚌 |
 | Qué se ve en el mapa | Botón ⚙️ |
 
-El puntito junto a 🚌 indica la conexión: **verde** = sincronizado, **naranja** = enviando cambios,
+El puntito en la esquina de ⚙️ indica la conexión: **verde** = sincronizado, **naranja** = enviando cambios,
 **gris** = sin conexión (los cambios se guardan en el móvil y se envían solos al volver la cobertura).
 
 ### Leyenda del mapa
