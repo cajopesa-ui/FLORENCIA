@@ -63,7 +63,11 @@ Abre la app de vez en cuando antes del viaje. Si se pausa, entra en
 [supabase.com/dashboard](https://supabase.com/dashboard), abre el proyecto `florencia`
 y pulsa **Restore project** (tarda unos minutos).
 
-## Publicarla gratis con GitHub Pages
+## Dónde está publicada
+
+En Netlify: **https://florencia-viaje.netlify.app** (proyecto `florencia-viaje`).
+
+## Alternativa: GitHub Pages
 
 1. En GitHub, abre el repositorio → **Settings** → **Pages**.
 2. En «Build and deployment», **Source**: *Deploy from a branch*.
