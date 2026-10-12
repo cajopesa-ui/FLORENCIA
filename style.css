@@ -287,3 +287,30 @@ input, textarea, select { font: inherit; }
 .foto-grande::backdrop { background: rgba(0,0,0,.9); }
 .foto-grande img { max-width: 100vw; max-height: 100vh; display: block; }
 .msj-borrar { border: 0; background: transparent; font-size: 13px; padding: 0 6px 0 0; opacity: .6; }
+
+/* ===== Brújula y modo guía ===== */
+.yo-cont { position: relative; width: 64px; height: 64px; }
+.yo-cont .yo { position: absolute; left: 22px; top: 22px; }
+.yo-cono {
+  position: absolute; inset: 0; border-radius: 50%;
+  /* abanico azul de 60° que apunta hacia arriba (se gira con la brújula) */
+  background: conic-gradient(from -30deg, rgba(37, 99, 235, .55) 0deg 60deg, transparent 60deg 360deg);
+  -webkit-mask-image: radial-gradient(circle, #000 35%, transparent 72%);
+  mask-image: radial-gradient(circle, #000 35%, transparent 72%);
+}
+.sig-nombre { cursor: pointer; }
+.sig-nombre .ver { color: var(--suave); font-weight: 400; }
+
+.guia {
+  position: absolute; left: 10px; right: 10px; top: calc(62px + var(--arriba)); z-index: 1050;
+  display: flex; align-items: center; gap: 12px;
+  background: var(--superficie); border: 2px solid var(--principal); border-radius: 16px;
+  padding: 10px 8px 10px 12px; box-shadow: var(--sombra);
+}
+.guia-flecha { flex: none; width: 64px; height: 64px; fill: var(--principal); transition: transform .15s linear; }
+.guia-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.guia-txt b { font-size: 17px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.guia-txt span { font-size: 16px; font-weight: 600; }
+.guia-txt small { color: var(--suave); font-size: 12px; }
+.guia-txt .btn { margin-top: 6px; min-height: 38px; padding: 6px 10px; }
+.app.guiando .toast { top: calc(160px + var(--arriba)); }

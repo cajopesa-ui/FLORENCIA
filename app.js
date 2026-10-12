@@ -397,12 +397,12 @@ function pintarPanel() {
     $('#siguiente').innerHTML = `
       <div class="siguiente">
         <div class="etq">▶ SIGUIENTE · ${esc(diaInfo(ref).nombre.toUpperCase())}</div>
-        <h2>${esc(sig.nombre)}</h2>
+        <h2 class="sig-nombre" data-ficha="${esc(sig.clave)}">${esc(sig.nombre)} <span class="ver">›</span></h2>
         <div class="meta">${sig.hora ? esc(sig.hora) + ' · ' : ''}${esc(d)}</div>
         <div class="fila-botones">
-          <a class="btn btn-principal" href="${urlComoLlegar(sig.lat, sig.lng)}" target="_blank" rel="noopener">🧭 Cómo llegar</a>
+          <button class="btn btn-principal" data-guiar="${esc(sig.clave)}">🧭 Guiarme</button>
+          <a class="btn" href="${urlComoLlegar(sig.lat, sig.lng)}" target="_blank" rel="noopener">🗺️ Maps</a>
           <button class="btn" data-visto="${esc(sig.clave)}">✔ Hecho</button>
-          <button class="btn" data-ficha="${esc(sig.clave)}">Ver</button>
         </div>
       </div>`;
   } else {
@@ -511,7 +511,8 @@ function abrirFicha(clave) {
     ${x.nota ? `<div class="dato"><span class="etq">Nota</span>${esc(x.nota)}</div>` : ''}
     ${bus}
     <div class="fila-botones">
-      <a class="btn btn-principal" href="${urlComoLlegar(destino.lat, destino.lng)}" target="_blank" rel="noopener">🧭 Cómo llegar</a>
+      <button class="btn btn-principal" data-guiar="${esc(clave)}">🧭 Guiarme</button>
+      <a class="btn" href="${urlComoLlegar(destino.lat, destino.lng)}" target="_blank" rel="noopener">🗺️ Google Maps</a>
       ${bus ? `<a class="btn" href="${urlComoLlegar(destino.lat, destino.lng, 'transit')}" target="_blank" rel="noopener">🚌 En bus</a>` : ''}
     </div>
     <div class="fila-botones">
@@ -647,7 +648,7 @@ function alMoverme(pos) {
   const ll = [miPos.lat, miPos.lng];
   if (!marcaYo) {
     circuloYo = L.circle(ll, { radius: miPos.precision, color: '#2563eb', weight: 1, fillOpacity: .1, interactive: false }).addTo(mapa);
-    marcaYo = L.marker(ll, { icon: L.divIcon({ className: '', html: '<div class="yo"></div>', iconSize: [20, 20], iconAnchor: [10, 10] }), zIndexOffset: 2000, interactive: false }).addTo(mapa);
+    marcaYo = L.marker(ll, { icon: L.divIcon({ className: '', html: '<div class="yo-cont"><div class="yo-cono" hidden></div><div class="yo"></div></div>', iconSize: [64, 64], iconAnchor: [32, 32] }), zIndexOffset: 2000, interactive: false }).addTo(mapa);
   } else {
     marcaYo.setLatLng(ll);
     circuloYo.setLatLng(ll).setRadius(miPos.precision);
@@ -656,6 +657,9 @@ function alMoverme(pos) {
   // Si estoy en Florencia la primera vez, centrar en mí
   if (primera && distancia(miPos, { lat: 43.7696, lng: 11.2558 }) < 5000) mapa.setView(ll, Math.max(mapa.getZoom(), 16));
 
+  rumboPorGPS(pos.coords);
+  pintarRumbo();
+  actualizarGuia();
   comprobarCalles();
   pintarPanel();
   enviarPosicion();
@@ -735,6 +739,7 @@ function conectarEventos() {
   $('#ventana').addEventListener('click', (e) => { if (e.target.id === 'ventana') cerrarVentana(); });
 
   $('#btn-centrar').onclick = () => {
+    iniciarBrujula();
     if (!miPos) { mostrarToast('Buscando tu posición…'); return; }
     seguir = true;
     $('#btn-centrar').classList.add('activo');
@@ -802,6 +807,7 @@ function iniciarApp() {
   pintar();
   setTimeout(verDiaEnMapa, 50);
   iniciarChat();
+  iniciarGuiaBotones();
   conectar();
   refrescar();
   iniciarGPS();

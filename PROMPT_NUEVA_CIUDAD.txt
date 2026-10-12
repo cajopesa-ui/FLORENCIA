@@ -61,7 +61,7 @@ zona horaria.
 Archivos (mismos nombres):
   index.html, style.css, app.js, chat.js, config.js,
   datos/<ciudad>.json, sw.js, manifest.webmanifest, netlify.toml,
-  iconos/icono.svg + icono-180.png + icono-192.png + icono-512.png
+  brujula.js, iconos/icono.svg + icono-180.png + icono-192.png + icono-512.png
   (icono con un monumento típico de la ciudad, generado con Chromium/
   Playwright a partir del SVG), README.md en español.
 Código comentado en español, nombres de variables y funciones en español.
@@ -200,6 +200,21 @@ FICHA DE LUGAR O CALLE (ventana que sube desde abajo)
 - ✔ Visitado / ✔ Recorrida / ↩︎ Desmarcar.
 - Cambiar hora prevista y día. Notas compartidas con "💾 Guardar nota".
 - "Último cambio: <nombre>". En lugares añadidos: 🗑 Borrar (con confirmación).
+
+BRÚJULA Y MODO GUIARME (brujula.js)
+- Mi punto azul lleva un abanico azul de 60° que gira hacia donde miro:
+  'deviceorientationabsolute' en Android (rumbo = 360 - alpha) y
+  webkitCompassHeading en iPhone (pide permiso con
+  DeviceOrientationEvent.requestPermission, solo desde un toque: al
+  pulsar 📍 o 🧭). Se corrige con el giro de la pantalla y se suaviza.
+  Sin brújula se usa coords.heading del GPS al caminar (>0,7 m/s).
+- Botón "🧭 Guiarme" en la tarjeta Siguiente y en cada ficha (además de
+  "🗺️ Maps"). Muestra arriba un recuadro con una flecha grande que
+  apunta al destino (rumbo al destino - mi rumbo; "si apunta hacia
+  arriba, vas bien"), nombre, metros y minutos, y una línea de puntos
+  en el mapa de mí al destino (en calles, a su punto más cercano).
+  A <30 m: "🎉 ¡Has llegado!" + vibración + botón "✔ Marcar visitado".
+  ✕ termina la guía.
 
 AVISO AL PASAR CERCA
 - Si paso a <50 m de una calle del día no recorrida: aviso

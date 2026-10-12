@@ -18,7 +18,8 @@ las calles recomendadas, el transporte público y lo que vais marcando los dos e
 |---|---|
 | Cambiar de día | Pestañas de arriba (Mar 17, Mié 18, Jue 19, Todo) |
 | Ver un lugar | Toca su marcador, su calle o su fila en la lista |
-| Ir a un sitio | Botón **🧭 Cómo llegar** (abre Google Maps a pie) |
+| Ir a un sitio | **🧭 Guiarme**: flecha que apunta al destino (si apunta hacia arriba, vas bien) · **🗺️ Maps**: abre Google Maps |
+| Hacia dónde miro | Abanico azul en tu punto (brújula del móvil; en iPhone se activa al pulsar 📍 o 🧭) |
 | Marcar como visto | **✔ Hecho** o **✔ Visitado** (lo ve también la otra persona) |
 | Notas, hora o día | Dentro de la ficha de cada lugar |
 | Añadir un lugar nuevo | Mantén pulsado el mapa, o «＋ Añadir lugar» |
@@ -49,6 +50,7 @@ app.js                la lógica (mapa, GPS, sincronización)
 config.js             la dirección de la base de datos (clave pública)
 datos/florencia.json  lugares, calles y transporte (sale de tus 4 ficheros)
 chat.js               el chat (texto, fotos, voz y ubicación)
+brujula.js            brújula y modo «Guiarme»
 sw.js                 copia la app y el mapa para que funcione con mala cobertura
 manifest.webmanifest  para instalarla como app
 iconos/               iconos

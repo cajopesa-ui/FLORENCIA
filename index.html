@@ -60,6 +60,20 @@
       <button class="flotante" id="btn-centrar" aria-label="Centrar en mi posición">📍</button>
     </div>
 
+    <!-- Modo guía: flecha hacia el destino -->
+    <div id="guia" class="guia" hidden>
+      <svg id="guia-flecha" class="guia-flecha" viewBox="0 0 100 100" aria-label="Dirección al destino">
+        <path d="M50 6 L84 90 L50 72 L16 90 Z"/>
+      </svg>
+      <div class="guia-txt">
+        <b id="guia-nombre"></b>
+        <span id="guia-dist"></span>
+        <small id="guia-nota"></small>
+        <button class="btn btn-ok" id="guia-visto" hidden>✔ Marcar visitado</button>
+      </div>
+      <button class="icono-btn" id="guia-cerrar" aria-label="Terminar guía">✕</button>
+    </div>
+
     <div id="toast" class="toast" hidden></div>
 
     <section id="panel" class="panel">
@@ -115,5 +129,6 @@
   <script src="config.js"></script>
   <script src="app.js"></script>
   <script src="chat.js"></script>
+  <script src="brujula.js"></script>
 </body>
 </html>
