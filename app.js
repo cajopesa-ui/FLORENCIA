@@ -75,6 +75,7 @@ function puntoMasCercano(p, trazado) {
 
 function textoDistancia(m) {
   if (m == null) return '';
+  if (m > 50000) return `${Math.round(m / 1000)} km (estás lejos)`;
   const aPie = Math.max(1, Math.round(m * 1.3 / 80)); // ~4,8 km/h y calles no rectas
   const d = m < 1000 ? `${Math.round(m / 10) * 10} m` : `${(m / 1000).toFixed(1).replace('.', ',')} km`;
   return `${d} · ${aPie} min`;
@@ -405,6 +406,9 @@ function pintarPanel() {
   } else {
     $('#siguiente').innerHTML = `<div class="siguiente"><div class="etq">${esc(diaInfo(ref).nombre.toUpperCase())}</div><h2>¡Visitas del día completadas! 🎉</h2></div>`;
   }
+  $('#panel-resumen').innerHTML = sig
+    ? `<b>▶ Siguiente:</b> ${esc(sig.nombre)}${sig.hora ? ' · ' + esc(sig.hora) : ''}${miPos ? ' · ' + esc(textoDistancia(distancia(miPos, sig)).split(' · ')[0]) : ''}`
+    : '<b>🎉</b> Visitas del día completadas';
 
   // --- Lista ---
   const dias = diaSel === 'todo' ? DATOS.dias.map((d) => d.fecha) : [diaSel];
@@ -695,7 +699,7 @@ function verDiaEnMapa() {
   for (const l of todosLosLugares(est)) if (diaSel === 'todo' || l.dia === diaSel) puntos.push([l.lat, l.lng]);
   for (const c of todasLasCalles(est)) if (diaSel === 'todo' || c.dia === diaSel) c.trazado.forEach((lin) => lin.forEach((p) => puntos.push(p)));
   // Dejamos hueco abajo para que el panel no tape los puntos
-  const altoPanel = $('#panel').classList.contains('plegado') ? 160 : $('#panel').offsetHeight;
+  const altoPanel = $('#panel').offsetHeight;
   if (puntos.length) mapa.fitBounds(puntos, { paddingTopLeft: [30, 30], paddingBottomRight: [30, altoPanel + 20] });
 }
 
@@ -740,11 +744,17 @@ function conectarEventos() {
   };
   $('#btn-bus').onclick = abrirTransporte;
   $('#btn-ajustes').onclick = abrirAjustes;
-  $('#panel-asa').onclick = () => {
-    ajustes.plegado = !ajustes.plegado;
-    almacen.guardar('flo-ajustes', ajustes);
-    $('#panel').classList.toggle('plegado', ajustes.plegado);
-  };
+  // Mostrar / ocultar la zona de datos: tocando el botón o deslizando el dedo
+  let yInicio = null, deslizado = false;
+  $('#panel-asa').onclick = () => { if (!deslizado) plegarPanel(!ajustes.plegado); deslizado = false; };
+  $('#panel-resumen').onclick = () => plegarPanel(false);
+  $('#panel-asa').addEventListener('touchstart', (e) => { yInicio = e.touches[0].clientY; deslizado = false; }, { passive: true });
+  $('#panel-asa').addEventListener('touchend', (e) => {
+    if (yInicio == null) return;
+    const dy = e.changedTouches[0].clientY - yInicio;
+    yInicio = null;
+    if (Math.abs(dy) > 30) { deslizado = true; plegarPanel(dy > 0); } // abajo = ocultar, arriba = mostrar
+  });
   $('#lista').addEventListener('click', (e) => {
     if (e.target.id === 'btn-anadir') abrirNuevo(miPos ? L.latLng(miPos.lat, miPos.lng) : mapa.getCenter());
     if (e.target.id === 'btn-ver-dia') verDiaEnMapa();
@@ -760,6 +770,14 @@ function conectarEventos() {
   document.addEventListener('visibilitychange', () => { if (!document.hidden) { refrescar(); pintar(); } });
   setInterval(() => { if (!document.hidden) refrescar(); }, 10000); // por si falla el aviso instantáneo
   setInterval(pintar, 60000);                                       // avisos de horario y "hace X min"
+}
+
+function plegarPanel(plegado) {
+  ajustes.plegado = plegado;
+  almacen.guardar('flo-ajustes', ajustes);
+  $('#panel').classList.toggle('plegado', plegado);
+  $('#panel-txt').textContent = plegado ? '▲ Mostrar' : '▼ Ocultar';
+  $('#panel').scrollTop = 0;
 }
 
 function elegirDiaInicial() {
@@ -778,7 +796,7 @@ function iniciarApp() {
   diaSel = elegirDiaInicial();
   crearMapa();
   conectarEventos();
-  $('#panel').classList.toggle('plegado', !!ajustes.plegado);
+  plegarPanel(!!ajustes.plegado);
   pintar();
   setTimeout(verDiaEnMapa, 50);
   conectar();

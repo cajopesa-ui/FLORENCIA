@@ -62,10 +62,17 @@
     <div id="toast" class="toast" hidden></div>
 
     <section id="panel" class="panel">
-      <button id="panel-asa" class="panel-asa" aria-label="Mostrar u ocultar la lista"><span></span></button>
-      <div id="avisos"></div>
-      <div id="siguiente"></div>
-      <div id="lista" class="lista"></div>
+      <button id="panel-asa" class="panel-asa" aria-label="Mostrar u ocultar la lista">
+        <span class="raya-asa"></span>
+        <span id="panel-txt" class="panel-txt">▼ Ocultar</span>
+      </button>
+      <!-- Cuando está oculto solo se ve esta línea -->
+      <button id="panel-resumen" class="panel-resumen"></button>
+      <div id="panel-cuerpo">
+        <div id="avisos"></div>
+        <div id="siguiente"></div>
+        <div id="lista" class="lista"></div>
+      </div>
     </section>
   </div>
 
