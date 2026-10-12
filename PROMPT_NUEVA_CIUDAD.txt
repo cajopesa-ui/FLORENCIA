@@ -30,7 +30,8 @@ y espera a que te diga "adelante".
 1. QUÉ ES LA APP
 --------------------------------------------------------------------
 Una app web (PWA) para el móvil, compartida entre DOS personas que
-viajan juntas. Muestra un mapa con el GPS en tiempo real, las visitas
+viajan juntas. Muestra un mapa con el GPS en tiempo real y una brújula
+que indica hacia dónde miras y te guía con una flecha hasta cada sitio, las visitas
 de cada día, las calles recomendadas y el transporte público. Los
 cambios (visitado, notas, horas, lugares nuevos, chat) se sincronizan
 en tiempo real entre los dos móviles y NO se pierden al borrar los
@@ -159,7 +160,8 @@ CABECERA
 
 MAPA
 - Mi posición con GPS (watchPosition, alta precisión): punto azul +
-  círculo de precisión. Si estoy en la ciudad, la primera vez centra en mí.
+  círculo de precisión + abanico azul de la brújula (hacia dónde miro;
+  ver BRÚJULA más abajo). Si estoy en la ciudad, la primera vez centra en mí.
 - Visitas numeradas 1, 2, 3… por orden de hora y coloreadas por día.
   Opcionales: círculo blanco con borde del color y "+". Lugares
   añadidos: "★" cuadrado. Visitados: gris con ✔.
@@ -170,7 +172,8 @@ MAPA
   ABRE EL CHAT. Muestra insignia roja con mensajes sin leer.
 - Botones flotantes a la derecha (suben y bajan con el panel):
   💬 chat (con insignia), 👥 ir a la otra persona (solo si hay posición),
-  📍 centrar en mí y seguirme (se desactiva al arrastrar el mapa).
+  📍 centrar en mí y seguirme (se desactiva al arrastrar el mapa; en
+  iPhone este toque también pide el permiso de la brújula).
 - Mantener pulsado el mapa = añadir lugar nuevo.
 
 PANEL INFERIOR (zona de datos)
@@ -183,9 +186,9 @@ PANEL INFERIOR (zona de datos)
   aviso de atardecer si aplica; "🚌 Para bajar: buses…" si estoy a
   <350 m de un lugar de busCerca. Más los consejos del día (💡).
 - Tarjeta "▶ SIGUIENTE · DÍA": primera visita no hecha por orden de
-  hora, con hora, distancia y minutos a pie, botones 🧭 Cómo llegar
-  (Google Maps a pie), ✔ Hecho y Ver. Si todo hecho: "¡Visitas del día
-  completadas! 🎉".
+  hora, con hora, distancia y minutos a pie. El nombre ("Uffizi ›") abre
+  la ficha. Botones: 🧭 Guiarme (principal), 🗺️ Maps (Google Maps a pie)
+  y ✔ Hecho. Si todo hecho: "¡Visitas del día completadas! 🎉".
 - Lista: Visitas, Opcionales, Añadidos por vosotros, Calles
   imprescindibles, Calles fuera de ruta; con distancia a cada una.
   En "Todo", agrupado por día. Botones "＋ Añadir lugar" y "🔎 Ver el día".
@@ -196,7 +199,8 @@ FICHA DE LUGAR O CALLE (ventana que sube desde abajo)
 - Nombre, tipo, chip del día, distancia, horario, nota del fichero.
 - Recuadro de bus en los lugares de busCerca + botón "🚌 En bus"
   (Google Maps en transporte público).
-- 🧭 Cómo llegar (en calles: al punto más cercano de la calle).
+- 🧭 Guiarme (principal) y 🗺️ Google Maps a pie (en calles, ambos van
+  al punto más cercano de la calle). Guiarme cierra la ficha.
 - ✔ Visitado / ✔ Recorrida / ↩︎ Desmarcar.
 - Cambiar hora prevista y día. Notas compartidas con "💾 Guardar nota".
 - "Último cambio: <nombre>". En lugares añadidos: 🗑 Borrar (con confirmación).
@@ -277,7 +281,13 @@ DISEÑO
   ver que llega al otro, notas, modo sin conexión y cola, borrar datos
   del navegador y volver a entrar, panel ocultar/mostrar (tocar y
   deslizar), chat con texto/foto/audio (micrófono falso)/ubicación,
-  botones de cámara y galería, y que todo cabe en un iPhone SE.
+  botones de cámara y galería, brújula y Guiarme (simular la brújula con
+  window.dispatchEvent(new DeviceOrientationEvent('deviceorientationabsolute',
+  {alpha: 360 - rumbo, absolute: true})): comprobar que el abanico gira,
+  que la flecha queda recta al mirar al destino y que al acercar el GPS
+  falso sale "¡Has llegado!"), y que todo cabe en un iPhone SE.
+  Si das GPS en las pruebas, intercepta la llamada rpc/mi_posicion con
+  page.route para no guardar posiciones de prueba en el mapa real.
   Sirve los archivos con page.route (el proxy no deja usar localhost).
 - En ese entorno los WebSocket no pasan por el proxy: el tiempo real no
   se puede probar ahí; la sincronización cae al respaldo de 10 s.
