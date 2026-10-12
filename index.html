@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Florencia</title>
+  <meta name="description" content="Guía compartida del viaje a Florencia (17-19 de noviembre)">
+  <meta name="theme-color" content="#7c2d12">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="iconos/icono.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="iconos/icono-180.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Florencia">
+
+  <!-- Mapa: Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous"></script>
+  <!-- Base de datos compartida: Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js" crossorigin="anonymous"></script>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Pantalla de entrada: nombre + código de 4 dígitos -->
+  <div id="entrada" class="entrada" hidden>
+    <form id="form-entrada" class="entrada-caja">
+      <div class="entrada-logo">⚜️</div>
+      <h1>Florencia</h1>
+      <p class="sub">17 – 19 de noviembre</p>
+      <label>¿Cómo te llamas?
+        <input id="in-nombre" type="text" maxlength="20" autocomplete="nickname" required placeholder="Tu nombre">
+      </label>
+      <label>Código del viaje
+        <input id="in-codigo" type="password" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required placeholder="••••" autocomplete="off">
+      </label>
+      <button type="submit" class="btn btn-principal" id="btn-entrar">Entrar</button>
+      <p id="entrada-error" class="error" role="alert"></p>
+    </form>
+  </div>
+
+  <!-- App -->
+  <div id="app" class="app" hidden>
+    <header class="cabecera">
+      <nav id="dias" class="dias" aria-label="Días"></nav>
+      <div class="cabecera-botones">
+        <span id="sync" class="sync" title="Sincronización"></span>
+        <button class="icono-btn" id="btn-bus" aria-label="Transporte">🚌</button>
+        <button class="icono-btn" id="btn-ajustes" aria-label="Ajustes">⚙️</button>
+      </div>
+    </header>
+
+    <div id="mapa" class="mapa"></div>
+
+    <div class="flotantes">
+      <button class="flotante" id="btn-otro" aria-label="Ver a la otra persona" hidden>👥</button>
+      <button class="flotante" id="btn-centrar" aria-label="Centrar en mi posición">📍</button>
+    </div>
+
+    <div id="toast" class="toast" hidden></div>
+
+    <section id="panel" class="panel">
+      <button id="panel-asa" class="panel-asa" aria-label="Mostrar u ocultar la lista"><span></span></button>
+      <div id="avisos"></div>
+      <div id="siguiente"></div>
+      <div id="lista" class="lista"></div>
+    </section>
+  </div>
+
+  <!-- Ventana para fichas, ajustes, transporte... -->
+  <dialog id="ventana" class="ventana">
+    <div id="ventana-contenido"></div>
+  </dialog>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
