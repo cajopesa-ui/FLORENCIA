@@ -101,6 +101,7 @@ let posiciones = [];                                // posiciones GPS de los dos
 let pendientes = almacen.leer('flo-pendientes', []); // cambios aún sin enviar
 let miPos = null;                                   // mi posición GPS
 let diaSel = null;                                  // fecha seleccionada o 'todo'
+const parteElegida = {};                            // días con dos ciudades: { fecha: 'pisa' } elegido a mano
 let seguir = false;                                 // el mapa sigue mi posición
 let ultimaLectura = 0;                              // ms de la última lectura correcta
 const avisadas = new Set();                         // calles ya avisadas por cercanía
@@ -228,10 +229,40 @@ function todasLasCalles(est) {
   return DATOS.calles.map((c) => Object.assign({ clave: `calle:${c.id}`, clase: 'calle' }, c, est[`calle:${c.id}`] || {}));
 }
 
-// Visitas principales del día ordenadas por hora (con su número).
-function visitasDelDia(lugares, fecha) {
+// ---------- Días con dos ciudades (ej. viernes: Pisa por la mañana, Lucca por la tarde) ----------
+
+function partesDe(fecha) { return diaInfo(fecha).partes || null; }
+
+// Qué ciudad se ve ese día: la elegida a mano; si no, la que tengo cerca;
+// si no, según la hora (si es hoy); si no, la primera.
+function parteActual(fecha) {
+  const partes = partesDe(fecha);
+  if (!partes) return null;
+  if (parteElegida[fecha]) return parteElegida[fecha];
+  if (miPos) {
+    const cerca = partes.map((pt) => ({ id: pt.id, d: distancia(miPos, pt) })).sort((a, b) => a.d - b.d)[0];
+    if (cerca.d < 15000) return cerca.id;
+  }
+  const { fecha: hoy, minutos } = ahora();
+  if (hoy === fecha) {
+    const porHora = partes.filter((pt) => pt.desde && aMinutos(pt.desde) <= minutos).pop();
+    if (porHora) return porHora.id;
+  }
+  return partes[0].id;
+}
+
+// ¿Este lugar o calle pertenece a la ciudad que se está viendo?
+function enParte(x, fecha = x.dia) {
+  if (!partesDe(fecha) || !x.parte) return true;
+  return x.parte === parteActual(fecha);
+}
+
+function parteInfo(fecha, id) { return (partesDe(fecha) || []).find((pt) => pt.id === id); }
+
+// Visitas principales del día (y de su ciudad, si tiene dos) ordenadas por hora.
+function visitasDelDia(lugares, fecha, parte) {
   return lugares
-    .filter((l) => l.dia === fecha && l.clase === 'lugar' && !l.opcional && l.hora)
+    .filter((l) => l.dia === fecha && l.clase === 'lugar' && !l.opcional && l.hora && (!parte || !l.parte || l.parte === parte))
     .sort((a, b) => a.hora.localeCompare(b.hora));
 }
 
@@ -272,6 +303,27 @@ function pintarDias() {
   const todo = diaSel === 'todo';
   botones.push(`<button class="dia ${todo ? 'activo' : ''}" style="${todo ? 'background:#374151;border-color:#374151' : ''}" data-dia="todo">Todo</button>`);
   $('#dias').innerHTML = botones.join('');
+
+  // Selector de ciudad (solo en los días con dos ciudades)
+  const partes = diaSel !== 'todo' && partesDe(diaSel);
+  const nav = $('#partes');
+  nav.hidden = !partes;
+  if (partes) {
+    const color = diaInfo(diaSel).color, actual = parteActual(diaSel);
+    nav.style.setProperty('--color-dia', color);
+    nav.innerHTML = partes.map((pt) => `<button class="parte ${pt.id === actual ? 'activa' : ''}" data-parte="${pt.id}">
+        ${pt.icono} <b>${esc(pt.nombre)}</b> <small>${esc(pt.momento.toLowerCase())}</small></button>`).join('');
+  }
+  medirCabecera();
+}
+
+// La guía y los avisos se colocan justo debajo de la cabecera (que crece con el selector de ciudad)
+let altoCabAnterior = 0;
+function medirCabecera() {
+  const alto = $('.cabecera').offsetHeight + ($('#partes').hidden ? 0 : $('#partes').offsetHeight);
+  $('#app').style.setProperty('--alto-cab', alto + 'px');
+  // Si el selector de ciudad aparece o desaparece, el mapa cambia de tamaño: avisar a Leaflet
+  if (alto !== altoCabAnterior) { altoCabAnterior = alto; if (mapa) mapa.invalidateSize(); }
 }
 
 function pintarMapa() {
@@ -279,10 +331,11 @@ function pintarMapa() {
   const est = estadoActual();
   const lugares = todosLosLugares(est);
   const verDia = (fecha) => diaSel === 'todo' || diaSel === fecha;
+  const ver = (x) => verDia(x.dia) && (diaSel === 'todo' || enParte(x));
 
   // Calles (debajo de los marcadores)
   for (const c of todasLasCalles(est)) {
-    if (!verDia(c.dia)) continue;
+    if (!ver(c)) continue;
     if (c.grupo === 'imprescindible' && !ajustes.imprescindibles) continue;
     if (c.grupo === 'fuera' && !ajustes.fuera) continue;
     if (c.visitado && ajustes.ocultarVistos) continue;
@@ -301,10 +354,14 @@ function pintarMapa() {
 
   // Marcadores de lugares
   const numeros = new Map();
-  for (const d of DATOS.dias) visitasDelDia(lugares, d.fecha).forEach((l, i) => numeros.set(l.clave, i + 1));
+  for (const d of DATOS.dias) {
+    for (const pt of d.partes || [null]) {
+      visitasDelDia(lugares, d.fecha, pt && pt.id).forEach((l, i) => numeros.set(l.clave, i + 1));
+    }
+  }
 
   for (const l of lugares) {
-    if (!verDia(l.dia)) continue;
+    if (!ver(l)) continue;
     if (l.opcional && !ajustes.opcionales) continue;
     if (l.visitado && ajustes.ocultarVistos) continue;
     const color = diaInfo(l.dia).color;
@@ -363,17 +420,29 @@ function pintarPanel() {
 
   // --- Avisos (solo si el día que miras es hoy) ---
   const avisos = [];
+  const parteRef = parteActual(ref);
   if (ref === hoy) {
+    const atardecer = diaInfo(hoy).atardecer;
     for (const l of lugares) {
-      if (l.dia !== hoy || l.visitado || !l.cierra) continue;
-      const quedan = aMinutos(l.cierra) - minutos;
-      if (quedan > 0 && quedan <= 60) {
-        avisos.push(`<div class="aviso ${quedan <= 30 ? 'urgente' : ''}">⏰ ${esc(l.nombre)} cierra a las ${esc(l.cierra)} (quedan ${quedan} min)</div>`);
+      if (l.dia !== hoy || l.visitado || !enParte(l, hoy)) continue;
+      if (l.cierra) {
+        const quedan = aMinutos(l.cierra) - minutos;
+        if (quedan > 0 && quedan <= 60) {
+          avisos.push(`<div class="aviso ${quedan <= 30 ? 'urgente' : ''}">⏰ ${esc(l.nombre)} cierra a las ${esc(l.cierra)} (quedan ${quedan} min)</div>`);
+        }
       }
-    }
-    const piazzale = lugares.find((l) => l.id === 'michelangelo');
-    if (piazzale && piazzale.dia === hoy && !piazzale.visitado && minutos >= 15 * 60 + 30 && minutos < 16 * 60 + 50) {
-      avisos.push('<div class="aviso">🌅 El atardecer es hacia las 16:50: no llegues tarde al Piazzale Michelangelo.</div>');
+      if (l.salida && l.hora) {                       // tren o bus con hora de salida
+        const quedan = aMinutos(l.hora) - minutos;
+        if (quedan > 0 && quedan <= 45) {
+          avisos.push(`<div class="aviso ${quedan <= 15 ? 'urgente' : ''}">${esc(l.nombre)}: sale a las ${esc(l.hora)} (quedan ${quedan} min)</div>`);
+        }
+      }
+      if (l.antesAtardecer && atardecer) {
+        const quedan = aMinutos(atardecer) - minutos;
+        if (quedan > 0 && quedan <= 80) {
+          avisos.push(`<div class="aviso">🌅 El atardecer es hacia las ${esc(atardecer)}: no llegues tarde a ${esc(l.nombre)}.</div>`);
+        }
+      }
     }
   }
   if (miPos) {
@@ -382,21 +451,22 @@ function pintarPanel() {
       .some((l) => l && distancia(miPos, l) < 350);
     if (cercaBus) avisos.push('<div class="aviso">🚌 Para bajar: buses 12 y 13. Billete 2 € (90 min), puedes pagar acercando la tarjeta.</div>');
   }
-  const consejos = (DATOS.consejos[ref] || []).map((c) => `<p class="consejo">💡 ${esc(c)}</p>`);
+  const consejos = [...(DATOS.consejos[ref] || []), ...(parteRef ? DATOS.consejos[`${ref}:${parteRef}`] || [] : [])]
+    .map((c) => `<p class="consejo">💡 ${esc(c)}</p>`);
   $('#avisos').innerHTML = avisos.join('') + consejos.join('');
 
   // --- Siguiente visita ---
-  const pendientesDia = visitasDelDia(lugares, ref).filter((l) => !l.visitado);
+  const pendientesDia = visitasDelDia(lugares, ref, parteRef).filter((l) => !l.visitado);
   let sig = pendientesDia[0];
   if (!sig && miPos) {
-    sig = lugares.filter((l) => l.dia === ref && !l.visitado)
+    sig = lugares.filter((l) => l.dia === ref && !l.visitado && enParte(l, ref))
       .sort((a, b) => distancia(miPos, a) - distancia(miPos, b))[0];
   }
   if (sig) {
     const d = miPos ? textoDistancia(distancia(miPos, sig)) : 'activa el GPS para ver la distancia';
     $('#siguiente').innerHTML = `
       <div class="siguiente">
-        <div class="etq">▶ SIGUIENTE · ${esc(diaInfo(ref).nombre.toUpperCase())}</div>
+        <div class="etq">▶ SIGUIENTE · ${esc(diaInfo(ref).nombre.toUpperCase())}${parteRef ? ' · ' + esc(parteInfo(ref, parteRef).nombre.toUpperCase()) : ''}</div>
         <h2 class="sig-nombre" data-ficha="${esc(sig.clave)}">${esc(sig.nombre)} <span class="ver">›</span></h2>
         <div class="meta">${sig.hora ? esc(sig.hora) + ' · ' : ''}${esc(d)}</div>
         <div class="fila-botones">
@@ -406,7 +476,7 @@ function pintarPanel() {
         </div>
       </div>`;
   } else {
-    $('#siguiente').innerHTML = `<div class="siguiente"><div class="etq">${esc(diaInfo(ref).nombre.toUpperCase())}</div><h2>¡Visitas del día completadas! 🎉</h2></div>`;
+    $('#siguiente').innerHTML = `<div class="siguiente"><div class="etq">${esc(diaInfo(ref).nombre.toUpperCase())}${parteRef ? ' · ' + esc(parteInfo(ref, parteRef).nombre.toUpperCase()) : ''}</div><h2>¡Visitas ${parteRef ? 'de ' + esc(parteInfo(ref, parteRef).nombre) : 'del día'} completadas! 🎉</h2></div>`;
   }
   $('#panel-resumen').innerHTML = sig
     ? `<b>▶ Siguiente:</b> ${esc(sig.nombre)}${sig.hora ? ' · ' + esc(sig.hora) : ''}${miPos ? ' · ' + esc(textoDistancia(distancia(miPos, sig)).split(' · ')[0]) : ''}`
@@ -415,15 +485,30 @@ function pintarPanel() {
   // --- Lista ---
   const dias = diaSel === 'todo' ? DATOS.dias.map((d) => d.fecha) : [diaSel];
   let html = '';
+  // Bloques a listar: un día entero, o cada ciudad de un día con dos ciudades
+  const bloques = [];
   for (const fecha of dias) {
+    const partes = partesDe(fecha);
+    if (!partes) bloques.push({ fecha, parte: null });
+    else if (diaSel === 'todo') partes.forEach((pt) => bloques.push({ fecha, parte: pt.id }));
+    else bloques.push({ fecha, parte: parteActual(fecha) });
+  }
+  let fechaAnterior = null;
+  for (const { fecha, parte } of bloques) {
     const info = diaInfo(fecha);
-    if (diaSel === 'todo') html += `<h3 style="color:${info.color}">${esc(info.nombre)} · ${esc(info.zona)}</h3>`;
-    const visitas = visitasDelDia(lugares, fecha);
-    const sinHora = lugares.filter((l) => l.dia === fecha && l.clase === 'lugar' && !l.opcional && !l.hora);
-    const opcionales = lugares.filter((l) => l.dia === fecha && l.clase === 'lugar' && l.opcional);
-    const extras = lugares.filter((l) => l.dia === fecha && l.clase === 'extra');
-    const imp = calles.filter((c) => c.dia === fecha && c.grupo === 'imprescindible');
-    const fuera = calles.filter((c) => c.dia === fecha && c.grupo === 'fuera');
+    if (diaSel === 'todo' && fecha !== fechaAnterior) html += `<h3 style="color:${info.color}">${esc(info.nombre)} · ${esc(info.zona)}</h3>`;
+    fechaAnterior = fecha;
+    if (parte) {
+      const pt = parteInfo(fecha, parte);
+      html += `<div class="titulo-parte" style="--color-dia:${info.color}">${pt.icono} ${esc(pt.momento)} · ${esc(pt.nombre)}</div>`;
+    }
+    const deAqui = (x) => x.dia === fecha && (!parte || !x.parte || x.parte === parte);
+    const visitas = visitasDelDia(lugares, fecha, parte);
+    const sinHora = lugares.filter((l) => deAqui(l) && l.clase === 'lugar' && !l.opcional && !l.hora);
+    const opcionales = lugares.filter((l) => deAqui(l) && l.clase === 'lugar' && l.opcional);
+    const extras = lugares.filter((l) => deAqui(l) && l.clase === 'extra');
+    const imp = calles.filter((c) => deAqui(c) && c.grupo === 'imprescindible');
+    const fuera = calles.filter((c) => deAqui(c) && c.grupo === 'fuera');
 
     const sub = (titulo) => (diaSel === 'todo' ? `<h3 style="font-size:12px;margin-top:6px">${titulo}</h3>` : `<h3>${titulo}</h3>`);
     html += sub('Visitas');
@@ -565,8 +650,12 @@ function abrirNuevo(latlng) {
     const nombre = $('#n-nombre').value.trim();
     if (!nombre) { $('#n-nombre').focus(); return; }
     const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    const dia = $('#n-dia').value;
+    // En un día con dos ciudades, el lugar va a la ciudad más cercana al punto
+    const partes = partesDe(dia);
+    const parte = partes ? partes.map((pt) => ({ id: pt.id, d: distancia(latlng, pt) })).sort((a, b) => a.d - b.d)[0].id : null;
     cambiar(`extra:${id}`, {
-      nombre, dia: $('#n-dia').value, hora: $('#n-hora').value || null,
+      nombre, dia, parte, hora: $('#n-hora').value || null,
       nota: $('#n-nota').value.trim(), lat: +latlng.lat.toFixed(6), lng: +latlng.lng.toFixed(6)
     });
     cerrarVentana();
@@ -576,14 +665,20 @@ function abrirNuevo(latlng) {
 }
 
 function abrirTransporte() {
-  const t = DATOS.transporte;
-  abrirVentana(`
-    <h2>🚌 Transporte</h2>
+  // Primero el transporte del día que estás viendo; las demás zonas, plegadas debajo
+  const zonas = DATOS.transporte.zonas;
+  const primera = diaInfo(diaReferencia()).transporte || Object.keys(zonas)[0];
+  const orden = [primera, ...Object.keys(zonas).filter((k) => k !== primera)];
+  const bloque = (t) => `
     <p class="tipo">${esc(t.resumen)}</p>
     <div class="dato"><span class="etq">Cuándo sí te conviene</span><ul>${t.cuando.map((c) => `<li>${esc(c)}</li>`).join('')}</ul></div>
-    <div class="dato"><span class="etq">Billetes</span><ul>${t.billetes.map((c) => `<li>${esc(c)}</li>`).join('')}</ul></div>
+    <div class="dato"><span class="etq">Billetes y pago</span><ul>${t.billetes.map((c) => `<li>${esc(c)}</li>`).join('')}</ul></div>
     <div class="caja-bus">⚠️ ${esc(t.aviso)}</div>
-    <a class="btn" style="width:100%" href="https://www.at-bus.it" target="_blank" rel="noopener">Web de Autolinee Toscane</a>
+    ${t.enlace ? `<a class="btn" style="width:100%" href="${esc(t.enlace.url)}" target="_blank" rel="noopener">${esc(t.enlace.texto)}</a>` : ''}`;
+  abrirVentana(`
+    <h2>🚌 Transporte · ${esc(zonas[primera].titulo)}</h2>
+    ${bloque(zonas[primera])}
+    ${orden.slice(1).map((k) => `<details class="otra-zona"><summary>🚌 ${esc(zonas[k].titulo)}</summary>${bloque(zonas[k])}</details>`).join('')}
     <p class="consejo" style="margin-top:12px">${esc(DATOS.avisoGeneral)}</p>
   `);
 }
@@ -655,7 +750,9 @@ function alMoverme(pos) {
   }
   if (seguir) mapa.panTo(ll);
   // Si estoy en Florencia la primera vez, centrar en mí
-  if (primera && distancia(miPos, { lat: 43.7696, lng: 11.2558 }) < 5000) mapa.setView(ll, Math.max(mapa.getZoom(), 16));
+  if (primera && DATOS.lugares.some((l) => distancia(miPos, l) < 3000)) mapa.setView(ll, Math.max(mapa.getZoom(), 16));
+  // En un día con dos ciudades, al saber dónde estoy puede cambiar la ciudad que se ve
+  if (primera && diaSel !== 'todo' && partesDe(diaSel)) { pintar(); setTimeout(verDiaEnMapa, 50); }
 
   rumboPorGPS(pos.coords);
   pintarRumbo();
@@ -702,8 +799,9 @@ function comprobarCalles() {
 function verDiaEnMapa() {
   const est = estadoActual();
   const puntos = [];
-  for (const l of todosLosLugares(est)) if (diaSel === 'todo' || l.dia === diaSel) puntos.push([l.lat, l.lng]);
-  for (const c of todasLasCalles(est)) if (diaSel === 'todo' || c.dia === diaSel) c.trazado.forEach((lin) => lin.forEach((p) => puntos.push(p)));
+  const ver = (x) => diaSel === 'todo' || (x.dia === diaSel && enParte(x));
+  for (const l of todosLosLugares(est)) if (ver(l)) puntos.push([l.lat, l.lng]);
+  for (const c of todasLasCalles(est)) if (ver(c)) c.trazado.forEach((lin) => lin.forEach((p) => puntos.push(p)));
   // Dejamos hueco abajo para que el panel no tape los puntos
   const altoPanel = $('#panel').offsetHeight;
   if (puntos.length) mapa.fitBounds(puntos, { paddingTopLeft: [30, 30], paddingBottomRight: [30, altoPanel + 20] });
@@ -723,10 +821,15 @@ function crearMapa() {
 function conectarEventos() {
   // Clics dentro de la app (un solo "escuchador" para todo)
   document.addEventListener('click', (e) => {
-    const el = e.target.closest('[data-dia],[data-ficha],[data-visto],[data-cerrar]');
+    const el = e.target.closest('[data-dia],[data-parte],[data-ficha],[data-visto],[data-cerrar]');
     if (!el) return;
-    if (el.dataset.dia) {
+    if (el.dataset.parte) {
+      parteElegida[diaSel] = el.dataset.parte;
+      pintar();
+      setTimeout(verDiaEnMapa, 50);
+    } else if (el.dataset.dia) {
       diaSel = el.dataset.dia;
+      delete parteElegida[diaSel];                    // al volver al día, la app vuelve a elegir la ciudad sola
       almacen.guardar('flo-dia', { dia: diaSel, fecha: ahora().fecha });
       pintar();
       setTimeout(verDiaEnMapa, 50);
@@ -768,6 +871,7 @@ function conectarEventos() {
   });
 
   // Los botones flotantes suben y bajan con el panel
+  window.addEventListener('resize', medirCabecera);
   new ResizeObserver(() => {
     $('#app').style.setProperty('--alto-panel', $('#panel').offsetHeight + 'px');
   }).observe($('#panel'));

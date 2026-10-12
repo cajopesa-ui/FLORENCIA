@@ -76,15 +76,27 @@ textos tal cual. Estructura:
   "dias": [{ "fecha":"AAAA-MM-DD", "nombre":"Martes 17", "corto":"Mar 17",
              "color":"#c2410c", "zona":"Uffizi y Oltrarno" }, ...],
       colores por día: #c2410c, #1d4ed8, #047857 (y más si hay más días)
-  "consejos": { "AAAA-MM-DD": ["consejo del día", ...] },
+  Día con DOS CIUDADES (ej. Pisa por la mañana y Lucca por la tarde):
+    el día lleva "partes": [{ "id":"pisa","nombre":"Pisa","momento":"Mañana",
+      "icono":"🌅","lat","lng" (centro) }, { "id":"lucca", ..., "icono":"🌇",
+      "desde":"14:20" (hora a partir de la que toca esa ciudad) }]
+    y cada lugar/calle de ese día lleva "parte":"pisa" o "lucca".
+  Cada día puede llevar "atardecer":"16:50" y "transporte":"<zona>".
+  "consejos": { "AAAA-MM-DD": [...], "AAAA-MM-DD:<parte>": [...] },
       (sacados de mis ficheros: atardecer, bus, "todo a pie", etc.)
   "lugares": [{ "id","dia","nombre","tipo","hora"(o null si opcional),
                 "horario" (texto), "cierra":"HH:MM" (si aplica),
-                "nota","opcional":bool,"lat","lng" }],
+                "nota","opcional":bool,"lat","lng",
+                "antesAtardecer":true (aviso de atardecer, opcional),
+                "salida":true (tren/bus con hora: aviso "sale en N min") }],
+      Un tren entre ciudades se pone como una visita más (ej. "🚆 Tren a
+      Lucca (Pisa Centrale)" a las 14:20) para poder usar Guiarme hasta
+      la estación.
   "calles": [{ "id","dia","grupo":"imprescindible"|"fuera","nombre",
                "tipo","nota","trazado":[[[lat,lng],...], ...] }],
                (coordenadas redondeadas a 5 decimales)
-  "transporte": { "resumen", "cuando":[...], "billetes":[...], "aviso",
+  "transporte": { "zonas": { "<zona>": { "titulo","resumen","cuando":[...],
+                  "billetes":[...],"aviso","enlace":{"texto","url"} }, ... },
                   "busCerca":[ids de lugares donde conviene el bus] },
   "avisoGeneral": "Recuerda comprobar los horarios..."
 }
@@ -157,6 +169,18 @@ CABECERA
   Se deslizan si no caben. Al cambiar de día el mapa encuadra ese día.
 - Punto de sincronización: verde (al día), naranja (enviando), gris (sin red).
 - Botones 🚌 (transporte) y ⚙️ (ajustes).
+- DÍAS CON DOS CIUDADES: debajo de las pestañas sale un selector de dos
+  botones grandes ("🌅 Pisa mañana" / "🌇 Lucca tarde") con el color del
+  día. El mapa, la numeración (1, 2, 3… por ciudad), la tarjeta
+  Siguiente, los avisos, los consejos y la lista muestran SOLO la ciudad
+  elegida (no se mezclan: están a ~20 km y el mapa se alejaría
+  demasiado). La ciudad se elige sola: la que tengo a <15 km por GPS; si
+  no, según la hora ("desde") si es ese día; si no, la primera. Tocar un
+  botón la fija hasta volver a tocar la pestaña del día. En "Todo" se
+  listan las dos con un título de color por ciudad. Los lugares añadidos
+  a mano ese día van a la ciudad más cercana. Al aparecer el selector,
+  llamar a mapa.invalidateSize() y bajar la guía y los avisos (variable
+  CSS --alto-cab).
 
 MAPA
 - Mi posición con GPS (watchPosition, alta precisión): punto azul +
@@ -183,7 +207,9 @@ PANEL INFERIOR (zona de datos)
   Recuerda si estaba oculto.
 - Avisos (solo si el día seleccionado es hoy, con hora de la ciudad):
   "⏰ X cierra a las HH:MM (quedan N min)" si quedan <=60 min (rojo <=30);
-  aviso de atardecer si aplica; "🚌 Para bajar: buses…" si estoy a
+  "🌅 El atardecer es hacia las X: no llegues tarde a Y" (lugares con
+  antesAtardecer, 80 min antes); "🚆 Tren…: sale a las HH:MM (quedan N min)"
+  (lugares con salida, 45 min antes, rojo <=15); "🚌 Para bajar: buses…" si estoy a
   <350 m de un lugar de busCerca. Más los consejos del día (💡).
 - Tarjeta "▶ SIGUIENTE · DÍA": primera visita no hecha por orden de
   hora, con hora, distancia y minutos a pie. El nombre ("Uffizi ›") abre
@@ -225,8 +251,9 @@ AVISO AL PASAR CERCA
   "📍 Estás junto a <calle>" con su nota + vibración (una vez por calle;
   se puede desactivar en ajustes). Tocarlo abre la ficha.
 
-TRANSPORTE (🚌): resumen, cuándo conviene, billetes, aviso, enlace a la
-web de la empresa de transporte local y aviso general de horarios.
+TRANSPORTE (🚌): primero la zona del día que se está viendo (resumen,
+cuándo conviene, billetes y pago, aviso, enlace a la web de transporte);
+las demás zonas plegadas debajo (<details>). Aviso general de horarios.
 
 AJUSTES (⚙️): ver opcionales / calles imprescindibles / calles fuera de
 ruta / ocultar visitados / avisos de calles cercanas; "🔄 Actualizar
