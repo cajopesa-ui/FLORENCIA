@@ -455,7 +455,7 @@ function pintarPanel() {
       if (l.antesAtardecer && atardecer) {
         const quedan = aMinutos(atardecer) - minutos;
         if (quedan > 0 && quedan <= 80) {
-          avisos.push(`<div class="aviso">🌅 El atardecer es hacia las ${esc(atardecer)}: no llegues tarde a ${esc(l.nombre)}.</div>`);
+          avisos.push(`<div class="aviso">${l.avisoAtardecer ? esc(l.avisoAtardecer) : `🌅 El atardecer es hacia las ${esc(atardecer)}: no llegues tarde a ${esc(l.nombre)}.`}</div>`);
         }
       }
     }

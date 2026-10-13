@@ -201,6 +201,14 @@ CABECERA
   primera visita" arriba y el nombre corto abajo (ej. "🍷 09:45" /
   "Greve"). El nombre corto debe caber en 320 px (ej. "Costanza", no
   "V. Costanza").
+  Con 7 días (8 pestañas) y 5 pueblos también tienen que caber: añadir
+  un @media (max-width: 359px) con letra y márgenes algo menores, y usar
+  nombres cortos de ~7 letras cuando hay 5 pueblos ("Oliveto",
+  "Quirico", "Vignoni"). Medir en 320 px que nada sale ni se corta.
+- Paradas de salida en coche sin hora fija (ej. "🚗 A Siena a dormir",
+  "🚗 Vuelta a Florencia") y opcionales lejanos llevan sinEncuadre.
+- Un lugar puede llevar "avisoAtardecer" con su propio texto de aviso
+  (ej. un mirador: "ve a Via del Casello para verlo").
 - TARJETA "SIGUIENTE CIUDAD": al hacer todas las visitas de una ciudad,
   la tarjeta pasa a "✔ GREVE TERMINADO · SIGUIENTE → 🥩 Panzano", con el
   texto de "llegar", la hora de la primera visita y los botones

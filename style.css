@@ -365,3 +365,18 @@ input, textarea, select { font: inherit; }
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .panel-txt { flex: none; }
+
+/* Móviles muy estrechos (iPhone SE, 320 px): todo un poco más compacto para que quepan 7 días y 5 pueblos */
+@media (max-width: 359px) {
+  .cabecera { padding-left: 4px; padding-right: 4px; gap: 3px; }
+  .dias { gap: 2px; }
+  .dia { border-width: 1.5px; border-radius: 8px; }
+  .dia .d-sem { font-size: 9px; letter-spacing: 0; }
+  .dia .d-num { font-size: 14px; }
+  .dia .d-num.txt { font-size: 10px; }
+  .cabecera-botones .icono-btn { width: 28px; font-size: 17px; }
+  .partes.compacto { gap: 3px; padding-left: 4px; padding-right: 4px; }
+  .partes.compacto .parte { padding: 3px 1px; }
+  .partes.compacto .parte small { font-size: 10px; }
+  .partes.compacto .parte b { font-size: 11.5px; }
+}

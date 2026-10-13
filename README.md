@@ -1,4 +1,4 @@
-# Florencia (17-19), Pisa-Lucca (20) y Chianti (21 de noviembre)
+# Florencia (17-19), Pisa-Lucca (20), Chianti (21) y Toscana sur (22-23 de noviembre)
 
 App web compartida para el viaje: mapa con tu posición GPS, las visitas de cada día,
 las calles recomendadas, el transporte público y lo que vais marcando los dos en tiempo real.
@@ -16,9 +16,11 @@ las calles recomendadas, el transporte público y lo que vais marcando los dos e
 
 | Qué | Cómo |
 |---|---|
-| Cambiar de día | Pestañas de arriba (Mar 17, Mié 18, Jue 19, Vie 20, Sáb 21, Todo) |
+| Cambiar de día | Pestañas de arriba (Mar 17 … Lun 23, y Todo) |
 | Viernes: Pisa o Lucca | Debajo de las pestañas: **🌅 Pisa · mañana** / **🌇 Lucca · tarde**. Se elige sola según dónde estés o la hora |
 | Sábado: los 3 pueblos | Botones **🍷 Greve · 🥩 Panzano · 🏰 Castellina** (con la hora de cada uno). Al terminar uno, «Siguiente» propone el siguiente con **🚗 Ir en coche** |
+| Domingo: 5 pueblos | **🏘️ Asciano · ⛪ Oliveto · 🌳 Quirico · ♨️ Vignoni · 🧀 Pienza** (noche en Siena) |
+| Lunes: 3 pueblos | **🏰 Monteriggioni · 🗼 S. Gimignano · 🐎 Siena** (vuelta a Florencia) |
 | Dónde estoy | Junto a ▼ Ocultar / ▲ Mostrar sale **📍 la localidad** según tu GPS |
 | Consejos del día | Plegados en «💡 Consejos (n)»: tócalo para verlos |
 | Ver un lugar | Toca su marcador, su calle o su fila en la lista |
