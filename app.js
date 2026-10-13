@@ -301,7 +301,7 @@ function pintarDias() {
     const estilo = activo ? `background:${d.color};border-color:${d.color}` : `border-color:${d.color};color:${d.color}`;
     const [semana, numero] = d.corto.split(' ');       // "Sáb 21" -> "Sáb" y "21"
     return `<button class="dia ${activo ? 'activo' : ''}" style="${estilo}" data-dia="${d.fecha}" aria-label="${esc(d.nombre)}">
-        <span class="d-sem ${d.fecha === hoy ? 'hoy' : ''}">${d.fecha === hoy ? 'HOY' : esc(semana)}</span><span class="d-num">${esc(numero)}</span></button>`;
+        <span class="d-sem ${d.fecha === hoy ? 'hoy' : ''}">${d.fecha === hoy ? 'HOY' : esc(semana)}</span><span class="d-num ${/\d/.test(numero) ? '' : 'txt'}">${esc(numero)}</span></button>`;
   });
   const todo = diaSel === 'todo';
   botones.push(`<button class="dia ${todo ? 'activo' : ''}" style="${todo ? 'background:#374151;border-color:#374151' : ''}" data-dia="todo" aria-label="Todos los días">
