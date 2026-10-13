@@ -350,12 +350,31 @@ DISEÑO
 - Datos: "esquema": { titulo, subtitulo, dias:[{fecha, corto, zona,
   resumen, modo, icono, noche, ruta:[[lat,lng]…], tren, rutaTexto,
   color}], hoteles:[{id, nombre, noches, zona, lat, lng, notas:[…],
-  hotel, estrellas, direccion, fechas, entrada, salida}], porque:[…] }.
+  hotel, estrellas, direccion, fechas, entrada, salida}],
+  puntos:[{id, nombre, icono, lat, lng, titulo, notas:[…]}], porque:[…] }.
   Con la reserva (captura de Booking, etc.) saca nombre, estrellas,
   dirección y horas de entrada/salida, y geolocaliza la dirección exacta
-  con Nominatim. Sin dirección, el hotel va en su ZONA (aproximada).
+  con Nominatim. Ojo: en Booking los CUADRADITOS amarillos son una
+  valoración de Booking, no estrellas oficiales (no los pongas como ★).
+  Si Nominatim solo encuentra la calle (sin el número), avísame de que
+  el punto es aproximado. Sin dirección, el hotel va en su ZONA.
+- Las rutas del esquema empiezan y acaban en las coordenadas EXACTAS del
+  hotel (si no, la línea parece "desajustada"). Si el coche se recoge o
+  se devuelve en otro sitio (aeropuerto, oficina de alquiler), la ruta
+  pasa por él y ese sitio va en "puntos": punto gris con nombre
+  ("✈️ Aeropuerto") que al tocarlo abre una ventana con qué se hace allí
+  cada día y "🚗 Cómo llegar".
 - Comprueba que los días de la app cuadran con el esquema (dónde se
   duerme cada noche, de dónde se sale cada mañana) y corrígelos.
+- Si cambio el orden de los días o dónde se duerme: cambia a la vez el
+  "dia" de lugares y calles, las partes (orden de pueblos según de dónde
+  se sale y dónde se duerme: acabar el día donde está el hotel), "desde",
+  "llegar", horas de cada visita (que no caigan en horas de cierre),
+  consejos (los que dicen "hoy es lunes…", hoteles, coche), zonas de
+  transporte (títulos con el día, tiempos, enlace a Google Maps) y
+  esquema (rutas, noches, hoteles, "porque"), README y este prompt.
+  Antes pregúntame lo que no esté claro (dónde se recoge el coche, orden
+  de los pueblos) y repasa los horarios según el día de la semana.
 
 --------------------------------------------------------------------
 8. CÓMO TRABAJAR (lo que aprendimos con Florencia)
@@ -377,6 +396,12 @@ DISEÑO
       pestaña ni botón sale de la pantalla ni se corta, y que en "Todo"
       los nombres del mapa no se pisan, no se salen ni quedan bajo los
       botones. Mirar siempre las capturas.
+- Día de prueba sin fecha: si te lo pido, añade un día con fecha "prueba"
+  (pestaña "Test 🧪", color propio que no sea gris) con 3-4 sitios de mi
+  ciudad para probar GPS, brújula, Guiarme y chat antes del viaje. La
+  pestaña usa la clase "txt" cuando su segunda palabra no es un número.
+  No va en el esquema. Al borrarlo, quita también lo que hayamos marcado
+  en ese día (con mi permiso).
 - No guardar nada de prueba en la base de datos real: interceptar
   rpc/mi_posicion (responder ok) y rpc/guardar (abort: los cambios se
   quedan pendientes en el móvil); en el chat usar nombres de prueba y
