@@ -1,4 +1,4 @@
-# Florencia (17-19), Pisa-Lucca (20), Chianti (21) y Toscana sur (22-23 de noviembre)
+# Florencia (17-19), Lucca-Pisa (20), Toscana sur (21-22) y Chianti (23 de noviembre)
 
 App web compartida para el viaje: mapa con tu posición GPS, las visitas de cada día,
 las calles recomendadas, el transporte público y lo que vais marcando los dos en tiempo real.
@@ -17,10 +17,10 @@ las calles recomendadas, el transporte público y lo que vais marcando los dos e
 | Qué | Cómo |
 |---|---|
 | Cambiar de día | Pestañas de arriba (Mar 17 … Lun 23, y Todo) |
-| Viernes: Pisa o Lucca | Debajo de las pestañas: **🌅 Pisa · mañana** / **🌇 Lucca · tarde**. Se elige sola según dónde estés o la hora |
-| Sábado: los 3 pueblos | Botones **🍷 Greve · 🥩 Panzano · 🏰 Castellina** (con la hora de cada uno). Al terminar uno, «Siguiente» propone el siguiente con **🚗 Ir en coche** |
+| Viernes: Lucca o Pisa | Debajo de las pestañas: **🌅 Lucca · mañana** / **🌇 Pisa · tarde** (en coche, recogido en el aeropuerto de Florencia; noche en Pisa). Se elige sola según dónde estés o la hora |
+| Sábado: 3 pueblos | Botones **🗼 S. Gimignano · 🏰 Monteriggioni · 🐎 Siena** (con la hora de cada uno; de Pisa a Siena, noche en Siena). Al terminar uno, «Siguiente» propone el siguiente con **🚗 Ir en coche** |
 | Domingo: 5 pueblos | **🏘️ Asciano · ⛪ Oliveto · 🌳 Quirico · ♨️ Vignoni · 🧀 Pienza** (noche en Siena) |
-| Lunes: 3 pueblos | **🏰 Monteriggioni · 🗼 S. Gimignano · 🐎 Siena** (noche en Siena; el martes 24, vuelta a Florencia) |
+| Lunes: Chianti | **🏰 Castellina · 🥩 Panzano · 🍷 Greve** (ida y vuelta a Siena; el martes 24, vuelta al aeropuerto de Florencia a devolver el coche) |
 | Esquema del viaje | Pestaña **Todo** (o ⚙️ → Esquema): tarjetas de los 8 días (toca una para ir a ese día), hoteles y, en el mapa, la ruta de cada día, los 🏨 y el **nombre de cada pueblo** (toca uno para ir a ese día y ese pueblo; el pueblo donde estás sale **resaltado en azul** con 📍) |
 | Dónde estoy | Junto a ▼ Ocultar / ▲ Mostrar sale **📍 la localidad** según tu GPS |
 | Consejos del día | Plegados en «💡 Consejos (n)»: tócalo para verlos |

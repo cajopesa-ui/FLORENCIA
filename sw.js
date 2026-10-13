@@ -1,6 +1,6 @@
 // "Service worker": guarda copias de la app y del mapa para que funcione con mala cobertura.
 // Si cambias la app, sube el número de VERSION para que los móviles cojan la nueva.
-const VERSION = 'florencia-v16';
+const VERSION = 'florencia-v17';
 const MAPA = 'florencia-mapa';
 const MAX_TESELAS = 3000;
 
