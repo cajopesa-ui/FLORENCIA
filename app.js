@@ -797,11 +797,53 @@ function alMoverme(pos) {
   if (primera && diaSel !== 'todo' && partesDe(diaSel)) { pintar(); setTimeout(verDiaEnMapa, 50); }
 
   rumboPorGPS(pos.coords);
+  actualizarLocalidad();
   pintarRumbo();
   actualizarGuia();
   comprobarCalles();
   pintarPanel();
   enviarPosicion();
+}
+
+// ---------- Localidad donde estoy (junto a Ocultar/Mostrar) ----------
+
+// Sitios del viaje: se reconocen sin internet
+function sitiosConocidos() {
+  const sitios = [{ nombre: 'Florencia', lat: 43.7696, lng: 11.2558, radio: 7000 }];
+  for (const d of DATOS.dias) for (const pt of d.partes || []) sitios.push({ nombre: pt.nombre, lat: pt.lat, lng: pt.lng, radio: 4000 });
+  return sitios;
+}
+
+let localidad = { nombre: null, lat: 0, lng: 0, t: 0, preguntando: false };
+async function actualizarLocalidad() {
+  if (!miPos) return;
+  // 1) ¿Estoy en uno de los sitios del viaje?
+  const cerca = sitiosConocidos()
+    .map((x) => Object.assign({ d: distancia(miPos, x) }, x))
+    .filter((x) => x.d < x.radio)
+    .sort((a, b) => a.d - b.d)[0];
+  if (cerca) { pintarLocalidad(cerca.nombre); return; }
+  // 2) Si no, preguntar a OpenStreetMap (como mucho cada 2 min y si me he movido más de 1 km)
+  const movido = localidad.t ? distancia(miPos, localidad) : Infinity;
+  if (localidad.preguntando || !navigator.onLine || (Date.now() - localidad.t < 120000 && movido < 1000)) {
+    if (localidad.nombre) pintarLocalidad(localidad.nombre);
+    return;
+  }
+  localidad.preguntando = true;
+  try {
+    const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=10&accept-language=es&lat=${miPos.lat.toFixed(4)}&lon=${miPos.lng.toFixed(4)}`;
+    const r = await (await fetch(url)).json();
+    const a = r.address || {};
+    const nombre = a.city || a.town || a.village || a.municipality || a.county || r.name;
+    if (nombre) localidad = { nombre, lat: miPos.lat, lng: miPos.lng, t: Date.now(), preguntando: false };
+  } catch { /* sin conexión: se reintenta más tarde */ }
+  localidad.preguntando = false;
+  if (localidad.nombre) pintarLocalidad(localidad.nombre);
+}
+
+function pintarLocalidad(nombre) {
+  const el = $('#localidad');
+  if (el && el.textContent !== '📍 ' + nombre) { el.textContent = '📍 ' + nombre; el.title = 'Estás en ' + nombre; }
 }
 
 // Envía mi posición como mucho cada 10 s, y solo si me he movido o ha pasado 1 min.

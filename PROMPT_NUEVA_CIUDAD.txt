@@ -232,6 +232,12 @@ PANEL INFERIOR (zona de datos)
   (abajo oculta, arriba muestra). Oculto deja solo una barra con
   "▶ Siguiente: <lugar> · <hora> · <distancia>" (tocarla lo abre).
   Recuerda si estaba oculto.
+- Junto al botón Ocultar/Mostrar, una píldora "📍 <localidad>" con el
+  sitio donde estoy por GPS ("📍 Sin GPS" si no hay). Primero sin internet:
+  si estoy a <7 km del centro de la ciudad principal o a <4 km del centro
+  de una ciudad/pueblo del viaje, su nombre. Si no, reverse de Nominatim
+  (zoom=10, accept-language=es: city/town/village/municipality), como
+  mucho cada 2 min y solo si me he movido >1 km.
 - Avisos (solo si el día seleccionado es hoy, con hora de la ciudad):
   "⏰ X cierra a las HH:MM (quedan N min)" si quedan <=60 min (rojo <=30);
   "🌅 El atardecer es hacia las X: no llegues tarde a Y" (lugares con

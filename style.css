@@ -356,3 +356,12 @@ input, textarea, select { font: inherit; }
 .consejos { margin: 0 0 8px; }
 .consejos summary { color: var(--principal); font-weight: 700; font-size: 14px; padding: 4px 0; cursor: pointer; }
 .consejos .consejo { margin: 4px 0 4px 6px; }
+
+/* Localidad donde estamos, junto al botón Ocultar/Mostrar */
+.fila-asa { display: flex; align-items: center; justify-content: center; gap: 8px; max-width: 100%; padding: 0 8px; }
+.localidad {
+  font-size: 13px; font-weight: 700; color: var(--texto); background: #f3efe9;
+  border-radius: 999px; padding: 4px 10px; max-width: 60vw;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.panel-txt { flex: none; }

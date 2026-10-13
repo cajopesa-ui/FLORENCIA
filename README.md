@@ -19,6 +19,7 @@ las calles recomendadas, el transporte público y lo que vais marcando los dos e
 | Cambiar de día | Pestañas de arriba (Mar 17, Mié 18, Jue 19, Vie 20, Sáb 21, Todo) |
 | Viernes: Pisa o Lucca | Debajo de las pestañas: **🌅 Pisa · mañana** / **🌇 Lucca · tarde**. Se elige sola según dónde estés o la hora |
 | Sábado: los 3 pueblos | Botones **🍷 Greve · 🥩 Panzano · 🏰 Castellina** (con la hora de cada uno). Al terminar uno, «Siguiente» propone el siguiente con **🚗 Ir en coche** |
+| Dónde estoy | Junto a ▼ Ocultar / ▲ Mostrar sale **📍 la localidad** según tu GPS |
 | Consejos del día | Plegados en «💡 Consejos (n)»: tócalo para verlos |
 | Ver un lugar | Toca su marcador, su calle o su fila en la lista |
 | Ir a un sitio | **🧭 Guiarme**: flecha que apunta al destino (si apunta hacia arriba, vas bien) · **🗺️ Maps**: abre Google Maps |
