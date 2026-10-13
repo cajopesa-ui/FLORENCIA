@@ -225,6 +225,10 @@ CABECERA
   que no se sale del mapa (primero los hoteles, luego los pueblos con
   más vecinos). Si no cabe, se oculta y sale al acercar; se recoloca al
   terminar cada zoom (con espera de 250 ms). Mapa con zoomSnap 0.5.
+  El pueblo (u hotel) donde estoy según el GPS (misma detección que la
+  píldora 📍: <7 km de la ciudad principal, <4 km de cada pueblo) sale
+  resaltado: etiqueta azul con "📍", punto con halo que late, y se coloca
+  el primero para que siempre se vea; se repinta al cambiar de pueblo.
   Datos: "esquema": { titulo, subtitulo, dias:[{fecha, corto, zona,
   resumen, modo, icono, noche, ruta:[[lat,lng]...], tren, rutaTexto}],
   hoteles:[{id, nombre, noches, zona, lat, lng, notas:[...]}], porque:[...] }.

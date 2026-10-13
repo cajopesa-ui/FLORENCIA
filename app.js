@@ -823,15 +823,27 @@ function sitiosConocidos() {
   return sitios;
 }
 
-let localidad = { nombre: null, lat: 0, lng: 0, t: 0, preguntando: false };
-async function actualizarLocalidad() {
-  if (!miPos) return;
-  // 1) ¿Estoy en uno de los sitios del viaje?
+// Nombre del sitio del viaje donde estoy ahora (o null si no estoy en ninguno)
+function sitioDondeEstoy() {
+  if (!miPos || !DATOS) return null;
   const cerca = sitiosConocidos()
     .map((x) => Object.assign({ d: distancia(miPos, x) }, x))
     .filter((x) => x.d < x.radio)
     .sort((a, b) => a.d - b.d)[0];
-  if (cerca) { pintarLocalidad(cerca.nombre); return; }
+  return cerca ? cerca.nombre : null;
+}
+
+let localidad = { nombre: null, lat: 0, lng: 0, t: 0, preguntando: false };
+let sitioAnterior = null;
+async function actualizarLocalidad() {
+  if (!miPos) return;
+  // 1) ¿Estoy en uno de los sitios del viaje?
+  const aqui = sitioDondeEstoy();
+  if (aqui !== sitioAnterior) {               // he cambiado de pueblo: resaltarlo en el mapa de "Todo"
+    sitioAnterior = aqui;
+    if (diaSel === 'todo') pintar();
+  }
+  if (aqui) { pintarLocalidad(aqui); return; }
   // 2) Si no, preguntar a OpenStreetMap (como mucho cada 2 min y si me he movido más de 1 km)
   const movido = localidad.t ? distancia(miPos, localidad) : Infinity;
   if (localidad.preguntando || !navigator.onLine || (Date.now() - localidad.t < 120000 && movido < 1000)) {

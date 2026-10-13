@@ -70,15 +70,17 @@ function pintarEsquemaMapa() {
   // Tocar un pueblo = ir a ese día y ese pueblo.
   const nombreCorto = { oliveto: 'Monte Oliveto', sanquirico: 'San Quirico' };
   const conHotel = new Set(E.hoteles.map((h) => h.nombre));   // Siena: ya lo dice la etiqueta de su hotel
+  const aqui = sitioDondeEstoy();               // pueblo donde estoy según el GPS
   const etiquetas = [];
   for (const h of E.hoteles) {
     etiquetas.push({ tipo: 'hotel', h, lat: h.lat, lng: h.lng, radio: 17, ancho: 7.2, alto: 21, extra: 16,
-      texto: `${h.nombre} · ${h.noches.split(' (')[0]}` });
+      texto: `${h.nombre === aqui ? '📍 ' : ''}${h.nombre} · ${h.noches.split(' (')[0]}`, aqui: h.nombre === aqui });
   }
   for (const d of DATOS.dias) {
     for (const pt of d.partes || []) {
       etiquetas.push({ tipo: 'pueblo', d, pt, lat: pt.lat, lng: pt.lng, radio: 7, ancho: 7, alto: 19, extra: 14,
-        texto: conHotel.has(pt.nombre) ? '' : nombreCorto[pt.id] || pt.nombre });
+        texto: conHotel.has(pt.nombre) ? '' : (pt.nombre === aqui ? '📍 ' : '') + (nombreCorto[pt.id] || pt.nombre),
+        aqui: pt.nombre === aqui && !conHotel.has(pt.nombre) });
     }
   }
   const sitios = colocarEtiquetas(etiquetas);
@@ -87,16 +89,17 @@ function pintarEsquemaMapa() {
     if (e.tipo === 'hotel') {
       const icono = L.divIcon({ className: '', iconSize: [34, 34], iconAnchor: [17, 17], html: '<div class="esq-hotel-marca">🏨</div>' });
       const m = L.marker([e.lat, e.lng], { icon: icono, zIndexOffset: 1500, title: `Hotel en ${e.h.nombre}` });
+      if (e.aqui) m.on('add', () => m.getElement()?.querySelector('.esq-hotel-marca')?.classList.add('aqui'));
       m.bindPopup(`<div class="esq-popup"><b>🏨 ${esc(e.h.nombre)} · ${esc(e.h.noches)}</b><br>${esc(e.h.zona)}<ul>${e.h.notas.map((n) => `<li>${esc(n)}</li>`).join('')}</ul></div>`);
       capa.addLayer(m);
-      if (sitio) capa.addLayer(marcaTexto(e, sitio, 'etq-hotel-txt').on('click', () => m.openPopup()));
+      if (sitio) capa.addLayer(marcaTexto(e, sitio, 'etq-hotel-txt' + (e.aqui ? ' aqui' : '')).on('click', () => m.openPopup()));
     } else {
       const { d, pt } = e;
-      const icono = L.divIcon({ className: '', iconSize: [14, 14], iconAnchor: [7, 7], html: `<div class="esq-pueblo" style="background:${d.color}"></div>` });
+      const icono = L.divIcon({ className: '', iconSize: [14, 14], iconAnchor: [7, 7], html: `<div class="esq-pueblo ${e.aqui ? 'aqui' : ''}" style="background:${d.color}"></div>` });
       const m = L.marker([e.lat, e.lng], { icon: icono, zIndexOffset: 1200, title: `${pt.nombre} · ${d.corto}` });
       m.on('click', () => irAPueblo(d.fecha, pt.id));
       capa.addLayer(m);
-      if (sitio) capa.addLayer(marcaTexto(e, sitio, 'etq-pueblo-txt').on('click', () => irAPueblo(d.fecha, pt.id)));
+      if (sitio) capa.addLayer(marcaTexto(e, sitio, 'etq-pueblo-txt' + (e.aqui ? ' aqui' : '')).on('click', () => irAPueblo(d.fecha, pt.id)));
     }
   });
 }
@@ -131,13 +134,14 @@ function colocarEtiquetas(items) {
   }
   const dentro = (r) => r.x >= 2 && r.y >= 2 && r.x + r.w <= caja.width - 2 && r.y + r.h <= caja.height - 2;
   const vecinos = pts.map((p) => pts.filter((q) => q !== p && Math.hypot(p.x - q.x, p.y - q.y) < 70).length);
-  const orden = items.map((_, i) => i).sort((a, b) =>
-    (items[a].tipo === 'hotel' ? -1 : 0) - (items[b].tipo === 'hotel' ? -1 : 0) || vecinos[b] - vecinos[a]);
+  const prioridad = (it) => (it.aqui ? -2 : 0) + (it.tipo === 'hotel' ? -1 : 0);   // primero donde estoy, luego hoteles
+  const orden = items.map((_, i) => i).sort((a, b) => prioridad(items[a]) - prioridad(items[b]) || vecinos[b] - vecinos[a]);
   const res = new Array(items.length).fill(null);
   for (const i of orden) {
     const it = items[i], p = pts[i];
     if (!it.texto) continue;
-    const w = it.texto.length * it.ancho + it.extra, h = it.alto, g = it.radio + 1;
+    const grande = it.aqui ? 1 : 0;   // la etiqueta de donde estoy es algo mayor
+    const w = it.texto.length * (it.ancho + grande) + it.extra + grande * 10, h = it.alto + grande * 5, g = it.radio + 1;
     const opciones = [['right', 0], ['left', 0], ['top', 0], ['bottom', 0], ['right', -13], ['right', 13], ['left', -13], ['left', 13],
       ['right', -24], ['right', 24], ['left', -24], ['left', 24]];
     for (const [lado, dy] of opciones) {
