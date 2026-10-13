@@ -76,6 +76,9 @@ function pintarEsquemaMapa() {
     etiquetas.push({ tipo: 'hotel', h, lat: h.lat, lng: h.lng, radio: 17, ancho: 7.2, alto: 21, extra: 16,
       texto: `${h.nombre === aqui ? '📍 ' : ''}${h.nombre} · ${h.noches.split(' (')[0]}`, aqui: h.nombre === aqui });
   }
+  for (const p of E.puntos || []) {           // ✈️ aeropuerto, donde se recoge y devuelve el coche
+    etiquetas.push({ tipo: 'punto', p, lat: p.lat, lng: p.lng, radio: 7, ancho: 7, alto: 19, extra: 14, texto: `${p.icono} ${p.nombre}` });
+  }
   for (const d of DATOS.dias) {
     for (const pt of d.partes || []) {
       etiquetas.push({ tipo: 'pueblo', d, pt, lat: pt.lat, lng: pt.lng, radio: 7, ancho: 7, alto: 19, extra: 14,
@@ -89,6 +92,13 @@ function pintarEsquemaMapa() {
     if (e.tipo === 'hotel') {
       const m = marcaHotel(e.h, e.aqui);
       if (sitio) capa.addLayer(marcaTexto(e, sitio, 'etq-hotel-txt' + (e.aqui ? ' aqui' : '')).on('click', () => abrirHotel(e.h)));
+    } else if (e.tipo === 'punto') {
+      const { p } = e;
+      const icono = L.divIcon({ className: '', iconSize: [14, 14], iconAnchor: [7, 7], html: '<div class="esq-pueblo" style="background:#475569"></div>' });
+      const abrir = () => abrirVentana(`<h2>${p.icono} ${esc(p.titulo)}</h2><ul class="hotel-notas">${p.notas.map((n) => `<li>${esc(n)}</li>`).join('')}</ul>
+        <div class="fila-botones"><a class="btn btn-principal" href="${urlComoLlegar(p.lat, p.lng, 'driving')}" target="_blank" rel="noopener">🚗 Cómo llegar</a></div>`);
+      capa.addLayer(L.marker([p.lat, p.lng], { icon: icono, zIndexOffset: 1200, title: p.titulo }).on('click', abrir));
+      if (sitio) capa.addLayer(marcaTexto(e, sitio, 'etq-pueblo-txt').on('click', abrir));
     } else {
       const { d, pt } = e;
       const icono = L.divIcon({ className: '', iconSize: [14, 14], iconAnchor: [7, 7], html: `<div class="esq-pueblo ${e.aqui ? 'aqui' : ''}" style="background:${d.color}"></div>` });
