@@ -107,6 +107,10 @@ function pintarRumbo() {
 // ---------- Modo guía ----------
 
 function puntoDestino() {
+  if (guia.persona) {                                   // la otra persona: su última posición
+    const p = posiciones.find((x) => x.nombre === guia.persona);
+    if (p) { guia.lat = p.lat; guia.lng = p.lng; }
+  }
   if (guia.trazado) {                                   // calle: su punto más cercano a mí
     const p = puntoMasCercano(miPos, guia.trazado);
     return { lat: p.lat, lng: p.lng };
@@ -115,11 +119,12 @@ function puntoDestino() {
 }
 
 function guiar(clave) {
-  const x = buscar(clave) || hotelPorClave(clave);   // un lugar, una calle o un hotel
+  const x = buscar(clave) || hotelPorClave(clave) || personaPorClave(clave);   // lugar, calle, hotel o la otra persona
   if (!x) return;
   iniciarBrujula();                                     // estamos dentro de un toque: vale para iPhone
   cerrarVentana();
-  guia = { clave, nombre: x.nombre, lat: x.lat, lng: x.lng, trazado: x.clase === 'calle' ? x.trazado : null };
+  cerrarChat();
+  guia = { clave, nombre: x.nombre, lat: x.lat, lng: x.lng, trazado: x.clase === 'calle' ? x.trazado : null, persona: x.persona || null };
   llegadaAvisada = false;
   $('#guia').hidden = false;
   $('#guia-visto').hidden = true;
@@ -156,8 +161,8 @@ function actualizarGuia() {
   else lineaGuia.setLatLngs(tramo);
 
   if (metros <= DISTANCIA_LLEGADA) {
-    $('#guia-dist').textContent = '🎉 ¡Has llegado!';
-    const yaVisto = guia.clave.startsWith('hotel:') || buscar(guia.clave)?.visitado;   // un hotel no se marca
+    $('#guia-dist').textContent = guia.persona ? '🎉 ¡Os habéis encontrado!' : '🎉 ¡Has llegado!';
+    const yaVisto = guia.persona || guia.clave.startsWith('hotel:') || buscar(guia.clave)?.visitado;   // un hotel o una persona no se marcan
     $('#guia-visto').hidden = !!yaVisto;
     if (!llegadaAvisada) { llegadaAvisada = true; if (navigator.vibrate) navigator.vibrate([200, 100, 200]); }
   } else {
@@ -170,6 +175,11 @@ function actualizarGuia() {
     : (rumboFuente === 'gps'
       ? 'Flecha según la dirección en la que caminas'
       : 'Sin brújula: la flecha indica la dirección en el mapa (norte arriba). Camina unos pasos.');
+  if (guia.persona) {                                   // aviso si su posición es antigua
+    const p = posiciones.find((x) => x.nombre === guia.persona);
+    const min = p ? (Date.now() - new Date(p.actualizado).getTime()) / 60000 : Infinity;
+    if (min > 10) $('#guia-nota').textContent = `⚠️ Su posición es de ${p ? haceCuanto(p.actualizado) : 'hace rato'}: puede que ya no esté ahí.`;
+  }
   pintarRumbo();
 }
 

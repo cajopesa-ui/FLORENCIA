@@ -339,6 +339,12 @@ DISEÑO
   distancia desde donde estoy, dirección, 🔑 entrada / 🚪 salida, notas y
   botones "🧭 Guiarme" (clave "hotel:<id>"; al llegar no ofrece "marcar
   visitado"), "🚗 En coche" y "🚶 A pie" (Google Maps).
+- (Chat) Debajo de la cabecera del chat: "🧭 Guiarme hasta <nombre>" con
+  distancia y "hace X min". Usa la misma guía (clave "persona:<nombre>"):
+  cierra el chat, el destino se actualiza con cada posición nueva de esa
+  persona, al llegar dice "🎉 ¡Os habéis encontrado!" (sin "marcar
+  visitado") y si su posición tiene más de 10 min avisa "⚠️ puede que ya
+  no esté ahí".
 - En el mapa de cada día salen también el 🏨 de la noche anterior y el de
   esa noche (sin entrar en el encuadre del día).
 - Datos: "esquema": { titulo, subtitulo, dias:[{fecha, corto, zona,

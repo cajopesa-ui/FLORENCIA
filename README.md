@@ -33,6 +33,7 @@ las calles recomendadas, el transporte público y lo que vais marcando los dos e
 | Añadir un lugar nuevo | Mantén pulsado el mapa, o «＋ Añadir lugar» |
 | Ver a la otra persona | Botón 👥 (sale cuando tiene la app abierta) |
 | Chat (texto, fotos, voz, ubicación) | Toca el punto morado de la otra persona, o el botón 💬 |
+| Ir hasta la otra persona | En el chat, **🧭 Guiarme hasta …** (debajo del título): la flecha la sigue aunque se mueva y avisa «¡Os habéis encontrado!» |
 | Foto en el chat | 📷 hace la foto con la cámara · 🖼️ la elige de la galería |
 | Mensaje de voz | En el chat, 🎤 → habla (máx. 1 min) → ➤ Enviar |
 | Borrar un mensaje tuyo | 🗑 junto a la hora del mensaje |

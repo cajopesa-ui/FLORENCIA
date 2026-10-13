@@ -428,6 +428,8 @@ function pintarOtros() {
     if (!vistos.has(nombre)) { m.remove(); marcasOtros.delete(nombre); }
   }
   $('#btn-otro').hidden = marcasOtros.size === 0;
+  if (guia && guia.persona) actualizarGuia();            // la otra persona se ha movido
+  if (chatAbierto()) pintarGuiarChat();
 }
 
 function pintarPanel() {

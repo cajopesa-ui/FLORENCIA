@@ -75,8 +75,29 @@ function abrirChat() {
     .filter((n) => n !== sesion.nombre);
   $('#chat-titulo').textContent = otros.length ? `Chat con ${otros.join(', ')}` : 'Chat';
   if (!chatAbierto()) $('#chat').showModal();
+  pintarGuiarChat();
   pintarMensajes();
   marcarVisto();
+}
+
+// Debajo de la cabecera del chat: "🧭 Guiarme hasta …" con la distancia y lo reciente de su posición
+function pintarGuiarChat() {
+  const caja = $('#chat-guiar');
+  const otros = posiciones.filter((p) => sesion && p.nombre !== sesion.nombre);
+  caja.hidden = !otros.length;
+  caja.innerHTML = otros.map((p) => {
+    const dist = miPos ? textoDistancia(distancia(miPos, p)) + ' · ' : '';
+    return `<button class="btn btn-principal" data-guiar="persona:${esc(p.nombre)}">🧭 Guiarme hasta ${esc(p.nombre)}</button>
+      <span class="chat-guiar-info">${dist}${esc(haceCuanto(p.actualizado))}</span>`;
+  }).join('');
+}
+
+// Para "Guiarme" hasta la otra persona (clave "persona:Sonia"). El destino se mueve con ella.
+function personaPorClave(clave) {
+  if (!String(clave).startsWith('persona:')) return null;
+  const nombre = clave.slice(8);
+  const p = posiciones.find((x) => x.nombre === nombre);
+  return p ? { nombre, lat: p.lat, lng: p.lng, persona: nombre } : null;
 }
 
 function cerrarChat() {
