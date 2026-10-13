@@ -20,7 +20,8 @@ las calles recomendadas, el transporte público y lo que vais marcando los dos e
 | Viernes: Pisa o Lucca | Debajo de las pestañas: **🌅 Pisa · mañana** / **🌇 Lucca · tarde**. Se elige sola según dónde estés o la hora |
 | Sábado: los 3 pueblos | Botones **🍷 Greve · 🥩 Panzano · 🏰 Castellina** (con la hora de cada uno). Al terminar uno, «Siguiente» propone el siguiente con **🚗 Ir en coche** |
 | Domingo: 5 pueblos | **🏘️ Asciano · ⛪ Oliveto · 🌳 Quirico · ♨️ Vignoni · 🧀 Pienza** (noche en Siena) |
-| Lunes: 3 pueblos | **🏰 Monteriggioni · 🗼 S. Gimignano · 🐎 Siena** (vuelta a Florencia) |
+| Lunes: 3 pueblos | **🏰 Monteriggioni · 🗼 S. Gimignano · 🐎 Siena** (noche en Siena; el martes 24, vuelta a Florencia) |
+| Esquema del viaje | Pestaña **Todo** (o ⚙️ → Esquema): tarjetas de los 8 días (toca una para ir a ese día), hoteles y, en el mapa, la ruta de cada día y los 🏨 |
 | Dónde estoy | Junto a ▼ Ocultar / ▲ Mostrar sale **📍 la localidad** según tu GPS |
 | Consejos del día | Plegados en «💡 Consejos (n)»: tócalo para verlos |
 | Ver un lugar | Toca su marcador, su calle o su fila en la lista |
@@ -57,6 +58,7 @@ config.js             la dirección de la base de datos (clave pública)
 datos/florencia.json  lugares, calles y transporte (sale de tus 4 ficheros)
 chat.js               el chat (texto, fotos, voz y ubicación)
 brujula.js            brújula y modo «Guiarme»
+esquema.js            esquema del viaje (pestaña Todo)
 sw.js                 copia la app y el mapa para que funcione con mala cobertura
 manifest.webmanifest  para instalarla como app
 iconos/               iconos

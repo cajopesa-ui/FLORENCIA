@@ -343,6 +343,8 @@ function medirCabecera() {
 
 function pintarMapa() {
   capa.clearLayers();
+  // En "Todo" el mapa es el esquema del viaje: rutas de cada día y hoteles (los lugares, al entrar en cada día)
+  if (diaSel === 'todo' && DATOS.esquema) { pintarEsquemaMapa(); pintarOtros(); return; }
   const est = estadoActual();
   const lugares = todosLosLugares(est);
   const verDia = (fecha) => diaSel === 'todo' || diaSel === fecha;
@@ -395,6 +397,7 @@ function pintarMapa() {
     capa.addLayer(m);
   }
 
+  pintarEsquemaMapa();   // en "Todo": rutas de cada día y hoteles
   pintarOtros();
 }
 
@@ -579,6 +582,8 @@ function pintarPanel() {
     </div>
     <p class="consejo" style="text-align:center;margin-top:8px">También puedes mantener pulsado el mapa para añadir un lugar.</p>`;
   $('#lista').innerHTML = html;
+  // En "Todo", el esquema del viaje va arriba del todo
+  $('#esquema-panel').innerHTML = diaSel === 'todo' ? htmlEsquema() : '';
 }
 
 function filaLugar(l, color, num, hueco) {
@@ -739,6 +744,7 @@ function abrirAjustes() {
     <div class="dato"><span class="etq">Avisos</span>
       ${casilla('avisoCalles', 'Avisarme al pasar cerca de una calle de la lista')}
     </div>
+    <button class="btn" id="a-esquema" style="width:100%;margin-bottom:8px">🗺️ Esquema del viaje (hoteles y rutas)</button>
     <div class="fila-botones">
       <button class="btn" id="a-refrescar">🔄 Actualizar ahora</button>
       <button class="btn btn-peligro" id="a-salir">Salir</button>
@@ -748,6 +754,9 @@ function abrirAjustes() {
   document.querySelectorAll('[data-ajuste]').forEach((c) => {
     c.onchange = () => { ajustes[c.dataset.ajuste] = c.checked; almacen.guardar('flo-ajustes', ajustes); pintar(); };
   });
+ $('#a-esquema').onclick = () => {
+    cerrarVentana(); diaSel = 'todo'; plegarPanel(false); pintar(); setTimeout(verDiaEnMapa, 60);
+  };
   $('#a-refrescar').onclick = () => { refrescar(); cerrarVentana(); mostrarToast('Actualizando…'); };
   $('#a-salir').onclick = () => {
     if (pendientes.length && !confirm('Hay cambios sin enviar todavía. Si sales ahora se perderán. ¿Salir igualmente?')) return;
@@ -883,7 +892,11 @@ function comprobarCalles() {
 function verDiaEnMapa() {
   const est = estadoActual();
   const puntos = [];
-  const ver = (x) => !x.sinEncuadre && (diaSel === 'todo' || (x.dia === diaSel && enParte(x)));
+  if (diaSel === 'todo' && DATOS.esquema) {
+    for (const d of DATOS.esquema.dias) (d.ruta || []).forEach((p) => puntos.push(p));
+    DATOS.esquema.hoteles.forEach((h) => puntos.push([h.lat, h.lng]));
+  }
+  const ver = (x) => !x.sinEncuadre && diaSel !== 'todo' && x.dia === diaSel && enParte(x);
   for (const l of todosLosLugares(est)) if (ver(l)) puntos.push([l.lat, l.lng]);
   for (const c of todasLasCalles(est)) if (ver(c)) c.trazado.forEach((lin) => lin.forEach((p) => puntos.push(p)));
   // Dejamos hueco abajo para que el panel no tape los puntos

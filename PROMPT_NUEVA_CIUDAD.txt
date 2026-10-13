@@ -207,6 +207,19 @@ CABECERA
   "Quirico", "Vignoni"). Medir en 320 px que nada sale ni se corta.
 - Paradas de salida en coche sin hora fija (ej. "🚗 A Siena a dormir",
   "🚗 Vuelta a Florencia") y opcionales lejanos llevan sinEncuadre.
+- ESQUEMA DEL VIAJE (esquema.js), si me pasas un esquema/PDF con dónde
+  dormir cada noche: en la pestaña "Todo" (y desde ⚙️ → Esquema del
+  viaje). Arriba del panel: título, tarjetas de cada día (color, zona,
+  resumen, 🚶/🚆/🚗 y 🏨 hotel de esa noche; tocar = ir a ese día; los
+  días sin pestaña, como la vuelta, abren una ventana con 🚗 Ir a…),
+  tarjetas de hoteles (tocar = el mapa va a su zona) y "Por qué este
+  reparto" plegado. En "Todo" el mapa NO pinta lugares ni calles: solo
+  la ruta de cada día (línea de su color, de puntos si es tren, con
+  popup "Ver día") y los 🏨 con etiqueta "Ciudad · N noches" encima.
+  Datos: "esquema": { titulo, subtitulo, dias:[{fecha, corto, zona,
+  resumen, modo, icono, noche, ruta:[[lat,lng]...], tren, rutaTexto}],
+  hoteles:[{id, nombre, noches, zona, lat, lng, notas:[...]}], porque:[...] }.
+  Revisa que los días de la app cuadren con el esquema (dónde se duerme).
 - Un lugar puede llevar "avisoAtardecer" con su propio texto de aviso
   (ej. un mirador: "ve a Via del Casello para verlo").
 - TARJETA "SIGUIENTE CIUDAD": al hacer todas las visitas de una ciudad,
