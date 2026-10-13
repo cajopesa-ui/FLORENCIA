@@ -21,7 +21,7 @@ las calles recomendadas, el transporte público y lo que vais marcando los dos e
 | Sábado: los 3 pueblos | Botones **🍷 Greve · 🥩 Panzano · 🏰 Castellina** (con la hora de cada uno). Al terminar uno, «Siguiente» propone el siguiente con **🚗 Ir en coche** |
 | Domingo: 5 pueblos | **🏘️ Asciano · ⛪ Oliveto · 🌳 Quirico · ♨️ Vignoni · 🧀 Pienza** (noche en Siena) |
 | Lunes: 3 pueblos | **🏰 Monteriggioni · 🗼 S. Gimignano · 🐎 Siena** (noche en Siena; el martes 24, vuelta a Florencia) |
-| Esquema del viaje | Pestaña **Todo** (o ⚙️ → Esquema): tarjetas de los 8 días (toca una para ir a ese día), hoteles y, en el mapa, la ruta de cada día y los 🏨 |
+| Esquema del viaje | Pestaña **Todo** (o ⚙️ → Esquema): tarjetas de los 8 días (toca una para ir a ese día), hoteles y, en el mapa, la ruta de cada día, los 🏨 y el **nombre de cada pueblo** (toca uno para ir a ese día y ese pueblo) |
 | Dónde estoy | Junto a ▼ Ocultar / ▲ Mostrar sale **📍 la localidad** según tu GPS |
 | Consejos del día | Plegados en «💡 Consejos (n)»: tócalo para verlos |
 | Ver un lugar | Toca su marcador, su calle o su fila en la lista |

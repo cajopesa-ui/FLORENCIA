@@ -901,11 +901,13 @@ function verDiaEnMapa() {
   for (const c of todasLasCalles(est)) if (ver(c)) c.trazado.forEach((lin) => lin.forEach((p) => puntos.push(p)));
   // Dejamos hueco abajo para que el panel no tape los puntos
   const altoPanel = $('#panel').offsetHeight;
-  if (puntos.length) mapa.fitBounds(puntos, { paddingTopLeft: [30, 30], paddingBottomRight: [30, altoPanel + 20], maxZoom: 16 });
+  // En "Todo" hace falta más margen: a la derecha están los botones y los nombres de los pueblos
+  const margen = diaSel === 'todo' ? { paddingTopLeft: [16, 24], paddingBottomRight: [72, altoPanel + 16] } : { paddingTopLeft: [30, 30], paddingBottomRight: [30, altoPanel + 20] };
+  if (puntos.length) mapa.fitBounds(puntos, Object.assign(margen, { maxZoom: 16 }));
 }
 
 function crearMapa() {
-  mapa = L.map('mapa', { zoomControl: false, attributionControl: true }).setView([43.7696, 11.2558], 15);
+  mapa = L.map('mapa', { zoomControl: false, attributionControl: true, zoomSnap: 0.5 }).setView([43.7696, 11.2558], 15);
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19, crossOrigin: '',
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'

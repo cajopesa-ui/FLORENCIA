@@ -409,3 +409,20 @@ input, textarea, select { font: inherit; }
 .esq-popup .btn { margin-top: 8px; min-height: 36px; padding: 6px 12px; }
 .esq-popup ul { padding-left: 16px; margin: 6px 0 0; }
 @media (max-width: 359px) { .esq-dias, .esq-hoteles { grid-template-columns: 1fr; } }
+/* Nombres de los pueblos en el mapa de "Todo" */
+.esq-pueblo { width: 14px; height: 14px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.4); }
+.leaflet-tooltip.etq-pueblo {
+  padding: 1px 5px; font-size: 11px; font-weight: 700; background: rgba(255,255,255,.92);
+  border: 0; box-shadow: 0 1px 3px rgba(0,0,0,.25); cursor: pointer;
+}
+.leaflet-tooltip.etq-pueblo::before { display: none; }
+/* Etiqueta del hotel más compacta, para dejar sitio a los nombres de los pueblos */
+.leaflet-tooltip.etq-hotel { padding: 2px 6px; font-size: 12px; border: 0; box-shadow: 0 1px 3px rgba(0,0,0,.3); }
+.leaflet-tooltip.etq-hotel::before { display: none; }
+/* Nombres del mapa "Todo" como marcadores de texto */
+.etq-pueblo-txt, .etq-hotel-txt {
+  position: absolute; left: 0; top: 0; white-space: nowrap; cursor: pointer;
+  background: rgba(255,255,255,.93); border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,.28); color: var(--texto);
+}
+.etq-pueblo-txt { padding: 1px 5px; font-size: 11px; font-weight: 700; line-height: 17px; }
+.etq-hotel-txt { padding: 2px 6px; font-size: 12px; font-weight: 800; line-height: 17px; }

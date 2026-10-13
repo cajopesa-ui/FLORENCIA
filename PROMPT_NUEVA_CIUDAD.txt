@@ -215,7 +215,16 @@ CABECERA
   tarjetas de hoteles (tocar = el mapa va a su zona) y "Por qué este
   reparto" plegado. En "Todo" el mapa NO pinta lugares ni calles: solo
   la ruta de cada día (línea de su color, de puntos si es tren, con
-  popup "Ver día") y los 🏨 con etiqueta "Ciudad · N noches" encima.
+  popup "Ver día"), los 🏨 con etiqueta "Ciudad · N noches" y un punto
+  con el NOMBRE de cada pueblo/ciudad (color de su día; tocar = ir a ese
+  día y ese pueblo). Los nombres son marcadores de texto (divIcon), no
+  tooltips permanentes (esos se duplican al redibujar durante el zoom).
+  Colocación automática: para cada nombre se prueba derecha, izquierda,
+  arriba, abajo y 8 posiciones desplazadas; se elige la primera que no
+  choca con otro nombre, un punto, los botones flotantes o el panel y
+  que no se sale del mapa (primero los hoteles, luego los pueblos con
+  más vecinos). Si no cabe, se oculta y sale al acercar; se recoloca al
+  terminar cada zoom (con espera de 250 ms). Mapa con zoomSnap 0.5.
   Datos: "esquema": { titulo, subtitulo, dias:[{fecha, corto, zona,
   resumen, modo, icono, noche, ruta:[[lat,lng]...], tren, rutaTexto}],
   hoteles:[{id, nombre, noches, zona, lat, lng, notas:[...]}], porque:[...] }.
