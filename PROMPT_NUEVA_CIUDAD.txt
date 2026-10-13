@@ -1,405 +1,382 @@
 ====================================================================
-PROMPT PARA CREAR LA APP DE VIAJE PARA UNA NUEVA CIUDAD
+PROMPT PARA CREAR LA APP DE VIAJE PARA OTRO DESTINO
 (réplica exacta de la app "Florencia": https://florencia-viaje.netlify.app
  código fuente de referencia: https://github.com/cajopesa-ui/FLORENCIA)
 ====================================================================
 
 Copia este texto en una sesión nueva y rellena los datos de la sección 0.
+Si puedes, abre también el repositorio de referencia: copiar su código y
+cambiar solo los datos es lo más rápido y lo que menos errores da.
 
 --------------------------------------------------------------------
 0. DATOS DEL NUEVO VIAJE (rellenar)
 --------------------------------------------------------------------
-- Ciudad: ____________________
+- Destino (ciudad o región): ____________________
 - Fechas del viaje: del ___ al ___ de ________ de ____
-- Zona horaria de la ciudad (IANA, ej. Europe/Rome): ____________
+- Zona horaria (IANA, ej. Europe/Rome): ____________
 - Repositorio de GitHub: ____________________
-- Ficheros que te adjunto (mismo formato que en Florencia):
-    1) <ciudad>_visitas.txt          -> por día: visitas con hora, tipo y horario;
-                                        más "Opcional:" con visitas opcionales
-    2) <ciudad>_calles_imprescindibles.txt -> calles por día con tipo y nota
-    3) <ciudad>_calles_fuera_de_ruta.txt   -> calles por día con tipo y nota
-    4) <ciudad>_transporte.txt       -> cuándo usar transporte, líneas, billetes, avisos
+- Ficheros que te adjunto, por cada bloque de días (mismo formato que
+  en Florencia; un bloque puede ser una ciudad, un día con varias
+  ciudades o varios días con varios pueblos):
+    1) <bloque>_visitas.txt                -> por día: visitas con hora, tipo y
+                                              horario; "Opcional:" con las opcionales
+    2) <bloque>_calles_imprescindibles.txt -> calles por día con tipo y nota
+    3) <bloque>_calles_fuera_de_ruta.txt   -> calles/rincones por día con tipo y nota
+    4) <bloque>_transporte.txt             -> cuándo usar transporte, tiempos,
+                                              billetes, aparcar, avisos
+- (Opcional) Esquema del viaje en PDF: dónde se duerme cada noche, cómo
+  se va cada día (a pie, tren, coche) y por qué ese reparto.
 - Nombres de las dos personas que la usarán (opcional): ____________
 - Código de acceso de 4 dígitos que queremos: ____ (si no, genera uno al azar)
 
 Soy programador principiante: explícamelo todo en español, sencillo y
 paso a paso. Antes de programar, enséñame un resumen de cómo quedará
-y espera a que te diga "adelante".
+y espera a que te diga "adelante". Cuando algo de mis ficheros no cuadre
+(un lugar mal situado, un día que contradice el esquema), avísame.
 
 --------------------------------------------------------------------
 1. QUÉ ES LA APP
 --------------------------------------------------------------------
 Una app web (PWA) para el móvil, compartida entre DOS personas que
 viajan juntas. Muestra un mapa con el GPS en tiempo real y una brújula
-que indica hacia dónde miras y te guía con una flecha hasta cada sitio, las visitas
-de cada día, las calles recomendadas y el transporte público. Los
-cambios (visitado, notas, horas, lugares nuevos, chat) se sincronizan
-en tiempo real entre los dos móviles y NO se pierden al borrar los
-datos del navegador.
+que indica hacia dónde miras y te guía con una flecha hasta cada sitio;
+las visitas de cada día, las calles recomendadas, el transporte y un
+esquema de todo el viaje. Los cambios (visitado, notas, horas, lugares
+nuevos, chat con fotos y voz) se sincronizan en tiempo real entre los dos
+móviles y NO se pierden al borrar los datos del navegador.
 
 Debe ser IDÉNTICA a la de Florencia en funciones, aspecto y estructura
-de archivos; solo cambian los datos de la ciudad, las fechas y la
-zona horaria.
+de archivos; solo cambian los datos, las fechas y la zona horaria.
 
 --------------------------------------------------------------------
 2. TECNOLOGÍA (no cambiar)
 --------------------------------------------------------------------
 - HTML + CSS + JavaScript "a pelo", sin frameworks ni compilación.
-- Mapa: Leaflet 1.9.4 (unpkg) con teselas de OpenStreetMap
-  (tile.openstreetmap.org, con crossOrigin: '' para poder cachearlas).
-- Base de datos compartida: Supabase (proyecto NUEVO, gratis, región
-  eu-west-3) usando supabase-js 2.45.4 UMD desde jsdelivr.
-  Usar la clave "anon" (legacy JWT) en config.js.
-- Publicación: Netlify (sitio nuevo "<ciudad>-viaje"), con netlify.toml.
-  El código también se sube a la rama main del repositorio de GitHub.
-- Coordenadas: Nominatim de OpenStreetMap (1 petición/segundo, con
-  User-Agent propio y viewbox de la ciudad). Para las calles usar
-  polygon_geojson=1 y dedupe=0 y unir todos los tramos (highway) de
-  cada calle. Si alguna calle no sale, trazarla a mano y avisarme.
-  Revisa que cada lugar caiga dentro de la ciudad y avísame si algún
-  texto de mis ficheros no cuadra con la ubicación real.
+- Mapa: Leaflet 1.9.4 (unpkg), teselas de OpenStreetMap
+  (tile.openstreetmap.org, crossOrigin: '' para poder cachearlas),
+  zoomSnap 0.5.
+- Base de datos: Supabase (proyecto NUEVO, gratis, región eu-west-3),
+  supabase-js 2.45.4 UMD desde jsdelivr, clave "anon" (legacy JWT) en
+  config.js.
+- Publicación: Netlify (sitio nuevo "<destino>-viaje") con netlify.toml;
+  el código también en la rama main del repositorio de GitHub.
 
-Archivos (mismos nombres):
-  index.html, style.css, app.js, chat.js, config.js,
-  datos/<ciudad>.json, sw.js, manifest.webmanifest, netlify.toml,
-  brujula.js, iconos/icono.svg + icono-180.png + icono-192.png + icono-512.png
-  (icono con un monumento típico de la ciudad, generado con Chromium/
-  Playwright a partir del SVG), README.md en español.
-Código comentado en español, nombres de variables y funciones en español.
+Archivos (mismos nombres y reparto):
+  index.html      la página
+  style.css       el aspecto
+  app.js          mapa, GPS, días, panel, fichas, sincronización
+  chat.js         chat (texto, fotos, voz, ubicación)
+  brujula.js      brújula y modo "Guiarme"
+  esquema.js      esquema del viaje (pestaña "Todo")
+  config.js       URL y clave pública de Supabase
+  datos/<destino>.json   todos los datos del viaje
+  sw.js, manifest.webmanifest, netlify.toml
+  iconos/icono.svg + icono-180/192/512.png (monumento típico del destino,
+         PNG generados con Chromium/Playwright a partir del SVG)
+  README.md en español
+Código comentado en español; variables y funciones en español.
 
 --------------------------------------------------------------------
-3. DATOS DE LA CIUDAD (datos/<ciudad>.json)
+3. COORDENADAS (Nominatim de OpenStreetMap)
 --------------------------------------------------------------------
-Generar el JSON con un script a partir de mis 4 ficheros, copiando mis
-textos tal cual. Estructura:
+- 1 petición cada ~2 s, User-Agent propio, viewbox de cada ciudad; si
+  da 429, esperar y reintentar.
+- Calles: polygon_geojson=1 y dedupe=0; unir todos los tramos "highway"
+  de cada calle y filtrar los que caigan fuera del pueblo. Simplificar
+  las líneas largas (Douglas-Peucker, 4-25 m) y redondear a 5 decimales.
+- Si una calle no sale por su nombre: probar variantes (en OSM "Via XX
+  Luglio" es "Via 20 Luglio", "Via Ferruccio" es "Via Francesco
+  Ferrucci") o hacer reverse geocoding en varios puntos del centro para
+  ver cómo se llama. Si aun así no sale, trazarla a mano, poner
+  "(trazado aproximado)" en su nota y avisarme.
+- Murallas sin trazado: unir sus baluartes ordenados alrededor del
+  centro y encoger un poco el anillo para que coincida con el mapa.
+- Rincones que no son calles (un grupo de cipreses, un mirador): un
+  pequeño círculo alrededor del punto.
+- Comprobar que cada lugar cae donde debe y avisarme de lo que no cuadre.
+- Calcular la hora del atardecer de cada día si hay miradores.
+
+--------------------------------------------------------------------
+4. DATOS (datos/<destino>.json)
+--------------------------------------------------------------------
+Generado con un script a partir de mis ficheros, copiando mis textos tal
+cual (sin inventar horarios; si un horario "no está confirmado", no poner
+aviso de cierre).
 {
   "dias": [{ "fecha":"AAAA-MM-DD", "nombre":"Martes 17", "corto":"Mar 17",
-             "color":"#c2410c", "zona":"Uffizi y Oltrarno" }, ...],
-      colores por día: #c2410c, #1d4ed8, #047857 (y más si hay más días)
-  Día con DOS CIUDADES (ej. Pisa por la mañana y Lucca por la tarde):
-    el día lleva "partes": [{ "id":"pisa","nombre":"Pisa","momento":"Mañana",
-      "icono":"🌅","lat","lng" (centro) }, { "id":"lucca", ..., "icono":"🌇",
-      "desde":"14:20" (hora a partir de la que toca esa ciudad),
-      "corto":"Lucca" (nombre corto para el selector compacto),
-      "llegar":{"modo":"driving"|"transit"|"walking","texto":"Unos 10 min
-      en coche (7 km)"} (cómo se llega desde la ciudad anterior) }]
-    Sirve igual para 2, 3, 4 o más ciudades/pueblos en un día.
-    y cada lugar/calle de ese día lleva "parte":"pisa" o "lucca".
-  Cada día puede llevar "atardecer":"16:50" y "transporte":"<zona>".
-  "consejos": { "AAAA-MM-DD": [...], "AAAA-MM-DD:<parte>": [...] },
-      (sacados de mis ficheros: atardecer, bus, "todo a pie", etc.)
-  "lugares": [{ "id","dia","nombre","tipo","hora"(o null si opcional),
-                "horario" (texto), "cierra":"HH:MM" (si aplica),
-                "nota","opcional":bool,"lat","lng",
-                "antesAtardecer":true (aviso de atardecer, opcional),
-                "salida":true (tren/bus/coche con hora: aviso "sale en N min"),
-                "sinEncuadre":true (no cuenta al encuadrar el mapa: opcionales
-                lejanos) }],
-      Calles: "parte": null para lo que es de todo el día (ej. una carretera
-      panorámica entre pueblos): se dibuja en todas las ciudades del día,
-      lleva "sinEncuadre":true y en "Todo" se lista una sola vez.
-      Un tren entre ciudades se pone como una visita más (ej. "🚆 Tren a
-      Lucca (Pisa Centrale)" a las 14:20) para poder usar Guiarme hasta
-      la estación.
-  "calles": [{ "id","dia","grupo":"imprescindible"|"fuera","nombre",
-               "tipo","nota","trazado":[[[lat,lng],...], ...] }],
-               (coordenadas redondeadas a 5 decimales)
+             "color":"#c2410c", "zona":"Uffizi y Oltrarno",
+             "atardecer":"16:50", "transporte":"<zona>",
+             "partes": [...] (solo si el día tiene varias ciudades/pueblos) }],
+      colores: #c2410c #1d4ed8 #047857 #7e22ce #a16207 #be123c #0f766e…
+  partes (una por ciudad o pueblo del día, en orden):
+      { "id","nombre","corto" (~7-10 letras, debe caber en 320 px),
+        "momento":"Mañana", "icono":"🍷", "lat","lng" (centro),
+        "desde":"11:30" (hora a partir de la que toca),
+        "llegar":{"modo":"driving"|"transit"|"walking",
+                  "texto":"Unos 10 min en coche desde Greve (7 km)"} }
+  "consejos": { "AAAA-MM-DD":[...], "AAAA-MM-DD:<parte>":[...] },
+  "lugares": [{ "id","dia","parte","nombre","tipo","hora" (null en
+      opcionales),"horario","cierra":"HH:MM","nota","opcional","lat","lng",
+      "antesAtardecer":true, "avisoAtardecer":"texto propio",
+      "salida":true (tren/bus/coche con hora: aviso "sale en N min"),
+      "sinEncuadre":true (no cuenta al encuadrar: opcionales lejanos y
+                          paradas de salida como "🚗 A Siena a dormir") }],
+      Si mis ficheros dan una sola hora para un pueblo con varias visitas,
+      reparte horas aproximadas dentro del pueblo y dímelo.
+      Un tren o una salida en coche al final de una ciudad es una visita
+      más (ej. "🚆 Tren a Lucca (Pisa Centrale)" 14:20, salida:true).
+  "calles": [{ "id","dia","parte" (null = de todo el día, ej. una
+      carretera panorámica: se dibuja en todas las partes del día, lleva
+      sinEncuadre y en "Todo" se lista una vez),"grupo":"imprescindible"|
+      "fuera","nombre","tipo","nota","trazado":[[[lat,lng],...],...] }],
   "transporte": { "zonas": { "<zona>": { "titulo","resumen","cuando":[...],
-                  "billetes":[...],"aviso","enlace":{"texto","url"} }, ... },
-                  "busCerca":[ids de lugares donde conviene el bus] },
-  "avisoGeneral": "Recuerda comprobar los horarios..."
+      "billetes":[...],"aviso","enlace":{"texto","url"} } },
+      "busCerca":[ids de lugares donde conviene el bus] },
+  "avisoGeneral": "Recuerda comprobar los horarios…",
+  "esquema": { (si hay esquema/PDF; ver sección 7) }
 }
-Calcula la hora del atardecer de esa ciudad en esas fechas para el
-aviso del atardecer si hay un mirador.
 
 --------------------------------------------------------------------
-4. BASE DE DATOS (Supabase) Y SEGURIDAD
+5. BASE DE DATOS (Supabase) Y SEGURIDAD
 --------------------------------------------------------------------
-Acceso con un CÓDIGO DE 4 DÍGITOS compartido (no hay cuentas ni email).
-Las tablas tienen RLS activado SIN políticas y se revocan permisos a
-anon/authenticated: nadie puede leerlas directamente. Todo pasa por
-funciones RPC "security definer" (search_path = '') que comprueban el
-código. Las funciones devuelven {ok:false} en vez de lanzar excepción
-(para que el registro de intentos fallidos no se deshaga).
+Acceso con un CÓDIGO DE 4 DÍGITOS compartido (sin cuentas ni email).
+Tablas con RLS activado SIN políticas y permisos revocados a
+anon/authenticated: nadie las lee directamente. Todo pasa por funciones
+RPC "security definer" (search_path = '') que comprueban el código y
+devuelven {ok:false} en vez de lanzar excepción (si no, el registro de
+intentos fallidos se deshace).
 
 Tablas:
-  config(id=1, codigo_hash)              -> código cifrado con pgcrypto
-                                           (extensions.crypt / gen_salt('bf'))
+  config(id=1, codigo_hash)  código cifrado (extensions.crypt / gen_salt('bf'))
   estado(clave pk, valor jsonb, autor, actualizado)
-        claves: "lugar:<id>", "calle:<id>", "extra:<id>" (lugar añadido)
-        valor = parche que se fusiona (valor || nuevo): visitado, comentario,
-        hora, dia, borrado, por (quién hizo el último cambio), y en extras
-        también nombre, lat, lng, nota
+      claves "lugar:<id>", "calle:<id>", "extra:<id>"; valor = parche que
+      se fusiona (valor || nuevo): visitado, comentario, hora, dia,
+      borrado, por; en extras también nombre, lat, lng, nota, parte
   posiciones(nombre pk, lat, lng, precision, actualizado)
   intentos_fallidos(id, momento)
-  mensajes(id, de, tipo in(texto,foto,audio,ubicacion), texto,
-           dato (data URL base64 de foto/audio), lat, lng, duracion,
-           borrado bool default false, creado)
+  mensajes(id, de, tipo in(texto,foto,audio,ubicacion), texto, dato
+      (data URL base64), lat, lng, duracion, borrado bool, creado)
 
 Funciones:
-  _codigo_ok(codigo)  interna, sin permiso para anon. Si hay >=100 fallos
-                      en la última hora -> false (bloqueo 1 h). Si falla:
-                      registra el intento + pg_sleep(1). Borra intentos >1 día.
-  leer(codigo) -> {ok, estado:{clave:valor}, posiciones (últimas 12 h),
-                   mensajes (últimos 300 no borrados, SIN el dato, con
-                   tiene_dato)}
-  guardar(codigo, clave, parche jsonb, autor) -> upsert fusionando.
-        Límites: clave <=100, parche objeto <=5000 caracteres, <=2000 filas.
+  _codigo_ok(codigo)  interna (sin permiso para anon). >=100 fallos en
+      1 h -> bloqueo 1 h. Si falla: registra + pg_sleep(1). Limpia >1 día.
+  leer(codigo) -> {ok, estado, posiciones (12 h), mensajes (últimos 300
+      no borrados, sin dato, con tiene_dato)}
+  guardar(codigo, clave, parche, autor)  upsert fusionando
+      (clave <=100, parche objeto <=5000 caracteres, <=2000 filas)
   mi_posicion(codigo, nombre, lat, lng, precision)
   enviar_mensaje(codigo, de, tipo, texto, dato, lat, lng, duracion)
-        Límites: texto <=2000, dato <=1.500.000 caracteres, foto debe
-        empezar por data:image/, audio por data:audio/, <=5000 mensajes.
-  mensaje_archivo(codigo, id) -> {ok, dato}  (fotos/audios se piden aparte)
-  borrar_mensaje(codigo, id, de) -> marca borrado=true y vacía dato/texto
-        (solo el autor). Se hace con UPDATE, no DELETE.
+      (texto <=2000, dato <=1.500.000, foto data:image/, audio data:audio/,
+       <=5000 mensajes)
+  mensaje_archivo(codigo, id) -> {ok, dato}
+  borrar_mensaje(codigo, id, de)  UPDATE borrado=true y vacía dato/texto
+      (solo el autor). NO usar DELETE: las migraciones con DELETE piden
+      mi confirmación y se cancelan.
+Cambiar el código: UPDATE config con crypt(nuevo, gen_salt('bf')); los
+móviles vuelven a pedirlo solos.
+Los avisos del linter "SECURITY DEFINER ejecutable por anon" son esperados.
 
-Los avisos del linter de Supabase "SECURITY DEFINER ejecutable por anon"
-son esperados (las funciones comprueban el código).
-
-Tiempo real: canal Realtime de Supabase "broadcast" que solo envía
-"cambio" (nunca datos). Al recibirlo, el otro móvil llama a leer().
-Respaldo: leer() cada 10 s con la app visible, al volver a la app y al
-recuperar conexión.
+Tiempo real: canal Realtime "broadcast" que solo avisa "cambio" (nunca
+datos); al recibirlo, leer(). Respaldo: leer() cada 10 s con la app
+visible, al volver a la app y al recuperar la conexión.
 
 --------------------------------------------------------------------
-5. FUNCIONES DE LA APP (todas)
+6. FUNCIONES DE LA APP
 --------------------------------------------------------------------
 ENTRADA
-- Pantalla con nombre + código de 4 dígitos (teclado numérico).
-  Se comprueba con leer(). Mensaje "Código incorrecto (si fallas muchas
-  veces se bloquea una hora)" o "No hay conexión".
-- Sesión guardada en localStorage. Si el código cambia en el servidor,
-  la app vuelve a pedirlo ("Vuelve a escribir el código") sin perder
-  cambios pendientes.
-- Cada persona debe usar un nombre distinto (la posición va por nombre).
+- Nombre + código de 4 dígitos (teclado numérico), comprobado con leer().
+  "Código incorrecto (si fallas muchas veces se bloquea una hora)" /
+  "No hay conexión". Sesión en localStorage; si el código cambia, vuelve
+  a pedirlo ("Vuelve a escribir el código") sin perder cambios pendientes.
+- Cada persona con un nombre distinto (la posición va por nombre).
 
 CABECERA
-- Pestañas de días con su color y "Todo". TODAS deben caber siempre a la
-  vista (no usar una fila que se desliza: el usuario no ve los días que
-  quedan fuera). Cada pestaña se reparte el ancho (flex: 1) en dos líneas:
-  día de la semana pequeño arriba ("SÁB", o "HOY" si es hoy) y número
-  grande abajo ("21"); la última "VER / Todo". Comprobar en iPhone SE
-  (320 px) que ninguna sale de la pantalla. Al cambiar de día el mapa
-  encuadra ese día.
-- Punto de sincronización como puntito en la esquina del botón ⚙️:
-  verde (al día), naranja (enviando), gris (sin red).
-- Botones 🚌 (transporte) y ⚙️ (ajustes).
-- DÍAS CON DOS CIUDADES: debajo de las pestañas sale un selector de dos
-  botones grandes ("🌅 Pisa mañana" / "🌇 Lucca tarde") con el color del
-  día. El mapa, la numeración (1, 2, 3… por ciudad), la tarjeta
-  Siguiente, los avisos, los consejos y la lista muestran SOLO la ciudad
-  elegida (no se mezclan: están a ~20 km y el mapa se alejaría
-  demasiado). La ciudad se elige sola: la que tengo a <15 km por GPS; si
-  no, según la hora ("desde") si es ese día; si no, la primera. Tocar un
-  botón la fija hasta volver a tocar la pestaña del día. En "Todo" se
-  listan las dos con un título de color por ciudad. Los lugares añadidos
-  a mano ese día van a la ciudad más cercana. Al aparecer el selector,
-  llamar a mapa.invalidateSize() y bajar la guía y los avisos (variable
-  CSS --alto-cab).
-  Con MÁS DE 2 ciudades el selector es compacto y TAMBIÉN cabe entero:
-  botones que se reparten el ancho, en dos líneas: "icono + hora de la
-  primera visita" arriba y el nombre corto abajo (ej. "🍷 09:45" /
-  "Greve"). El nombre corto debe caber en 320 px (ej. "Costanza", no
-  "V. Costanza").
-  Con 7 días (8 pestañas) y 5 pueblos también tienen que caber: añadir
-  un @media (max-width: 359px) con letra y márgenes algo menores, y usar
-  nombres cortos de ~7 letras cuando hay 5 pueblos ("Oliveto",
-  "Quirico", "Vignoni"). Medir en 320 px que nada sale ni se corta.
-- Paradas de salida en coche sin hora fija (ej. "🚗 A Siena a dormir",
-  "🚗 Vuelta a Florencia") y opcionales lejanos llevan sinEncuadre.
-- ESQUEMA DEL VIAJE (esquema.js), si me pasas un esquema/PDF con dónde
-  dormir cada noche: en la pestaña "Todo" (y desde ⚙️ → Esquema del
-  viaje). Arriba del panel: título, tarjetas de cada día (color, zona,
-  resumen, 🚶/🚆/🚗 y 🏨 hotel de esa noche; tocar = ir a ese día; los
-  días sin pestaña, como la vuelta, abren una ventana con 🚗 Ir a…),
-  tarjetas de hoteles (tocar = el mapa va a su zona) y "Por qué este
-  reparto" plegado. En "Todo" el mapa NO pinta lugares ni calles: solo
-  la ruta de cada día (línea de su color, de puntos si es tren, con
-  popup "Ver día"), los 🏨 con etiqueta "Ciudad · N noches" y un punto
-  con el NOMBRE de cada pueblo/ciudad (color de su día; tocar = ir a ese
-  día y ese pueblo). Los nombres son marcadores de texto (divIcon), no
-  tooltips permanentes (esos se duplican al redibujar durante el zoom).
-  Colocación automática: para cada nombre se prueba derecha, izquierda,
-  arriba, abajo y 8 posiciones desplazadas; se elige la primera que no
-  choca con otro nombre, un punto, los botones flotantes o el panel y
-  que no se sale del mapa (primero los hoteles, luego los pueblos con
-  más vecinos). Si no cabe, se oculta y sale al acercar; se recoloca al
-  terminar cada zoom (con espera de 250 ms). Mapa con zoomSnap 0.5.
-  El pueblo (u hotel) donde estoy según el GPS (misma detección que la
-  píldora 📍: <7 km de la ciudad principal, <4 km de cada pueblo) sale
-  resaltado: etiqueta azul con "📍", punto con halo que late, y se coloca
-  el primero para que siempre se vea; se repinta al cambiar de pueblo.
-  Datos: "esquema": { titulo, subtitulo, dias:[{fecha, corto, zona,
-  resumen, modo, icono, noche, ruta:[[lat,lng]...], tren, rutaTexto}],
-  hoteles:[{id, nombre, noches, zona, lat, lng, notas:[...]}], porque:[...] }.
-  Revisa que los días de la app cuadren con el esquema (dónde se duerme).
-- Un lugar puede llevar "avisoAtardecer" con su propio texto de aviso
-  (ej. un mirador: "ve a Via del Casello para verlo").
-- TARJETA "SIGUIENTE CIUDAD": al hacer todas las visitas de una ciudad,
-  la tarjeta pasa a "✔ GREVE TERMINADO · SIGUIENTE → 🥩 Panzano", con el
-  texto de "llegar", la hora de la primera visita y los botones
-  "🚗 Ir en coche" / "🚆 Ir en tren / bus" (Google Maps en ese modo hasta
-  la primera visita) y "Ver Panzano".
-- Encuadre del mapa con maxZoom 16 (una ciudad con un solo punto no se
-  acerca de más).
+- Pestañas de días + "Todo". TODAS caben siempre a la vista (nada de
+  filas que se deslizan: los días de fuera no se ven). Se reparten el
+  ancho en dos líneas: "SÁB" (o "HOY") pequeño arriba y "21" grande
+  abajo; la última "VER / Todo". Con 7 días (8 pestañas) añadir un
+  @media (max-width: 359px) con letra y márgenes menores.
+- Botones 🚌 (transporte) y ⚙️ (ajustes); la sincronización es un
+  puntito en la esquina de ⚙️: verde, naranja (enviando), gris (sin red).
+
+DÍAS CON VARIAS CIUDADES O PUEBLOS
+- Debajo de las pestañas, un selector con una opción por ciudad. Con 2:
+  dos botones grandes ("🌅 Pisa mañana" / "🌇 Lucca tarde"). Con 3 o
+  más: botones que se reparten el ancho, en dos líneas ("🍷 09:45" /
+  "Greve"), que caben enteros en 320 px.
+- El mapa, la numeración (1, 2, 3… por ciudad), la tarjeta Siguiente,
+  los avisos, los consejos y la lista muestran SOLO la ciudad elegida.
+- La ciudad se elige sola: la que tengo a <15 km por GPS; si no, por la
+  hora ("desde") si es ese día; si no, la primera. Tocar un botón la fija
+  hasta volver a tocar la pestaña del día.
+- Al aparecer el selector: mapa.invalidateSize() y bajar la guía y los
+  avisos (variable CSS --alto-cab).
+- Tarjeta "SIGUIENTE CIUDAD": al hacer todas las visitas de una ciudad,
+  "✔ GREVE TERMINADO · SIGUIENTE → 🥩 Panzano", con el texto de "llegar",
+  la primera visita y "🚗 Ir en coche" / "🚆 Ir en tren / bus" (Google
+  Maps en ese modo) y "Ver Panzano".
+- Lugares añadidos a mano ese día: van a la ciudad más cercana.
 
 MAPA
-- Mi posición con GPS (watchPosition, alta precisión): punto azul +
-  círculo de precisión + abanico azul de la brújula (hacia dónde miro;
-  ver BRÚJULA más abajo). Si estoy en la ciudad, la primera vez centra en mí.
-- Visitas numeradas 1, 2, 3… por orden de hora y coloreadas por día.
-  Opcionales: círculo blanco con borde del color y "+". Lugares
-  añadidos: "★" cuadrado. Visitados: gris con ✔.
+- Yo: punto azul + círculo de precisión + abanico de la brújula. La
+  primera vez, si estoy a <3 km de algún lugar del viaje, centra en mí.
+- Visitas numeradas por hora y coloreadas por día; opcionales "+"
+  (círculo blanco); añadidas "★"; visitadas grises con ✔.
 - Calles: línea continua (imprescindibles) o de puntos (fuera de ruta),
-  con una línea invisible ancha encima para tocarlas fácil con el dedo.
-- La otra persona: círculo morado con su inicial y etiqueta
-  "Nombre · hace X min" (semitransparente si hace >10 min). Tocarlo
-  ABRE EL CHAT. Muestra insignia roja con mensajes sin leer.
-- Botones flotantes a la derecha (suben y bajan con el panel):
-  💬 chat (con insignia), 👥 ir a la otra persona (solo si hay posición),
-  📍 centrar en mí y seguirme (se desactiva al arrastrar el mapa; en
-  iPhone este toque también pide el permiso de la brújula).
-- Mantener pulsado el mapa = añadir lugar nuevo.
+  con una línea invisible ancha encima para tocarlas con el dedo.
+- La otra persona: círculo morado con inicial y "Nombre · hace X min";
+  tocarlo abre el chat; insignia roja con mensajes sin leer.
+- Botones flotantes: 💬 chat, 👥 ir a la otra persona, 📍 centrar y
+  seguirme (en iPhone también pide el permiso de la brújula).
+- Mantener pulsado = añadir lugar.
+- Encuadre con maxZoom 16; lo marcado sinEncuadre no cuenta.
 
-PANEL INFERIOR (zona de datos)
-- Botón "▼ Ocultar" / "▲ Mostrar" y también deslizar el dedo
-  (abajo oculta, arriba muestra). Oculto deja solo una barra con
-  "▶ Siguiente: <lugar> · <hora> · <distancia>" (tocarla lo abre).
-  Recuerda si estaba oculto.
-- Junto al botón Ocultar/Mostrar, una píldora "📍 <localidad>" con el
-  sitio donde estoy por GPS ("📍 Sin GPS" si no hay). Primero sin internet:
-  si estoy a <7 km del centro de la ciudad principal o a <4 km del centro
-  de una ciudad/pueblo del viaje, su nombre. Si no, reverse de Nominatim
-  (zoom=10, accept-language=es: city/town/village/municipality), como
-  mucho cada 2 min y solo si me he movido >1 km.
-- Avisos (solo si el día seleccionado es hoy, con hora de la ciudad):
-  "⏰ X cierra a las HH:MM (quedan N min)" si quedan <=60 min (rojo <=30);
-  "🌅 El atardecer es hacia las X: no llegues tarde a Y" (lugares con
-  antesAtardecer, 80 min antes); "🚆 Tren…: sale a las HH:MM (quedan N min)"
-  (lugares con salida, 45 min antes, rojo <=15); "🚌 Para bajar: buses…" si estoy a
-  <350 m de un lugar de busCerca. Los consejos del día (y de la ciudad)
-  van PLEGADOS en una línea "💡 Consejos (n)" (<details>) para que la
-  tarjeta Siguiente se vea sin desplazar; los avisos siempre a la vista.
-- Tarjeta "▶ SIGUIENTE · DÍA": primera visita no hecha por orden de
-  hora, con hora, distancia y minutos a pie. El nombre ("Uffizi ›") abre
-  la ficha. Botones: 🧭 Guiarme (principal), 🗺️ Maps (Google Maps a pie)
-  y ✔ Hecho. Si todo hecho: "¡Visitas del día completadas! 🎉".
-- Lista: Visitas, Opcionales, Añadidos por vosotros, Calles
-  imprescindibles, Calles fuera de ruta; con distancia a cada una.
-  En "Todo", agrupado por día. Botones "＋ Añadir lugar" y "🔎 Ver el día".
-- Distancia: metros/km y minutos a pie (distancia ×1,3 / 80 m/min).
-  Si estoy a más de 50 km: "N km (estás lejos)".
+PANEL INFERIOR
+- "▼ Ocultar" / "▲ Mostrar" (también deslizando el dedo); oculto deja una
+  barra "▶ Siguiente: …" que lo abre. Recuerda el estado.
+- Junto a ese botón, "📍 <localidad>" donde estoy por GPS ("📍 Sin GPS"):
+  sin internet si estoy a <7 km de la ciudad principal o a <4 km de una
+  ciudad/pueblo del viaje; si no, reverse de Nominatim (zoom=10,
+  accept-language=es) como mucho cada 2 min y si me he movido >1 km.
+- Avisos (solo si el día que miro es hoy, con la hora del destino):
+  "⏰ X cierra a las HH:MM (quedan N min)" (<=60 min, rojo <=30);
+  "🌅 El atardecer es hacia las X: no llegues tarde a Y" (80 min antes,
+  o el texto de avisoAtardecer); "🚆/🚗 …: sale a las HH:MM (quedan N
+  min)" (45 min antes, rojo <=15); "🚌 Para bajar: …" a <350 m de busCerca.
+- Consejos del día y de la ciudad PLEGADOS en "💡 Consejos (n)".
+- Tarjeta "▶ SIGUIENTE · DÍA · CIUDAD": primera visita no hecha, hora,
+  distancia y minutos a pie (×1,3 / 80 m/min; ">50 km: estás lejos");
+  el nombre abre la ficha; botones 🧭 Guiarme, 🗺️ Maps, ✔ Hecho.
+- Lista: Visitas, Opcionales, Añadidos, Calles imprescindibles, Calles
+  fuera de ruta, con distancia; "＋ Añadir lugar" y "🔎 Ver el día".
 
-FICHA DE LUGAR O CALLE (ventana que sube desde abajo)
-- Nombre, tipo, chip del día, distancia, horario, nota del fichero.
-- Recuadro de bus en los lugares de busCerca + botón "🚌 En bus"
-  (Google Maps en transporte público).
-- 🧭 Guiarme (principal) y 🗺️ Google Maps a pie (en calles, ambos van
-  al punto más cercano de la calle). Guiarme cierra la ficha.
-- ✔ Visitado / ✔ Recorrida / ↩︎ Desmarcar.
-- Cambiar hora prevista y día. Notas compartidas con "💾 Guardar nota".
-- "Último cambio: <nombre>". En lugares añadidos: 🗑 Borrar (con confirmación).
+FICHA DE LUGAR O CALLE
+- Nombre, tipo, chip del día, distancia, horario, nota; recuadro de bus
+  en busCerca + "🚌 En bus"; 🧭 Guiarme y 🗺️ Google Maps (en calles, al
+  punto más cercano); ✔ Visitado / Recorrida / ↩︎ Desmarcar; cambiar hora
+  y día; notas compartidas; "Último cambio: <nombre>"; 🗑 en añadidos.
 
-BRÚJULA Y MODO GUIARME (brujula.js)
-- Mi punto azul lleva un abanico azul de 60° que gira hacia donde miro:
-  'deviceorientationabsolute' en Android (rumbo = 360 - alpha) y
-  webkitCompassHeading en iPhone (pide permiso con
-  DeviceOrientationEvent.requestPermission, solo desde un toque: al
-  pulsar 📍 o 🧭). Se corrige con el giro de la pantalla y se suaviza.
-  Sin brújula se usa coords.heading del GPS al caminar (>0,7 m/s).
-- Botón "🧭 Guiarme" en la tarjeta Siguiente y en cada ficha (además de
-  "🗺️ Maps"). Muestra arriba un recuadro con una flecha grande que
-  apunta al destino (rumbo al destino - mi rumbo; "si apunta hacia
-  arriba, vas bien"), nombre, metros y minutos, y una línea de puntos
-  en el mapa de mí al destino (en calles, a su punto más cercano).
-  A <30 m: "🎉 ¡Has llegado!" + vibración + botón "✔ Marcar visitado".
-  ✕ termina la guía.
+BRÚJULA Y GUIARME (brujula.js)
+- Abanico de 60° en mi punto hacia donde miro: Android
+  'deviceorientationabsolute' (rumbo = 360 - alpha); iPhone
+  webkitCompassHeading con DeviceOrientationEvent.requestPermission
+  (solo desde un toque: 📍 o 🧭). Corregir con el giro de la pantalla y
+  suavizar. Sin brújula: coords.heading del GPS al caminar (>0,7 m/s).
+- "🧭 Guiarme": recuadro arriba con flecha grande hacia el destino
+  (rumbo al destino - mi rumbo: "si apunta hacia arriba, vas bien"),
+  metros y minutos, línea de puntos en el mapa; a <30 m "🎉 ¡Has
+  llegado!" + vibración + "✔ Marcar visitado"; ✕ termina.
+- El abanico (hacia dónde miro, sobre el mapa con el norte arriba) y la
+  flecha (hacia dónde girar) NO apuntan igual: es normal; explícalo en el
+  README (cuando el abanico queda sobre la línea de puntos, la flecha
+  apunta hacia arriba).
 
 AVISO AL PASAR CERCA
-- Si paso a <50 m de una calle del día no recorrida: aviso
-  "📍 Estás junto a <calle>" con su nota + vibración (una vez por calle;
-  se puede desactivar en ajustes). Tocarlo abre la ficha.
+- A <50 m de una calle del día no recorrida: "📍 Estás junto a <calle>"
+  + nota + vibración (una vez por calle; se puede desactivar).
 
-TRANSPORTE (🚌): primero la zona del día que se está viendo (resumen,
-cuándo conviene, billetes y pago, aviso, enlace a la web de transporte);
-las demás zonas plegadas debajo (<details>). Aviso general de horarios.
+TRANSPORTE (🚌): primero la zona del día que miro; las demás plegadas.
 
-AJUSTES (⚙️): ver opcionales / calles imprescindibles / calles fuera de
-ruta / ocultar visitados / avisos de calles cercanas; "🔄 Actualizar
-ahora"; "Salir" (avisa si hay cambios sin enviar).
+AJUSTES (⚙️): ver opcionales / calles imprescindibles / fuera de ruta /
+ocultar visitados / avisos de calles; "🗺️ Esquema del viaje";
+"🔄 Actualizar ahora"; "Salir" (avisa si hay cambios sin enviar).
 
 SIN CONEXIÓN
-- Los cambios se guardan en una cola en localStorage, se ven al momento
-  y se envían solos al volver la red (estado = servidor + pendientes).
-- Último estado guardado en caché para abrir la app sin red.
-- Service worker (sw.js): archivos de la app "primero red, si falla
-  caché"; librerías CDN y teselas del mapa "primero caché" (máx. 3000
-  teselas); Supabase nunca se cachea. Constante VERSION que hay que
-  subir en cada cambio (ciudad-v1, v2…).
+- Cola de cambios en localStorage (estado = servidor + pendientes); se
+  envían solos al volver la red. Último estado en caché.
+- sw.js: app "primero red"; librerías y teselas "primero caché" (máx.
+  3000); Supabase y Nominatim nunca. VERSION se sube en cada cambio.
 
 CHAT (chat.js)
-- Pantalla completa. Se abre tocando el punto de la otra persona o 💬.
-- Barra: 📷 cámara (input con capture="environment"), 🖼️ galería
-  (input sin capture) — SEPARADOS, porque en Android un solo botón solo
-  ofrece la galería —, 📍 enviar mi ubicación, cuadro de texto que crece,
-  🎤 grabar voz (se cambia por ➤ cuando hay texto).
-- Fotos reducidas a máx. 1280 px, JPEG calidad 0,72; si hay texto
-  escrito, va como pie de foto. Tocar una foto la abre en grande.
-- Voz: MediaRecorder, preferir audio/mp4 (se oye en iPhone y Android),
-  si no webm/opus; 32 kbps; máx. 60 s; barra "Grabando 0:05" con
-  ✕ Cancelar y ➤ Enviar.
-- Ubicación: burbuja "📍 Ubicación de X", al tocarla cierra el chat y
-  centra el mapa ahí con un globo.
-- Burbujas mías a la derecha (color claro), del otro a la izquierda con
-  su nombre; hora (o fecha si no es hoy). 🗑 en las mías para borrar.
-- Fotos/audios se descargan aparte con mensaje_archivo y se guardan en
-  memoria como URL de blob.
-- Mensaje nuevo con el chat cerrado: aviso arriba "💬 Nombre: texto"
-  (tocarlo abre el chat) + vibración + contador de no leídos.
-- Sin red no se envía: "Sin conexión: no se ha enviado" y el texto se
-  queda escrito.
+- Pantalla completa; se abre tocando el punto del otro o 💬.
+- Barra: 📷 cámara (capture="environment") y 🖼️ galería SEPARADOS (en
+  Android un solo botón solo ofrece la galería), 📍 mi ubicación, texto
+  que crece, 🎤 voz (se cambia por ➤ con texto).
+- Fotos a máx. 1280 px, JPEG 0,72; el texto escrito va como pie.
+- Voz: MediaRecorder, preferir audio/mp4, si no webm/opus; 32 kbps;
+  máx. 60 s; "Grabando 0:05" con ✕ Cancelar y ➤ Enviar.
+- Ubicación: burbuja que al tocarla centra el mapa ahí.
+- 🗑 en mis mensajes; fotos/audios se piden aparte (mensaje_archivo).
+- Mensaje nuevo con el chat cerrado: aviso + vibración + no leídos.
+- Sin red no se envía y el texto se queda escrito.
 
 DISEÑO
-- Móvil primero, márgenes seguros (safe-area), color principal terracota
-  #7c2d12 (o uno típico de la nueva ciudad si prefieres), fondo crema
-  #faf7f2, textos con emojis como iconos, botones de mínimo 44 px.
-- Todo el texto que viene de la base de datos se escapa (esc()).
-- La fecha/hora "de hoy" se calcula con Intl en la zona horaria de la
-  ciudad, no la del móvil.
+- Móvil primero, safe-area, color principal #7c2d12 (o uno típico del
+  destino), fondo #faf7f2, emojis como iconos, botones de >=44 px.
+- Todo lo que viene de la base de datos se escapa (esc()).
+- La fecha/hora "de hoy" con Intl en la zona horaria del destino.
 
 --------------------------------------------------------------------
-6. CÓMO TRABAJAR (lo que aprendimos con Florencia)
+7. ESQUEMA DEL VIAJE (esquema.js) — si hay esquema/PDF
 --------------------------------------------------------------------
-- Crea un proyecto de Supabase NUEVO para esta ciudad (el plan gratis
-  permite 2 activos; si no hay hueco, avísame antes).
-- Prueba con Playwright (Chromium en /opt/pw-browsers) simulando DOS
-  móviles: código malo/bueno, GPS falso en la ciudad, marcar visitado y
-  ver que llega al otro, notas, modo sin conexión y cola, borrar datos
-  del navegador y volver a entrar, panel ocultar/mostrar (tocar y
-  deslizar), chat con texto/foto/audio (micrófono falso)/ubicación,
-  botones de cámara y galería, brújula y Guiarme (simular la brújula con
-  window.dispatchEvent(new DeviceOrientationEvent('deviceorientationabsolute',
-  {alpha: 360 - rumbo, absolute: true})): comprobar que el abanico gira,
-  que la flecha queda recta al mirar al destino y que al acercar el GPS
-  falso sale "¡Has llegado!"), y que todo cabe en un iPhone SE.
-  Si das GPS en las pruebas, intercepta la llamada rpc/mi_posicion con
-  page.route para no guardar posiciones de prueba en el mapa real.
-  Sirve los archivos con page.route (el proxy no deja usar localhost).
-- En ese entorno los WebSocket no pasan por el proxy: el tiempo real no
-  se puede probar ahí; la sincronización cae al respaldo de 10 s.
-  Pídeme que lo compruebe con dos móviles reales.
-- Usa nombres de prueba y NO des permiso de GPS en las pruebas del chat
-  para no dejar posiciones en el mapa. Al terminar, deja la base de
-  datos vacía. Los DELETE por SQL piden mi confirmación: si se cancela,
-  dame el SQL y el enlace directo al SQL Editor del proyecto
+- Va en la pestaña "Todo" (y en ⚙️ → Esquema del viaje), arriba del panel
+  (div #esquema-panel, antes de los avisos): título y subtítulo;
+  tarjetas de cada día en 2 columnas (color, fecha, zona, resumen,
+  🚶/🚆/🚗 y 🏨 de esa noche; tocar = ir a ese día; un día sin pestaña,
+  como la vuelta, abre una ventana con "🚗 Ir a…"); tarjetas de hoteles
+  con sus notas (tocar = el mapa va a su zona); "💡 Por qué este reparto"
+  plegado.
+- En "Todo" el mapa NO pinta lugares ni calles. Solo: la ruta de cada día
+  (línea de su color, de puntos si es tren; popup "Día · zona · cómo" con
+  "Ver día"), los 🏨 con "Ciudad · N noches", y un punto con el NOMBRE de
+  cada pueblo/ciudad (color de su día; tocar = ir a ese día y ese pueblo).
+- Los nombres son marcadores de texto (divIcon), NO tooltips permanentes
+  (esos se duplican al redibujar durante el zoom). Colocación automática:
+  se prueban derecha, izquierda, arriba, abajo y 8 posiciones desplazadas
+  (±13 y ±24 px); se elige la primera que no choca (tolerancia 2 px) con
+  otro nombre, un punto, los botones flotantes o el panel, y que no se
+  sale del mapa. Orden: primero donde estoy, luego los hoteles, luego los
+  pueblos con más vecinos. Si no cabe, se oculta y aparece al acercar.
+  Se recolocan al terminar cada zoom (esperar 250 ms). Encuadre de
+  "Todo": padding [16,24] / [72, alto del panel + 16].
+- Una ciudad con hotel no lleva nombre aparte (ya lo dice su hotel).
+- El pueblo u hotel donde estoy por GPS (misma detección que la píldora
+  📍) sale resaltado: etiqueta azul con "📍", punto con halo que late;
+  se repinta al cambiar de pueblo.
+- Datos: "esquema": { titulo, subtitulo, dias:[{fecha, corto, zona,
+  resumen, modo, icono, noche, ruta:[[lat,lng]…], tren, rutaTexto,
+  color}], hoteles:[{id, nombre, noches, zona, lat, lng, notas:[…]}],
+  porque:[…] }. Los hoteles van en su ZONA si no tengo la dirección.
+- Comprueba que los días de la app cuadran con el esquema (dónde se
+  duerme cada noche, de dónde se sale cada mañana) y corrígelos.
+
+--------------------------------------------------------------------
+8. CÓMO TRABAJAR (lo que aprendimos con Florencia)
+--------------------------------------------------------------------
+- Proyecto de Supabase NUEVO (el plan gratis permite 2 activos; si no
+  hay hueco, avísame antes).
+- Pruebas con Playwright (Chromium en /opt/pw-browsers), sirviendo los
+  archivos con page.route (el proxy no deja usar localhost):
+    · dos móviles: código malo/bueno, marcar visitado y verlo en el otro,
+      notas, sin conexión y cola, borrar datos y volver a entrar;
+    · panel (tocar y deslizar), chat (texto, foto, audio con micrófono
+      falso, ubicación, cámara/galería), brújula y Guiarme (simular con
+      dispatchEvent(new DeviceOrientationEvent('deviceorientationabsolute',
+      {alpha: 360 - rumbo, absolute: true})));
+    · días con varias ciudades: selector, elección por GPS y por hora
+      (page.clock.setFixedTime), avisos de cierre/salida/atardecer,
+      tarjeta "siguiente ciudad", transporte por zonas;
+    · medir en iPhone SE (320 px), iPhone 13 y Pixel 7 que ninguna
+      pestaña ni botón sale de la pantalla ni se corta, y que en "Todo"
+      los nombres del mapa no se pisan, no se salen ni quedan bajo los
+      botones. Mirar siempre las capturas.
+- No guardar nada de prueba en la base de datos real: interceptar
+  rpc/mi_posicion (responder ok) y rpc/guardar (abort: los cambios se
+  quedan pendientes en el móvil); en el chat usar nombres de prueba y
+  borrar los mensajes al final con borrar_mensaje.
+- Los WebSocket no pasan por el proxy: el tiempo real no se puede probar
+  ahí (cae al respaldo de 10 s). Pídeme que lo compruebe con dos móviles.
+- Los DELETE por SQL piden mi confirmación y suelen cancelarse: si hay
+  que vaciar algo, dame el SQL y el enlace al SQL Editor del proyecto
   (https://supabase.com/dashboard/project/<ref>/sql/new) y luego
-  comprueba que está vacía.
-- Publicar en Netlify: crear el sitio y desplegar con el comando que da
-  la herramienta. El permiso temporal caduca: si da 401, pide uno nuevo.
-  netlify.toml: publish ".", Content-Type application/manifest+json
-  para el manifest y Cache-Control no-cache para sw.js.
-- Haz commit y push a main en cada cambio y vuelve a publicar en
-  Netlify; sube VERSION en sw.js.
-- Al acabar dime: la URL, el código, cómo instalarla en iPhone y
-  Android, y recuérdame que Supabase gratis se pausa tras 7 días sin
-  uso (se reactiva con "Restore project").
+  comprueba que está vacío (ojo: que lo ejecute en el proyecto correcto).
+- Netlify: crear el sitio y desplegar con el comando que da la
+  herramienta; el permiso caduca (401): pedir uno nuevo en cada
+  despliegue. netlify.toml: publish ".", Content-Type
+  application/manifest+json para el manifest, Cache-Control no-cache
+  para sw.js.
+- En cada cambio: commit y push a main, subir VERSION en sw.js, publicar
+  en Netlify y comprobar que la web sirve la versión nueva.
+- Al acabar dime: la URL, el código, cómo instalarla en iPhone y Android,
+  y recuérdame que Supabase gratis se pausa tras 7 días sin uso (se
+  reactiva con "Restore project").
