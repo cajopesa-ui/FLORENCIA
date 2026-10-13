@@ -397,6 +397,7 @@ function pintarMapa() {
     capa.addLayer(m);
   }
 
+  pintarHotelesDia();    // el 🏨 de la noche anterior y el de esta noche
   pintarEsquemaMapa();   // en "Todo": rutas de cada día y hoteles
   pintarOtros();
 }

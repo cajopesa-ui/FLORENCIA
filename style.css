@@ -408,6 +408,10 @@ input, textarea, select { font: inherit; }
 .esq-popup { font-size: 14px; }
 .esq-popup .btn { margin-top: 8px; min-height: 36px; padding: 6px 12px; }
 .esq-popup ul { padding-left: 16px; margin: 6px 0 0; }
+.estrellas { color: #d97706; }
+.hotel-notas { margin: 2px 0 0; padding-left: 18px; }
+.hotel-notas li { margin: 3px 0; }
+.esq-hotel .esq-hotel-nombre { display: block; font-size: 13px; color: var(--texto); }
 @media (max-width: 359px) { .esq-dias, .esq-hoteles { grid-template-columns: 1fr; } }
 /* Nombres de los pueblos en el mapa de "Todo" */
 .esq-pueblo { width: 14px; height: 14px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.4); }

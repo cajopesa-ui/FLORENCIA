@@ -32,7 +32,7 @@ function htmlEsquema() {
   const hoteles = E.hoteles.map((h) => `
       <button class="esq-hotel" data-esq-hotel="${h.id}">
         <b>🏨 ${esc(h.nombre)}</b> <span>${esc(h.noches)}</span>
-        <small>${esc(h.zona)}</small>
+        ${h.hotel ? `<small><b class="esq-hotel-nombre">${esc(h.hotel)} <span class="estrellas">${'★'.repeat(h.estrellas || 0)}</span></b>${esc(h.direccion)}</small>` : `<small>${esc(h.zona)}</small>`}
         <ul>${h.notas.map((n) => `<li>${esc(n)}</li>`).join('')}</ul>
       </button>`).join('');
   return `
@@ -87,12 +87,8 @@ function pintarEsquemaMapa() {
   etiquetas.forEach((e, i) => {
     const sitio = sitios[i];
     if (e.tipo === 'hotel') {
-      const icono = L.divIcon({ className: '', iconSize: [34, 34], iconAnchor: [17, 17], html: '<div class="esq-hotel-marca">🏨</div>' });
-      const m = L.marker([e.lat, e.lng], { icon: icono, zIndexOffset: 1500, title: `Hotel en ${e.h.nombre}` });
-      if (e.aqui) m.on('add', () => m.getElement()?.querySelector('.esq-hotel-marca')?.classList.add('aqui'));
-      m.bindPopup(`<div class="esq-popup"><b>🏨 ${esc(e.h.nombre)} · ${esc(e.h.noches)}</b><br>${esc(e.h.zona)}<ul>${e.h.notas.map((n) => `<li>${esc(n)}</li>`).join('')}</ul></div>`);
-      capa.addLayer(m);
-      if (sitio) capa.addLayer(marcaTexto(e, sitio, 'etq-hotel-txt' + (e.aqui ? ' aqui' : '')).on('click', () => m.openPopup()));
+      const m = marcaHotel(e.h, e.aqui);
+      if (sitio) capa.addLayer(marcaTexto(e, sitio, 'etq-hotel-txt' + (e.aqui ? ' aqui' : '')).on('click', () => abrirHotel(e.h)));
     } else {
       const { d, pt } = e;
       const icono = L.divIcon({ className: '', iconSize: [14, 14], iconAnchor: [7, 7], html: `<div class="esq-pueblo ${e.aqui ? 'aqui' : ''}" style="background:${d.color}"></div>` });
@@ -102,6 +98,57 @@ function pintarEsquemaMapa() {
       if (sitio) capa.addLayer(marcaTexto(e, sitio, 'etq-pueblo-txt' + (e.aqui ? ' aqui' : '')).on('click', () => irAPueblo(d.fecha, pt.id)));
     }
   });
+}
+
+// ---------- Hoteles ----------
+// El 🏨 sale en "Todo" y también en el mapa de cada día (el hotel de la noche anterior y el de esa noche).
+// Tocarlo abre su ficha: nombre, estrellas, dirección, horas de entrada y salida, Guiarme y cómo llegar.
+
+function fichaHotel(h) {
+  const titulo = h.hotel ? `${esc(h.hotel)} <span class="estrellas">${'★'.repeat(h.estrellas || 0)}</span>` : `Hotel en ${esc(h.nombre)}`;
+  const dist = miPos ? distancia(miPos, h) : null;
+  return `
+    <h2>🏨 ${titulo}</h2>
+    <p class="tipo">${esc(h.nombre)} · ${esc(h.noches)}${h.fechas ? ' · ' + esc(h.fechas) : ''}</p>
+    ${dist != null ? `<div class="dato"><span class="etq">Desde donde estás</span>${esc(textoDistancia(dist))}</div>` : ''}
+    <div class="dato"><span class="etq">Dirección</span>${esc(h.direccion || h.zona)}</div>
+    ${h.entrada ? `<div class="dos"><div class="dato"><span class="etq">🔑 Entrada</span>${esc(h.entrada)}</div><div class="dato"><span class="etq">🚪 Salida</span>${esc(h.salida)}</div></div>` : ''}
+    <div class="dato"><span class="etq">Notas</span><ul class="hotel-notas">${h.notas.map((n) => `<li>${esc(n)}</li>`).join('')}</ul></div>
+    <div class="fila-botones">
+      <button class="btn btn-principal" data-guiar="hotel:${esc(h.id)}">🧭 Guiarme</button>
+      <a class="btn" href="${urlComoLlegar(h.lat, h.lng, 'driving')}" target="_blank" rel="noopener">🚗 En coche</a>
+      <a class="btn" href="${urlComoLlegar(h.lat, h.lng, 'walking')}" target="_blank" rel="noopener">🚶 A pie</a>
+    </div>`;
+}
+function abrirHotel(h) { abrirVentana(fichaHotel(h)); }
+
+// Para "Guiarme" hasta un hotel (clave "hotel:siena")
+function hotelPorClave(clave) {
+  if (!String(clave).startsWith('hotel:')) return null;
+  const h = DATOS.esquema?.hoteles.find((x) => x.id === clave.slice(6));
+  return h ? { nombre: h.hotel || `Hotel en ${h.nombre}`, lat: h.lat, lng: h.lng, clase: 'hotel' } : null;
+}
+
+function marcaHotel(h, aqui = false) {
+  const icono = L.divIcon({ className: '', iconSize: [34, 34], iconAnchor: [17, 17], html: '<div class="esq-hotel-marca">🏨</div>' });
+  const m = L.marker([h.lat, h.lng], { icon: icono, zIndexOffset: 1500, title: h.hotel || `Hotel en ${h.nombre}` });
+  if (aqui) m.on('add', () => m.getElement()?.querySelector('.esq-hotel-marca')?.classList.add('aqui'));
+  m.on('click', () => abrirHotel(h));
+  capa.addLayer(m);
+  return m;
+}
+
+// Mapa de un día: el hotel donde has dormido y el de esa noche (si es otro)
+function pintarHotelesDia() {
+  const E = DATOS.esquema;
+  if (!E || diaSel === 'todo') return;
+  const i = E.dias.findIndex((d) => d.fecha === diaSel);
+  if (i < 0) return;
+  const ids = new Set([E.dias[i - 1]?.noche, E.dias[i].noche].filter(Boolean));
+  for (const id of ids) {
+    const h = E.hoteles.find((x) => x.id === id);
+    if (h) marcaHotel(h);
+  }
 }
 
 // Un nombre en el mapa: un marcador de solo texto colocado al lado elegido de su punto
@@ -182,7 +229,7 @@ function abrirDiaSinPestana(d) {
   abrirVentana(`
     <h2>${d.icono} ${esc(d.corto)} · ${esc(d.zona)}</h2>
     <p class="tipo">${esc(d.resumen)}.</p>
-    ${destino ? `<a class="btn btn-principal" style="width:100%" href="${urlComoLlegar(destino[0], destino[1], 'driving')}" target="_blank" rel="noopener">🚗 Ir a Florencia</a>` : ''}
+    ${destino ? `<a class="btn btn-principal" style="width:100%" href="${urlComoLlegar(destino[0], destino[1], 'driving')}" target="_blank" rel="noopener">🚗 Ir al aeropuerto de Florencia</a>` : ''}
     <p class="consejo" style="margin-top:12px">Reposta antes de devolver el coche si el contrato lo pide.</p>
   `);
 }
@@ -206,6 +253,6 @@ document.addEventListener('click', (e) => {
   const hotel = e.target.closest('[data-esq-hotel]');
   if (hotel) {
     const h = DATOS.esquema.hoteles.find((x) => x.id === hotel.dataset.esqHotel);
-    if (h) { seguir = false; mapa.setView([h.lat, h.lng], 14); }
+    if (h) { seguir = false; mapa.setView([h.lat, h.lng], 14); abrirHotel(h); }
   }
 });

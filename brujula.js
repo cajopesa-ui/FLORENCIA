@@ -115,7 +115,7 @@ function puntoDestino() {
 }
 
 function guiar(clave) {
-  const x = buscar(clave);
+  const x = buscar(clave) || hotelPorClave(clave);   // un lugar, una calle o un hotel
   if (!x) return;
   iniciarBrujula();                                     // estamos dentro de un toque: vale para iPhone
   cerrarVentana();
@@ -157,7 +157,7 @@ function actualizarGuia() {
 
   if (metros <= DISTANCIA_LLEGADA) {
     $('#guia-dist').textContent = '🎉 ¡Has llegado!';
-    const yaVisto = buscar(guia.clave)?.visitado;
+    const yaVisto = guia.clave.startsWith('hotel:') || buscar(guia.clave)?.visitado;   // un hotel no se marca
     $('#guia-visto').hidden = !!yaVisto;
     if (!llegadaAvisada) { llegadaAvisada = true; if (navigator.vibrate) navigator.vibrate([200, 100, 200]); }
   } else {

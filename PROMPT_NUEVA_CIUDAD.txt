@@ -333,10 +333,21 @@ DISEÑO
 - El pueblo u hotel donde estoy por GPS (misma detección que la píldora
   📍) sale resaltado: etiqueta azul con "📍", punto con halo que late;
   se repinta al cambiar de pueblo.
+- Ficha de hotel: tocar un 🏨 (en "Todo", su nombre o su tarjeta) abre una
+  ventana (la misma de los lugares, NO un popup del mapa, que en móviles
+  pequeños no cabe) con nombre del hotel y ★, ciudad · noches · fechas,
+  distancia desde donde estoy, dirección, 🔑 entrada / 🚪 salida, notas y
+  botones "🧭 Guiarme" (clave "hotel:<id>"; al llegar no ofrece "marcar
+  visitado"), "🚗 En coche" y "🚶 A pie" (Google Maps).
+- En el mapa de cada día salen también el 🏨 de la noche anterior y el de
+  esa noche (sin entrar en el encuadre del día).
 - Datos: "esquema": { titulo, subtitulo, dias:[{fecha, corto, zona,
   resumen, modo, icono, noche, ruta:[[lat,lng]…], tren, rutaTexto,
-  color}], hoteles:[{id, nombre, noches, zona, lat, lng, notas:[…]}],
-  porque:[…] }. Los hoteles van en su ZONA si no tengo la dirección.
+  color}], hoteles:[{id, nombre, noches, zona, lat, lng, notas:[…],
+  hotel, estrellas, direccion, fechas, entrada, salida}], porque:[…] }.
+  Con la reserva (captura de Booking, etc.) saca nombre, estrellas,
+  dirección y horas de entrada/salida, y geolocaliza la dirección exacta
+  con Nominatim. Sin dirección, el hotel va en su ZONA (aproximada).
 - Comprueba que los días de la app cuadran con el esquema (dónde se
   duerme cada noche, de dónde se sale cada mañana) y corrígelos.
 
