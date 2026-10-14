@@ -13,6 +13,12 @@ function colorEsquema(d) {
   return d.color || (DATOS.dias.find((x) => x.fecha === d.fecha) || {}).color || '#475569';
 }
 
+// El panel se repinta solo (cada pocos segundos): recordar si "Por qué este reparto" está abierto
+let porqueAbierto = false;
+document.addEventListener('toggle', (e) => {
+  if (e.target.classList?.contains('esq-porque')) porqueAbierto = e.target.open;
+}, true);
+
 // HTML que va arriba de la lista en "Todo"
 function htmlEsquema() {
   const E = DATOS.esquema;
@@ -42,7 +48,7 @@ function htmlEsquema() {
       <div class="esq-dias">${tarjetas}</div>
       <h3>Noches de hotel</h3>
       <div class="esq-hoteles">${hoteles}</div>
-      <details class="consejos"><summary>💡 Por qué este reparto</summary>
+      <details class="consejos esq-porque" ${porqueAbierto ? 'open' : ''}><summary>💡 Por qué este reparto</summary>
         ${E.porque.map((p) => `<p class="consejo">• ${esc(p)}</p>`).join('')}
       </details>
     </section>`;
