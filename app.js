@@ -290,6 +290,7 @@ function pintar() {
     pintarDias();
     pintarMapa();
     pintarPanel();
+    pintarTiempo();        // previsión del día y la ciudad que se ven (tiempo.js)
     pintarSync();
   });
 }

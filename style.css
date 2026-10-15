@@ -442,3 +442,11 @@ input, textarea, select { font: inherit; }
   0% { box-shadow: 0 0 0 0 rgba(37,99,235,.6); }
   100% { box-shadow: 0 0 0 14px rgba(37,99,235,0); }
 }
+
+/* Tiempo del día (tiempo.js) */
+.tiempo { background: var(--superficie); border: 1px solid var(--borde); border-radius: 12px; padding: 8px 12px; margin: 8px 0; font-size: 14px; line-height: 1.35; }
+.tiempo-linea { display: flex; align-items: center; gap: 10px; }
+.tiempo-icono { font-size: 30px; line-height: 1; }
+.tiempo-orient { margin-left: auto; font-size: 11px; font-weight: 700; text-transform: uppercase; color: #92400e; background: #fef3c7; border-radius: 999px; padding: 2px 8px; }
+.tiempo-lluvia { margin-top: 6px; font-weight: 700; color: #1d4ed8; }
+.tiempo-nota { margin-top: 4px; font-size: 12px; color: var(--suave); }

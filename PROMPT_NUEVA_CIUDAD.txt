@@ -376,6 +376,24 @@ DISEÑO
   Antes pregúntame lo que no esté claro (dónde se recoge el coche, orden
   de los pueblos) y repasa los horarios según el día de la semana.
 
+- TIEMPO (tiempo.js): recuadro encima de "Siguiente" con la previsión del
+  día y la ciudad que se ven (en días con varias ciudades, la elegida):
+  icono y cielo (códigos WMO en español), máx./mín., % de lluvia, viento
+  y "☔ Lluvia probable de 15 a 18 h" (horas 9-20 con ≥50 %). Fuente:
+  Open-Meteo (gratis, sin clave): /v1/forecast con daily weather_code,
+  temperature_2m_max/min, precipitation_probability_max,
+  wind_speed_10m_max, hourly precipitation_probability, timezone=auto,
+  forecast_days=16. Hasta 7 días antes: normal; de 8 a 15: etiqueta
+  "orientativa"; antes: "📅 Normal en <mes> en <ciudad>: máx/mín · llueve
+  N de cada 10 días", calculado al crear la app con el archivo histórico
+  de Open-Meteo (archive-api, 10 años, mismas fechas del mes; día de
+  lluvia = ≥1 mm) y guardado en "clima" de cada parte o día (los días sin
+  partes llevan "ciudad", lat y lng: el centro de sus visitas). Caché en
+  localStorage (refrescar pasada 1 h; si falla, reintentar a los 2 min;
+  sin cobertura, la última con "actualizada hace X"). El día de prueba
+  usa la fecha de hoy. Probar con page.route simulando la respuesta y
+  page.clock.setFixedTime a 5, 12 y 30 días del viaje.
+
 --------------------------------------------------------------------
 8. CÓMO TRABAJAR (lo que aprendimos con Florencia)
 --------------------------------------------------------------------

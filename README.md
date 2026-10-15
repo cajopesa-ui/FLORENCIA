@@ -24,6 +24,7 @@ las calles recomendadas, el transporte público y lo que vais marcando los dos e
 | Esquema del viaje | Pestaña **Todo** (o ⚙️ → Esquema): tarjetas de los 8 días (toca una para ir a ese día), hoteles y, en el mapa, la ruta de cada día, los 🏨 y el **nombre de cada pueblo** (toca uno para ir a ese día y ese pueblo; el pueblo donde estás sale **resaltado en azul** con 📍) |
 | Hoteles | Toca el **🏨** en el mapa (sale en Todo y en cada día: el de la noche anterior y el de esa noche): nombre, dirección, horas de entrada y salida, **🧭 Guiarme** y cómo llegar en coche o a pie |
 | Dónde estoy | Junto a ▼ Ocultar / ▲ Mostrar sale **📍 la localidad** según tu GPS |
+| El tiempo | En cada día y ciudad, encima de «Siguiente»: previsión (cielo, máx./mín., lluvia, viento y las horas con lluvia probable). Fiable desde 7 días antes; de 8 a 15 días sale como «orientativa»; antes, el clima normal de noviembre |
 | Consejos del día | Plegados en «💡 Consejos (n)»: tócalo para verlos |
 | Ver un lugar | Toca su marcador, su calle o su fila en la lista |
 | Ir a un sitio | **🧭 Guiarme**: flecha que apunta al destino (si apunta hacia arriba, vas bien) · **🗺️ Maps**: abre Google Maps |
@@ -61,6 +62,7 @@ datos/florencia.json  lugares, calles y transporte (sale de tus 4 ficheros)
 chat.js               el chat (texto, fotos, voz y ubicación)
 brujula.js            brújula y modo «Guiarme»
 esquema.js            esquema del viaje (pestaña Todo)
+tiempo.js             previsión del tiempo (Open-Meteo)
 sw.js                 copia la app y el mapa para que funcione con mala cobertura
 manifest.webmanifest  para instalarla como app
 iconos/               iconos
