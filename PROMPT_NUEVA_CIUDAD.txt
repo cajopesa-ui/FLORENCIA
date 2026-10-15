@@ -407,6 +407,26 @@ DISEÑO
   burbujea: escucharlo en document con captura) y pintarlos con "open";
   si no, se abren y se cierran solos.
 
+- TOMTOM (conector de Claude, no se usa dentro de la app): si está
+  disponible, úsalo al preparar los datos:
+  · tomtom-geocode para las direcciones exactas de hoteles (encuentra el
+    número del portal; Nominatim a veces solo la calle) y tomtom-fuzzy/
+    poi-search para comprobar que cada sitio está a < 60 m de su POI;
+  · tomtom-routing (response_detail "geometry", traffic "historical",
+    departAt del día) para dibujar en "Todo" la ruta por carretera de
+    cada día en coche (simplificada con Douglas-Peucker a ≤150 puntos) y
+    poner minutos y km reales en "llegar", consejos y transporte;
+  · tomtom-nearby (PARKING_GARAGE, OPEN_CAR_PARKING_AREA) para 1-2
+    parkings fuera de la ZTL por pueblo, y FUEL_STATION (también
+    search-along-route) para repostar antes de devolver el coche.
+  Los parkings y gasolineras van como lugares con "parking": true y
+  "opcional": true: marcador cuadrado azul "P" / "⛽", sección "Aparcar
+  y repostar" al final de la lista y "🚗 Ir en coche" en su ficha.
+  Para tantas consultas, repártelas en subagentes que devuelvan JSON
+  compacto (las respuestas de TomTom son largas).
+- Consejos por ciudad: claves "<fecha>:<parte>". Si cambias un día de
+  fecha, mueve también estas claves (si no, se pierden sin avisar).
+
 --------------------------------------------------------------------
 8. CÓMO TRABAJAR (lo que aprendimos con Florencia)
 --------------------------------------------------------------------

@@ -23,6 +23,7 @@ las calles recomendadas, el transporte público y lo que vais marcando los dos e
 | Lunes: Chianti | **🏰 Castellina · 🥩 Panzano · 🍷 Greve** (ida y vuelta a Siena; el martes 24, vuelta al aeropuerto de Florencia a devolver el coche) |
 | Esquema del viaje | Pestaña **Todo** (o ⚙️ → Esquema): tarjetas de los 8 días (toca una para ir a ese día), hoteles y, en el mapa, la ruta de cada día, los 🏨 y el **nombre de cada pueblo** (toca uno para ir a ese día y ese pueblo; el pueblo donde estás sale **resaltado en azul** con 📍) |
 | Hoteles | Toca el **🏨** en el mapa (sale en Todo y en cada día: el de la noche anterior y el de esa noche): nombre, dirección, horas de entrada y salida, **🧭 Guiarme** y cómo llegar en coche o a pie |
+| Aparcar y repostar | En cada pueblo, al final de la lista: **🅿️ parkings** fuera de la ZTL (cuadradito azul **P** en el mapa) y **⛽ gasolineras**. Su ficha tiene «🚗 Ir en coche» |
 | Dónde estoy | Junto a ▼ Ocultar / ▲ Mostrar sale **📍 la localidad** según tu GPS |
 | El tiempo | En cada día y ciudad, encima de «Siguiente»: previsión (cielo, máx./mín., lluvia, viento y las horas con lluvia probable). Fiable desde 7 días antes; de 8 a 15 días sale como «orientativa»; antes, el clima normal de noviembre. En **Todo**, cada tarjeta de día lleva solo el símbolo (en días con varios pueblos, el peor; más claro si es orientativo) |
 | Consejos del día | Plegados en «💡 Consejos (n)»: tócalo para verlos |

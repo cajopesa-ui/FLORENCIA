@@ -382,13 +382,14 @@ function pintarMapa() {
     if (!ver(l)) continue;
     if (l.opcional && !ajustes.opcionales) continue;
     if (l.visitado && ajustes.ocultarVistos) continue;
-    const color = diaInfo(l.dia).color;
+    const color = l.parking ? '#1d4ed8' : diaInfo(l.dia).color;
     let clases = 'marca', texto;
     if (l.clase === 'extra') { clases += ' extra'; texto = '★'; }
+    else if (l.parking) { clases += ' parking'; texto = l.tipo === 'gasolinera' ? '⛽' : 'P'; }
     else if (l.opcional) { clases += ' opcional'; texto = '+'; }
     else texto = numeros.get(l.clave) || '•';
     if (l.visitado) { clases += ' visto'; texto = '✔'; }
-    const borde = l.opcional && !l.visitado ? `border-color:${color};color:${color}` : '';
+    const borde = l.opcional && !l.parking && !l.visitado ? `border-color:${color};color:${color}` : '';
     const icono = L.divIcon({
       className: '', iconSize: [32, 32], iconAnchor: [16, 16],
       html: `<div class="${clases}" style="background:${color};${borde}">${texto}</div>`
@@ -554,7 +555,8 @@ function pintarPanel() {
     const deAqui = (x) => x.dia === fecha && (!parte || x.parte === parte || (!x.parte && (diaSel !== 'todo' || parte === primeraParte)));
     const visitas = visitasDelDia(lugares, fecha, parte);
     const sinHora = lugares.filter((l) => deAqui(l) && l.clase === 'lugar' && !l.opcional && !l.hora);
-    const opcionales = lugares.filter((l) => deAqui(l) && l.clase === 'lugar' && l.opcional);
+    const opcionales = lugares.filter((l) => deAqui(l) && l.clase === 'lugar' && l.opcional && !l.parking);
+    const aparcar = lugares.filter((l) => deAqui(l) && l.parking);
     const extras = lugares.filter((l) => deAqui(l) && l.clase === 'extra');
     const imp = calles.filter((c) => deAqui(c) && c.grupo === 'imprescindible');
     const fuera = calles.filter((c) => deAqui(c) && c.grupo === 'fuera');
@@ -578,6 +580,10 @@ function pintarPanel() {
     if (fuera.length && ajustes.fuera) {
       html += sub('Calles fuera de ruta');
       html += fuera.map((c) => filaCalle(c, info.color)).join('');
+    }
+    if (aparcar.length && ajustes.opcionales) {
+      html += sub('Aparcar y repostar');
+      html += aparcar.map((l) => filaLugar(l, '#1d4ed8', l.tipo === 'gasolinera' ? '⛽' : 'P', false)).join('');
     }
   }
   html += `<div class="pie-lista">
@@ -648,7 +654,7 @@ function abrirFicha(clave) {
     ${bus}
     <div class="fila-botones">
       <button class="btn btn-principal" data-guiar="${esc(clave)}">🧭 Guiarme</button>
-      <a class="btn" href="${urlComoLlegar(destino.lat, destino.lng)}" target="_blank" rel="noopener">🗺️ Google Maps</a>
+      <a class="btn" href="${urlComoLlegar(destino.lat, destino.lng, x.parking ? 'driving' : 'walking')}" target="_blank" rel="noopener">${x.parking ? '🚗 Ir en coche' : '🗺️ Google Maps'}</a>
       ${bus ? `<a class="btn" href="${urlComoLlegar(destino.lat, destino.lng, 'transit')}" target="_blank" rel="noopener">🚌 En bus</a>` : ''}
     </div>
     <div class="fila-botones">
