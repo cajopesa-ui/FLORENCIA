@@ -68,6 +68,7 @@ Archivos (mismos nombres y reparto):
   chat.js         chat (texto, fotos, voz, ubicación)
   brujula.js      brújula y modo "Guiarme"
   esquema.js      esquema del viaje (pestaña "Todo")
+  tiempo.js       previsión del tiempo (Open-Meteo)
   config.js       URL y clave pública de Supabase
   datos/<destino>.json   todos los datos del viaje
   sw.js, manifest.webmanifest, netlify.toml
@@ -393,6 +394,12 @@ DISEÑO
   sin cobertura, la última con "actualizada hace X"). El día de prueba
   usa la fecha de hoy. Probar con page.route simulando la respuesta y
   page.clock.setFixedTime a 5, 12 y 30 días del viaje.
+
+- Desplegables (<details>) dentro del panel ("Consejos", "Por qué este
+  reparto"…): el panel se repinta solo cada pocos segundos, así que hay
+  que recordar si están abiertos (variable + evento "toggle", que no
+  burbujea: escucharlo en document con captura) y pintarlos con "open";
+  si no, se abren y se cierran solos.
 
 --------------------------------------------------------------------
 8. CÓMO TRABAJAR (lo que aprendimos con Florencia)
