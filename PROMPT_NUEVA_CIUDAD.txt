@@ -394,6 +394,12 @@ DISEÑO
   sin cobertura, la última con "actualizada hace X"). El día de prueba
   usa la fecha de hoy. Probar con page.route simulando la respuesta y
   page.clock.setFixedTime a 5, 12 y 30 días del viaje.
+- En "Todo", cada tarjeta de día lleva SOLO el símbolo del tiempo (arriba
+  a la derecha, sin texto; title con el cielo). Una sola petición a
+  Open-Meteo con todos los pueblos (latitude y longitude separados por
+  comas devuelven una lista). En días con varios pueblos, el peor (código
+  WMO más alto). De 8 a 15 días, el símbolo más claro (opacidad .55).
+  Sin previsión todavía (más de 15 días), no se pone nada.
 
 - Desplegables (<details>) dentro del panel ("Consejos", "Por qué este
   reparto"…): el panel se repinta solo cada pocos segundos, así que hay

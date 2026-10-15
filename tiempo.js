@@ -116,3 +116,53 @@ function pintarTiempo() {
       <div class="tiempo-nota">Previsión de Open-Meteo${antiguedad}</div>
     </div>`;
 }
+
+// ---------- Pestaña "Todo": un símbolo del tiempo en la tarjeta de cada día ----------
+// Una sola petición con todos los pueblos del viaje. En un día con varios pueblos
+// sale el peor tiempo de ellos (el código WMO más alto: la lluvia pesa más que las nubes).
+let tiempoTodo = almacen.leer('flo-tiempo-todo', null);   // { cuando, sitios: { "lat,lng": { time, weather_code } } }
+let tiempoTodoPidiendo = false, tiempoTodoFallo = 0;
+
+function sitiosDelDia(fecha) {
+  const d = DATOS.dias.find((x) => x.fecha === fecha);
+  if (!d || fecha === 'prueba') return [];
+  return (d.partes || [d]).filter((s) => s.lat != null).map((s) => `${s.lat.toFixed(3)},${s.lng.toFixed(3)}`);
+}
+
+function iconoTiempoDia(fecha) {
+  const faltan = diasHasta(fecha);
+  if (faltan < 0 || faltan > 15) return '';               // sin previsión todavía (o día pasado)
+  if (!tiempoTodo || Date.now() - tiempoTodo.cuando > TIEMPO_FRESCO) pedirTiempoTodo();
+  if (!tiempoTodo) return '';
+  const codigos = sitiosDelDia(fecha).map((c) => {
+    const s = tiempoTodo.sitios[c];
+    const i = s ? s.time.indexOf(fecha) : -1;
+    return i < 0 ? null : s.weather_code[i];
+  }).filter((c) => c != null);
+  if (!codigos.length) return '';
+  const [icono, cielo] = CIELO[Math.max(...codigos)] || ['', ''];
+  return icono ? `<span class="esq-tiempo ${faltan > 7 ? 'orientativa' : ''}" title="${esc(cielo)}${faltan > 7 ? ' (orientativa)' : ''}">${icono}</span>` : '';
+}
+
+async function pedirTiempoTodo() {
+  if (tiempoTodoPidiendo || Date.now() - tiempoTodoFallo < TIEMPO_REINTENTO) return;
+  const claves = [...new Set(DATOS.dias.flatMap((d) => sitiosDelDia(d.fecha)))];
+  if (!claves.length) return;
+  tiempoTodoPidiendo = true;
+  try {
+    const lat = claves.map((c) => c.split(',')[0]).join(','), lng = claves.map((c) => c.split(',')[1]).join(',');
+    const resp = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=weather_code&timezone=Europe%2FRome&forecast_days=16`);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    let j = await resp.json();
+    if (!Array.isArray(j)) j = [j];
+    const sitios = {};
+    claves.forEach((c, i) => { if (j[i]?.daily) sitios[c] = j[i].daily; });
+    tiempoTodo = { cuando: Date.now(), sitios };
+    almacen.guardar('flo-tiempo-todo', tiempoTodo);
+    if (diaSel === 'todo') pintar();
+  } catch (e) {
+    tiempoTodoFallo = Date.now();
+  } finally {
+    tiempoTodoPidiendo = false;
+  }
+}

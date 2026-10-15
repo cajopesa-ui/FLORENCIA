@@ -29,7 +29,7 @@ function htmlEsquema() {
     const enApp = DATOS.dias.some((x) => x.fecha === d.fecha);
     const [sem, num] = d.corto.split(' ');
     return `<button class="esq-dia ${d.fecha === hoy ? 'hoy' : ''}" style="--c:${colorEsquema(d)}" data-esq-dia="${d.fecha}" aria-label="${esc(d.corto + ' · ' + d.zona)}">
-        <span class="esq-fecha"><b>${esc(sem)}</b> ${esc(num)}${d.fecha === hoy ? ' · HOY' : ''}</span>
+        <span class="esq-fecha"><b>${esc(sem)}</b> ${esc(num)}${d.fecha === hoy ? ' · HOY' : ''}${iconoTiempoDia(d.fecha)}</span>
         <span class="esq-zona">${esc(d.zona)}</span>
         <span class="esq-res">${esc(d.resumen)}</span>
         <span class="esq-pie">${d.icono} ${esc(d.modo)}${d.noche ? ` · 🏨 ${esc(hotel(d.noche).nombre)}` : ''}${enApp ? '' : ' ›'}</span>

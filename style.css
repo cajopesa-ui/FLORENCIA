@@ -450,3 +450,6 @@ input, textarea, select { font: inherit; }
 .tiempo-orient { margin-left: auto; font-size: 11px; font-weight: 700; text-transform: uppercase; color: #92400e; background: #fef3c7; border-radius: 999px; padding: 2px 8px; }
 .tiempo-lluvia { margin-top: 6px; font-weight: 700; color: #1d4ed8; }
 .tiempo-nota { margin-top: 4px; font-size: 12px; color: var(--suave); }
+.esq-dia { position: relative; }
+.esq-tiempo { position: absolute; top: 4px; right: 8px; font-size: 22px; line-height: 1; }
+.esq-tiempo.orientativa { opacity: .55; }
