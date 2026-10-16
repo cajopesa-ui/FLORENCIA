@@ -1,0 +1,456 @@
+/* ===== Colores y medidas ===== */
+:root {
+  --fondo: #faf7f2;
+  --superficie: #ffffff;
+  --texto: #1f1a17;
+  --suave: #6b625b;
+  --borde: #e7e0d8;
+  --principal: #7c2d12;
+  --ok: #15803d;
+  --aviso: #b45309;
+  --error: #b91c1c;
+  --yo: #2563eb;
+  --otro: #9333ea;
+  --sombra: 0 4px 18px rgba(0, 0, 0, .14);
+  --radio: 14px;
+  --arriba: env(safe-area-inset-top, 0px);
+  --abajo: env(safe-area-inset-bottom, 0px);
+}
+
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; height: 100%;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--fondo); color: var(--texto);
+  -webkit-tap-highlight-color: transparent;
+}
+[hidden] { display: none !important; }
+button { font: inherit; color: inherit; cursor: pointer; }
+input, textarea, select { font: inherit; }
+
+/* ===== Botones ===== */
+.btn {
+  border: 1px solid var(--borde); background: var(--superficie);
+  border-radius: 10px; padding: 10px 14px; font-weight: 600;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  text-decoration: none; color: var(--texto); min-height: 44px;
+}
+.btn-principal { background: var(--principal); border-color: var(--principal); color: #fff; }
+.btn-ok { background: var(--ok); border-color: var(--ok); color: #fff; }
+.btn-peligro { color: var(--error); }
+.btn:disabled { opacity: .5; }
+.icono-btn {
+  border: 0; background: transparent; font-size: 19px;
+  width: 36px; height: 40px; border-radius: 10px; padding: 0;
+}
+.icono-btn:active { background: rgba(0,0,0,.06); }
+
+/* ===== Pantalla de entrada ===== */
+.entrada {
+  position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+  padding: 16px; background: linear-gradient(160deg, #7c2d12, #c2410c 60%, #f59e0b);
+}
+.entrada-caja {
+  width: 100%; max-width: 360px; background: var(--superficie);
+  border-radius: 20px; padding: 28px 22px; box-shadow: var(--sombra);
+  display: flex; flex-direction: column; gap: 14px;
+}
+.entrada-logo { font-size: 44px; text-align: center; }
+.entrada h1 { margin: 0; text-align: center; font-size: 28px; }
+.entrada .sub { margin: -8px 0 6px; text-align: center; color: var(--suave); }
+.entrada label { display: flex; flex-direction: column; gap: 6px; font-weight: 600; font-size: 14px; }
+.entrada input {
+  border: 1px solid var(--borde); border-radius: 10px; padding: 12px; font-size: 18px;
+}
+#in-codigo { letter-spacing: 10px; text-align: center; font-size: 24px; }
+.error { color: var(--error); min-height: 1.2em; margin: 0; text-align: center; }
+
+/* ===== Estructura de la app ===== */
+.app { position: fixed; inset: 0; display: flex; flex-direction: column; }
+.cabecera {
+  display: flex; align-items: center; gap: 6px;
+  padding: calc(6px + var(--arriba)) 8px 6px; background: var(--superficie);
+  border-bottom: 1px solid var(--borde); z-index: 1000;
+}
+.dias { display: flex; gap: 4px; flex: 1; min-width: 0; }
+/* Todas las pestañas caben siempre: se reparten el ancho, en dos líneas (día de la semana / número) */
+.dia {
+  flex: 1 1 0; min-width: 0; border: 2px solid var(--borde); background: var(--superficie);
+  border-radius: 10px; padding: 2px 0 3px; font-weight: 700;
+  display: flex; flex-direction: column; align-items: center; line-height: 1.1;
+}
+.dia .d-sem { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .3px; }
+.dia .d-num { font-size: 17px; font-weight: 800; }
+.dia .d-num.txt { font-size: 13px; padding-top: 2px; }
+.dia .d-sem.hoy { font-weight: 800; }
+.dia.activo { color: #fff; }
+.cabecera-botones { display: flex; align-items: center; flex: none; }
+.cabecera-botones .icono-btn { width: 34px; }
+.con-punto { position: relative; }
+.sync {
+  position: absolute; top: 5px; right: 2px; width: 10px; height: 10px; border-radius: 50%;
+  background: #9ca3af; border: 2px solid var(--superficie);
+}
+.sync.ok { background: var(--ok); }
+.sync.pendiente { background: var(--aviso); }
+
+.mapa { flex: 1; z-index: 1; }
+
+/* Botones flotantes del mapa */
+.flotantes {
+  position: absolute; right: 12px; z-index: 900;
+  bottom: calc(var(--alto-panel, 200px) + 12px);
+  display: flex; flex-direction: column; gap: 10px;
+  transition: bottom .2s;
+}
+.flotante {
+  width: 50px; height: 50px; border-radius: 50%; border: 0;
+  background: var(--superficie); box-shadow: var(--sombra); font-size: 22px;
+}
+.flotante.activo { background: var(--yo); }
+
+/* Mensaje temporal */
+.toast {
+  position: absolute; left: 12px; right: 12px; z-index: 1100;
+  top: calc(64px + var(--arriba));
+  background: #1f2937; color: #fff; border-radius: 12px; padding: 12px 14px;
+  box-shadow: var(--sombra); font-size: 15px;
+}
+.toast b { display: block; margin-bottom: 2px; }
+
+/* ===== Panel inferior ===== */
+.panel {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 950;
+  background: var(--superficie); border-radius: 18px 18px 0 0; box-shadow: var(--sombra);
+  max-height: 48vh; overflow-y: auto; padding: 0 12px calc(12px + var(--abajo));
+  overscroll-behavior: contain;
+}
+.panel.plegado { max-height: none; overflow: hidden; }
+.panel.plegado #panel-cuerpo { display: none; }
+.panel:not(.plegado) .panel-resumen { display: none; }
+.panel-asa {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  width: 100%; border: 0; background: var(--superficie);
+  padding: 8px 0 6px; position: sticky; top: 0; z-index: 2;
+  touch-action: none; /* para poder deslizar el dedo */
+}
+.raya-asa { display: block; width: 44px; height: 5px; border-radius: 3px; background: #d6cec5; }
+.panel-txt {
+  font-size: 13px; font-weight: 700; color: var(--principal);
+  border: 1px solid var(--borde); border-radius: 999px; padding: 3px 12px;
+}
+.panel-resumen {
+  display: block; width: 100%; border: 0; background: transparent; text-align: left;
+  padding: 2px 4px 4px; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.panel-resumen b { color: var(--principal); }
+
+.aviso {
+  background: #fff7ed; border: 1px solid #fed7aa; color: #7c2d12;
+  border-radius: 10px; padding: 8px 10px; margin-bottom: 8px; font-size: 14px;
+}
+.aviso.urgente { background: #fef2f2; border-color: #fecaca; color: var(--error); font-weight: 600; }
+.consejo { color: var(--suave); font-size: 13px; margin: 0 0 8px; }
+
+.siguiente {
+  border: 2px solid var(--principal); border-radius: var(--radio); padding: 10px 12px; margin-bottom: 10px;
+}
+.siguiente .etq { font-size: 12px; font-weight: 800; color: var(--principal); letter-spacing: .5px; }
+.siguiente h2 { margin: 2px 0; font-size: 18px; }
+.siguiente .meta { color: var(--suave); font-size: 14px; }
+.fila-botones { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.fila-botones .btn { flex: 1; }
+
+.lista h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .5px; color: var(--suave); margin: 14px 0 6px; }
+.item {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  border: 0; border-bottom: 1px solid var(--borde); background: transparent;
+  padding: 10px 2px; text-align: left;
+}
+.item .num {
+  flex: none; width: 30px; height: 30px; border-radius: 50%; color: #fff;
+  display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px;
+}
+.item .num.hueco { background: #fff !important; border: 3px solid; color: var(--texto); }
+.item .txt { flex: 1; min-width: 0; }
+.item .nom { font-weight: 650; display: block; }
+.item .det { color: var(--suave); font-size: 13px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.item .dist { color: var(--suave); font-size: 13px; white-space: nowrap; }
+.item.visto .nom { text-decoration: line-through; color: var(--suave); }
+.item.visto .num { background: #9ca3af !important; border-color: #9ca3af !important; color: #fff; }
+.raya { flex: none; width: 30px; height: 0; border-top: 5px solid; border-radius: 3px; }
+.raya.discontinua { border-top-style: dashed; border-top-width: 4px; }
+.vacio { color: var(--suave); text-align: center; padding: 10px; }
+.pie-lista { display: flex; gap: 8px; margin-top: 12px; }
+.pie-lista .btn { flex: 1; }
+
+/* ===== Ventana (ficha, ajustes, transporte) ===== */
+.ventana {
+  border: 0; padding: 0; width: 100%; max-width: 520px; max-height: 88vh;
+  margin: auto auto 0; border-radius: 20px 20px 0 0; box-shadow: var(--sombra);
+  background: var(--superficie); color: var(--texto);
+}
+.ventana::backdrop { background: rgba(0,0,0,.35); }
+#ventana-contenido { padding: 18px 16px calc(18px + var(--abajo)); }
+.ventana h2 { margin: 0 32px 4px 0; font-size: 22px; }
+.ventana .tipo { color: var(--suave); margin: 0 0 12px; }
+.cerrar {
+  position: absolute; top: 10px; right: 10px; width: 40px; height: 40px;
+  border: 0; border-radius: 50%; background: #f3f4f6; font-size: 18px;
+}
+.dato { margin: 10px 0; }
+.dato .etq { display: block; font-size: 12px; font-weight: 700; color: var(--suave); text-transform: uppercase; letter-spacing: .5px; }
+.chip { display: inline-block; border-radius: 999px; padding: 2px 10px; font-size: 13px; font-weight: 700; color: #fff; }
+.campo { display: flex; flex-direction: column; gap: 4px; margin: 10px 0; font-weight: 600; font-size: 14px; }
+.campo input, .campo textarea, .campo select {
+  border: 1px solid var(--borde); border-radius: 10px; padding: 10px; font-size: 16px; background: #fff; color: var(--texto);
+}
+.campo textarea { min-height: 80px; resize: vertical; }
+.dos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.quien { color: var(--suave); font-size: 12px; margin-top: 4px; }
+.caja-bus {
+  background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 10px; font-size: 14px; margin: 10px 0;
+}
+.ventana ul { padding-left: 20px; }
+.ventana li { margin: 6px 0; }
+.check { display: flex; align-items: center; gap: 10px; padding: 8px 0; font-size: 16px; }
+.check input { width: 22px; height: 22px; }
+
+/* ===== Marcadores del mapa ===== */
+.marca {
+  width: 32px; height: 32px; border-radius: 50%; color: #fff; font-weight: 800; font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  border: 3px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,.35);
+}
+.marca.opcional { background: #fff !important; border-width: 4px; color: var(--texto); font-size: 16px; }
+.marca.visto { background: #9ca3af !important; border-color: #fff !important; color: #fff; }
+.marca.extra { border-radius: 8px; }
+.marca.seleccionada { transform: scale(1.25); }
+.yo {
+  width: 20px; height: 20px; border-radius: 50%; background: var(--yo);
+  border: 3px solid #fff; box-shadow: 0 0 0 2px rgba(37,99,235,.35), 0 2px 6px rgba(0,0,0,.3);
+}
+.otro {
+  width: 30px; height: 30px; border-radius: 50%; background: var(--otro); color: #fff;
+  border: 3px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,.3);
+  display: flex; align-items: center; justify-content: center; font-weight: 800;
+}
+.otro.antiguo { opacity: .5; }
+.leaflet-tooltip.etq-otro { font-weight: 700; }
+
+/* ===== Chat ===== */
+.flotante { position: relative; }
+.insignia {
+  position: absolute; top: -4px; right: -4px; min-width: 20px; height: 20px; padding: 0 5px;
+  border-radius: 10px; background: var(--error); color: #fff; font-size: 12px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center; border: 2px solid #fff;
+}
+.otro { position: relative; }
+.otro .insignia { top: -10px; right: -12px; }
+
+.chat {
+  border: 0; padding: 0; margin: 0; width: 100%; max-width: 100%; height: 100%; max-height: 100%;
+  background: #efe9e1; color: var(--texto);
+}
+.chat[open] { display: flex; flex-direction: column; }
+.chat-cab {
+  display: flex; align-items: center; gap: 8px; background: var(--principal); color: #fff;
+  padding: calc(6px + var(--arriba)) 8px 6px;
+}
+.chat-cab .icono-btn { color: #fff; font-size: 24px; }
+.chat-cab h2 { margin: 0; font-size: 18px; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chat-estado { font-size: 13px; opacity: .9; }
+.chat-guiar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 8px 12px; border-bottom: 1px solid var(--borde); background: var(--superficie); }
+.chat-guiar .btn { min-height: 38px; padding: 6px 12px; }
+.chat-guiar-info { font-size: 13px; color: var(--suave); }
+.chat-mensajes { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+.chat-vacio { text-align: center; color: var(--suave); margin: auto; line-height: 1.6; }
+.msj {
+  max-width: 80%; background: #fff; border-radius: 14px 14px 14px 4px; padding: 6px 10px 4px;
+  box-shadow: 0 1px 2px rgba(0,0,0,.12); align-self: flex-start;
+}
+.msj.mio { align-self: flex-end; background: #fde3cf; border-radius: 14px 14px 4px 14px; }
+.msj-de { font-size: 12px; font-weight: 800; color: var(--otro); }
+.burbuja-texto { white-space: pre-wrap; word-wrap: break-word; font-size: 16px; }
+.burbuja-foto img { display: block; max-width: 100%; max-height: 300px; border-radius: 10px; margin: 2px 0; }
+.burbuja-audio audio { width: 230px; max-width: 100%; display: block; }
+.burbuja-ubic { border: 0; background: transparent; text-align: left; padding: 4px 0; font-weight: 700; color: var(--principal); }
+.burbuja-ubic small { font-weight: 400; color: var(--suave); }
+.cargando { color: var(--suave); font-size: 14px; display: block; padding: 8px 0; }
+.msj-hora { font-size: 11px; color: var(--suave); text-align: right; }
+.chat-barra {
+  display: flex; align-items: flex-end; gap: 4px; background: var(--superficie);
+  padding: 8px 8px calc(8px + var(--abajo)); border-top: 1px solid var(--borde);
+}
+.chat-barra .icono-btn { width: 34px; }
+.chat-barra textarea {
+  flex: 1; min-width: 0; border: 1px solid var(--borde); border-radius: 20px; padding: 9px 14px; font-size: 16px;
+  resize: none; max-height: 110px; background: #fff; color: var(--texto);
+}
+.chat-boton {
+  flex: none; width: 44px; height: 44px; border-radius: 50%; border: 0;
+  background: var(--principal); color: #fff; font-size: 20px;
+}
+.chat-grabando { align-items: center; gap: 10px; }
+.chat-grabando > span:nth-child(2) { flex: 1; }
+.punto-rojo { width: 14px; height: 14px; border-radius: 50%; background: var(--error); animation: latido 1s infinite; }
+@keyframes latido { 50% { opacity: .3; } }
+.foto-grande { border: 0; padding: 0; background: transparent; max-width: 100vw; max-height: 100vh; }
+.foto-grande::backdrop { background: rgba(0,0,0,.9); }
+.foto-grande img { max-width: 100vw; max-height: 100vh; display: block; }
+.msj-borrar { border: 0; background: transparent; font-size: 13px; padding: 0 6px 0 0; opacity: .6; }
+
+/* ===== Brújula y modo guía ===== */
+.yo-cont { position: relative; width: 64px; height: 64px; }
+.yo-cont .yo { position: absolute; left: 22px; top: 22px; }
+.yo-cono {
+  position: absolute; inset: 0; border-radius: 50%;
+  /* abanico azul de 60° que apunta hacia arriba (se gira con la brújula) */
+  background: conic-gradient(from -30deg, rgba(37, 99, 235, .55) 0deg 60deg, transparent 60deg 360deg);
+  -webkit-mask-image: radial-gradient(circle, #000 35%, transparent 72%);
+  mask-image: radial-gradient(circle, #000 35%, transparent 72%);
+}
+.sig-nombre { cursor: pointer; }
+.sig-nombre .ver { color: var(--suave); font-weight: 400; }
+
+.guia {
+  position: absolute; left: 10px; right: 10px; top: calc(62px + var(--arriba)); z-index: 1050;
+  display: flex; align-items: center; gap: 12px;
+  background: var(--superficie); border: 2px solid var(--principal); border-radius: 16px;
+  padding: 10px 8px 10px 12px; box-shadow: var(--sombra);
+}
+.guia-flecha { flex: none; width: 64px; height: 64px; fill: var(--principal); transition: transform .15s linear; }
+.guia-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.guia-txt b { font-size: 17px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.guia-txt span { font-size: 16px; font-weight: 600; }
+.guia-txt small { color: var(--suave); font-size: 12px; }
+.guia-txt .btn { margin-top: 6px; min-height: 38px; padding: 6px 10px; }
+.app.guiando .toast { top: calc(160px + var(--arriba)); }
+
+/* ===== Días con dos ciudades ===== */
+.partes {
+  display: flex; gap: 6px; padding: 6px 8px; background: var(--superficie);
+  border-bottom: 1px solid var(--borde); z-index: 1000;
+}
+.parte {
+  flex: 1; border: 2px solid var(--color-dia); background: var(--superficie); color: var(--color-dia);
+  border-radius: 12px; padding: 6px 8px; font-size: 15px; min-height: 40px;
+}
+.parte small { font-size: 12px; opacity: .8; }
+.parte.activa { background: var(--color-dia); color: #fff; }
+.titulo-parte {
+  margin: 14px 0 2px; padding: 6px 10px; border-radius: 10px; font-weight: 800; font-size: 14px;
+  color: #fff; background: var(--color-dia);
+}
+.otra-zona { margin-top: 12px; border: 1px solid var(--borde); border-radius: 10px; padding: 8px 10px; }
+.otra-zona summary { font-weight: 700; cursor: pointer; }
+/* La guía y los avisos, justo debajo de la cabecera (que es más alta con el selector de ciudad) */
+.guia { top: calc(var(--alto-cab, 56px) + 6px); }
+.toast { top: calc(var(--alto-cab, 56px) + 8px); }
+.app.guiando .toast { top: calc(var(--alto-cab, 56px) + 104px); }
+/* Más de dos ciudades: todos los botones a la vista, en dos líneas (icono + hora / pueblo) */
+.partes.compacto { gap: 4px; }
+.partes.compacto .parte {
+  flex: 1 1 0; min-width: 0; padding: 3px 2px; min-height: 40px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.15;
+}
+.partes.compacto .parte small { font-size: 11px; white-space: nowrap; }
+.partes.compacto .parte b { font-size: 13px; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.consejos { margin: 0 0 8px; }
+.consejos summary { color: var(--principal); font-weight: 700; font-size: 14px; padding: 4px 0; cursor: pointer; }
+.consejos .consejo { margin: 4px 0 4px 6px; }
+
+/* Localidad donde estamos, junto al botón Ocultar/Mostrar */
+.fila-asa { display: flex; align-items: center; justify-content: center; gap: 8px; max-width: 100%; padding: 0 8px; }
+.localidad {
+  font-size: 13px; font-weight: 700; color: var(--texto); background: #f3efe9;
+  border-radius: 999px; padding: 4px 10px; max-width: 60vw;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.panel-txt { flex: none; }
+
+/* Móviles muy estrechos (iPhone SE, 320 px): todo un poco más compacto para que quepan 7 días y 5 pueblos */
+@media (max-width: 359px) {
+  .cabecera { padding-left: 4px; padding-right: 4px; gap: 3px; }
+  .dias { gap: 2px; }
+  .dia { border-width: 1.5px; border-radius: 8px; }
+  .dia .d-sem { font-size: 9px; letter-spacing: 0; }
+  .dia .d-num { font-size: 14px; }
+  .dia .d-num.txt { font-size: 10px; }
+  .cabecera-botones .icono-btn { width: 28px; font-size: 17px; }
+  .partes.compacto { gap: 3px; padding-left: 4px; padding-right: 4px; }
+  .partes.compacto .parte { padding: 3px 1px; }
+  .partes.compacto .parte small { font-size: 10px; }
+  .partes.compacto .parte b { font-size: 11.5px; }
+}
+
+/* ===== Esquema del viaje (pestaña "Todo") ===== */
+.esquema { margin-bottom: 6px; }
+.esq-titulo { color: var(--principal) !important; font-size: 15px !important; text-transform: none !important; letter-spacing: 0 !important; }
+.esq-dias { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.esq-dia {
+  text-align: left; border: 0; border-left: 6px solid var(--c); background: #faf7f2; border-radius: 10px;
+  padding: 8px 10px; display: flex; flex-direction: column; gap: 2px; min-width: 0;
+}
+.esq-dia.hoy { outline: 2px solid var(--c); }
+.esq-fecha { color: var(--c); font-size: 13px; text-transform: uppercase; }
+.esq-zona { font-weight: 800; font-size: 15px; }
+.esq-res { font-size: 12px; color: var(--suave); line-height: 1.3; }
+.esq-pie { font-size: 12px; font-weight: 700; margin-top: 2px; }
+.esq-hoteles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.esq-hotel { text-align: left; border: 1px solid var(--borde); background: var(--superficie); border-radius: 10px; padding: 8px 10px; font-size: 13px; }
+.esq-hotel b { font-size: 15px; display: block; }
+.esq-hotel small { display: block; color: var(--suave); margin-top: 2px; }
+.esq-hotel ul { margin: 4px 0 0; padding-left: 16px; }
+.esq-hotel li { margin: 2px 0; font-size: 12px; }
+.esq-hotel-marca {
+  width: 34px; height: 34px; border-radius: 50%; background: #fff; border: 3px solid #111827;
+  display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 2px 6px rgba(0,0,0,.35);
+}
+.leaflet-tooltip.etq-hotel { font-weight: 800; }
+.esq-popup { font-size: 14px; }
+.esq-popup .btn { margin-top: 8px; min-height: 36px; padding: 6px 12px; }
+.esq-popup ul { padding-left: 16px; margin: 6px 0 0; }
+.estrellas { color: #d97706; }
+.hotel-notas { margin: 2px 0 0; padding-left: 18px; }
+.hotel-notas li { margin: 3px 0; }
+.esq-hotel .esq-hotel-nombre { display: block; font-size: 13px; color: var(--texto); }
+@media (max-width: 359px) { .esq-dias, .esq-hoteles { grid-template-columns: 1fr; } }
+/* Nombres de los pueblos en el mapa de "Todo" */
+.esq-pueblo { width: 14px; height: 14px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.4); }
+.leaflet-tooltip.etq-pueblo {
+  padding: 1px 5px; font-size: 11px; font-weight: 700; background: rgba(255,255,255,.92);
+  border: 0; box-shadow: 0 1px 3px rgba(0,0,0,.25); cursor: pointer;
+}
+.leaflet-tooltip.etq-pueblo::before { display: none; }
+/* Etiqueta del hotel más compacta, para dejar sitio a los nombres de los pueblos */
+.leaflet-tooltip.etq-hotel { padding: 2px 6px; font-size: 12px; border: 0; box-shadow: 0 1px 3px rgba(0,0,0,.3); }
+.leaflet-tooltip.etq-hotel::before { display: none; }
+/* Nombres del mapa "Todo" como marcadores de texto */
+.etq-pueblo-txt, .etq-hotel-txt {
+  position: absolute; left: 0; top: 0; white-space: nowrap; cursor: pointer;
+  background: rgba(255,255,255,.93); border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,.28); color: var(--texto);
+}
+.etq-pueblo-txt { padding: 1px 5px; font-size: 11px; font-weight: 700; line-height: 17px; }
+.etq-hotel-txt { padding: 2px 6px; font-size: 12px; font-weight: 800; line-height: 17px; }
+/* Pueblo donde estoy según el GPS: resaltado en el mapa de "Todo" */
+.etq-pueblo-txt.aqui, .etq-hotel-txt.aqui {
+  background: var(--yo); color: #fff; font-size: 13px; padding: 3px 8px; box-shadow: 0 0 0 3px rgba(37,99,235,.3), 0 2px 6px rgba(0,0,0,.35);
+}
+.esq-pueblo.aqui, .esq-hotel-marca.aqui { animation: latido-aqui 1.6s ease-out infinite; border-color: var(--yo); }
+@keyframes latido-aqui {
+  0% { box-shadow: 0 0 0 0 rgba(37,99,235,.6); }
+  100% { box-shadow: 0 0 0 14px rgba(37,99,235,0); }
+}
+
+/* Tiempo del día (tiempo.js) */
+.tiempo { background: var(--superficie); border: 1px solid var(--borde); border-radius: 12px; padding: 8px 12px; margin: 8px 0; font-size: 14px; line-height: 1.35; }
+.tiempo-linea { display: flex; align-items: center; gap: 10px; }
+.tiempo-icono { font-size: 30px; line-height: 1; }
+.tiempo-orient { margin-left: auto; font-size: 11px; font-weight: 700; text-transform: uppercase; color: #92400e; background: #fef3c7; border-radius: 999px; padding: 2px 8px; }
+.tiempo-lluvia { margin-top: 6px; font-weight: 700; color: #1d4ed8; }
+.tiempo-nota { margin-top: 4px; font-size: 12px; color: var(--suave); }
+.esq-dia { position: relative; }
+.esq-tiempo { position: absolute; top: 4px; right: 8px; font-size: 22px; line-height: 1; }
+.esq-tiempo.orientativa { opacity: .55; }
+.marca.parking { width: 24px; height: 24px; margin: 4px; font-size: 13px; border-radius: 6px; }

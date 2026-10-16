@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>__TITULO__</title>
+  <meta name="description" content="__DESCRIPCION__">
+  <meta name="theme-color" content="#7c2d12">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="iconos/icono.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="iconos/icono-180.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="__TITULO__">
+
+  <!-- Mapa: Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous"></script>
+  <!-- Base de datos compartida: Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js" crossorigin="anonymous"></script>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Pantalla de entrada: nombre + código de 4 dígitos -->
+  <div id="entrada" class="entrada" hidden>
+    <form id="form-entrada" class="entrada-caja">
+      <div class="entrada-logo">⚜️</div>
+      <h1>__TITULO__</h1>
+      <p class="sub">17 – 19 de noviembre</p>
+      <label>¿Cómo te llamas?
+        <input id="in-nombre" type="text" maxlength="20" autocomplete="nickname" required placeholder="Tu nombre">
+      </label>
+      <label>Código del viaje
+        <input id="in-codigo" type="password" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required placeholder="••••" autocomplete="off">
+      </label>
+      <button type="submit" class="btn btn-principal" id="btn-entrar">Entrar</button>
+      <p id="entrada-error" class="error" role="alert"></p>
+    </form>
+  </div>
+
+  <!-- App -->
+  <div id="app" class="app" hidden>
+    <header class="cabecera">
+      <nav id="dias" class="dias" aria-label="Días"></nav>
+      <div class="cabecera-botones">
+        <button class="icono-btn" id="btn-bus" aria-label="Transporte">🚌</button>
+        <!-- El puntito de la esquina es la conexión: verde, naranja (enviando) o gris (sin red) -->
+        <button class="icono-btn con-punto" id="btn-ajustes" aria-label="Ajustes">⚙️<span id="sync" class="sync" title="Sincronización"></span></button>
+      </div>
+    </header>
+    <!-- Solo en los días con dos ciudades: elegir cuál ver -->
+    <nav id="partes" class="partes" aria-label="Ciudad del día" hidden></nav>
+
+    <div id="mapa" class="mapa"></div>
+
+    <div class="flotantes">
+      <button class="flotante" id="btn-chat" aria-label="Chat">💬<span id="chat-insignia" class="insignia" hidden>0</span></button>
+      <button class="flotante" id="btn-otro" aria-label="Ver a la otra persona" hidden>👥</button>
+      <button class="flotante" id="btn-centrar" aria-label="Centrar en mi posición">📍</button>
+    </div>
+
+    <!-- Modo guía: flecha hacia el destino -->
+    <div id="guia" class="guia" hidden>
+      <svg id="guia-flecha" class="guia-flecha" viewBox="0 0 100 100" aria-label="Dirección al destino">
+        <path d="M50 6 L84 90 L50 72 L16 90 Z"/>
+      </svg>
+      <div class="guia-txt">
+        <b id="guia-nombre"></b>
+        <span id="guia-dist"></span>
+        <small id="guia-nota"></small>
+        <button class="btn btn-ok" id="guia-visto" hidden>✔ Marcar visitado</button>
+      </div>
+      <button class="icono-btn" id="guia-cerrar" aria-label="Terminar guía">✕</button>
+    </div>
+
+    <div id="toast" class="toast" hidden></div>
+
+    <section id="panel" class="panel">
+      <button id="panel-asa" class="panel-asa" aria-label="Mostrar u ocultar la lista">
+        <span class="raya-asa"></span>
+        <span class="fila-asa">
+          <span id="localidad" class="localidad">📍 Sin GPS</span>
+          <span id="panel-txt" class="panel-txt">▼ Ocultar</span>
+        </span>
+      </button>
+      <!-- Cuando está oculto solo se ve esta línea -->
+      <button id="panel-resumen" class="panel-resumen"></button>
+      <div id="panel-cuerpo">
+        <div id="esquema-panel"></div>
+        <div id="avisos"></div>
+        <div id="tiempo"></div>
+        <div id="siguiente"></div>
+        <div id="lista" class="lista"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Ventana para fichas, ajustes, transporte... -->
+  <dialog id="ventana" class="ventana">
+    <div id="ventana-contenido"></div>
+  </dialog>
+
+  <!-- Chat -->
+  <dialog id="chat" class="chat">
+    <header class="chat-cab">
+      <button class="icono-btn" id="chat-cerrar" aria-label="Volver al mapa">←</button>
+      <h2 id="chat-titulo">Chat</h2>
+      <span id="chat-estado" class="chat-estado"></span>
+    </header>
+    <div id="chat-guiar" class="chat-guiar" hidden></div>
+    <div id="chat-mensajes" class="chat-mensajes"></div>
+    <div id="chat-barra" class="chat-barra">
+      <button class="icono-btn" id="chat-foto" aria-label="Hacer una foto">📷</button>
+      <button class="icono-btn" id="chat-galeria" aria-label="Elegir foto de la galería">🖼️</button>
+      <!-- capture="environment": abre directamente la cámara trasera -->
+      <input type="file" id="chat-camara" accept="image/*" capture="environment" hidden>
+      <input type="file" id="chat-archivo" accept="image/*" hidden>
+      <button class="icono-btn" id="chat-ubic" aria-label="Enviar mi ubicación">📍</button>
+      <textarea id="chat-texto" rows="1" maxlength="2000" placeholder="Mensaje"></textarea>
+      <button class="chat-boton" id="chat-micro" aria-label="Grabar mensaje de voz">🎤</button>
+      <button class="chat-boton" id="chat-enviar" aria-label="Enviar" hidden>➤</button>
+    </div>
+    <div id="chat-grabando" class="chat-barra chat-grabando" hidden>
+      <span class="punto-rojo"></span>
+      <span>Grabando <b id="chat-reloj">0:00</b> <small>(máx. 1 min)</small></span>
+      <button class="btn" id="chat-grab-cancelar">✕ Cancelar</button>
+      <button class="btn btn-principal" id="chat-grab-enviar">➤ Enviar</button>
+    </div>
+  </dialog>
+
+  <!-- Foto a pantalla completa -->
+  <dialog id="foto-grande" class="foto-grande"><img alt="Foto"></dialog>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+  <script src="chat.js"></script>
+  <script src="brujula.js"></script>
+  <script src="esquema.js"></script>
+  <script src="tiempo.js"></script>
+</body>
+</html>

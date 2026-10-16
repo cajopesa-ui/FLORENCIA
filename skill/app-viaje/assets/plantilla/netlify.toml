@@ -1,0 +1,14 @@
+# Configuración de Netlify: web estática, sin compilar nada
+[build]
+  publish = "."
+
+[[headers]]
+  for = "/manifest.webmanifest"
+  [headers.values]
+    Content-Type = "application/manifest+json"
+
+# El service worker siempre fresco, para que los móviles cojan las actualizaciones
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
