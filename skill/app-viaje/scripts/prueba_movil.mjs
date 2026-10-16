@@ -3,7 +3,9 @@
 //       node prueba_movil.mjs ./mi-app "iPhone SE" 2026-11-20 43.72,10.40
 // Dispositivos útiles: "iPhone SE" (320 px), "iPhone 13", "Pixel 7".
 // - Sirve los archivos con page.route (el proxy no deja usar localhost).
-// - mi_posicion responde ok y guardar se aborta: nada se escribe en Supabase.
+// - Todas las llamadas a Supabase se simulan: nada se lee ni se escribe en la base real.
+// - Funciona también con config.js sin rellenar (la app arranca sin sincronizar).
+// - Las capturas quedan en <carpeta_app>/../capturas/ (fuera de la app, para no publicarlas).
 // - Recorre cada pestaña de día y cada botón de ciudad, saca capturas y lista errores.
 import { chromium, devices } from '/opt/node-tools/node_modules/playwright/index.mjs';
 import fs from 'fs'; import path from 'path';
@@ -18,8 +20,11 @@ await ctx.route('http://localhost:8765/**', (route) => {
   const t = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png' }[path.extname(f)] || 'application/octet-stream';
   fs.existsSync(f) ? route.fulfill({ body: fs.readFileSync(f), contentType: t }) : route.fulfill({ status: 404 });
 });
-await ctx.route('**/rest/v1/rpc/mi_posicion', (r) => r.fulfill({ status: 200, contentType: 'application/json', body: '{"ok":true}' }));
-await ctx.route('**/rest/v1/rpc/guardar', (r) => r.abort());
+// Ninguna llamada llega a Supabase: leer devuelve un viaje vacío y el resto responde ok
+await ctx.route('**/rest/v1/rpc/**', (r) => {
+  const leer = r.request().url().endsWith('/rpc/leer');
+  r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(leer ? { ok: true, estado: {}, posiciones: [], mensajes: [] } : { ok: true }) });
+});
 await ctx.addInitScript((c) => localStorage.setItem('viaje-sesion', JSON.stringify({ nombre: 'Prueba', codigo: c })), process.env.CODIGO || '0000');
 const p = await ctx.newPage(); const err = []; p.on('pageerror', (e) => err.push(e.message));
 if (fecha) await p.clock.setFixedTime(new Date(fecha + 'T10:00:00+01:00'));

@@ -222,7 +222,8 @@
       "max": 14,
       "min": 6,
       "lluvia": 0.36
-     }
+     },
+     "etiqueta": "Monte Oliveto"
     },
     {
      "id": "sanquirico",
@@ -241,7 +242,8 @@
       "max": 13,
       "min": 6,
       "lluvia": 0.35
-     }
+     },
+     "etiqueta": "San Quirico"
     },
     {
      "id": "bagnovignoni",
@@ -9741,7 +9743,9 @@
   "busCerca": [
    "sanminiato",
    "michelangelo"
-  ]
+  ],
+  "busAviso": "Para bajar: buses 12 y 13. Billete 2 € (90 min), puedes pagar acercando la tarjeta.",
+  "busFicha": "Buses 12 y 13: suben hasta el Piazzale y San Miniato. Te ahorran la cuesta y son la mejor forma de bajar de noche o con lluvia. Billete 2 € (90 min). Comprueba el recorrido en la app de Autolinee Toscane."
  },
  "avisoGeneral": "Recuerda comprobar los horarios de invierno en las webs oficiales antes de ir (sobre todo el Duomo de Siena y las murallas de Monteriggioni).",
  "esquema": {

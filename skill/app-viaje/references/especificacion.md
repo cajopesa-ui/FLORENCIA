@@ -85,7 +85,7 @@ Código comentado en español; variables y funciones en español.
 --------------------------------------------------------------------
 3. COORDENADAS (Nominatim de OpenStreetMap)
 --------------------------------------------------------------------
-- 1 petición cada ~2 s, User-Agent propio, viewbox de cada ciudad; si
+- 1 petición por segundo como máximo, User-Agent propio, viewbox de cada ciudad; si
   da 429, esperar y reintentar.
 - Calles: polygon_geojson=1 y dedupe=0; unir todos los tramos "highway"
   de cada calle y filtrar los que caigan fuera del pueblo. Simplificar

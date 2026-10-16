@@ -40,7 +40,8 @@ lo diga, solo explica y espera).
 
 ### 2. Copiar la plantilla
 Copia `assets/plantilla/` a la carpeta del proyecto. Sustituye los marcadores:
-- `__TITULO__`, `__DESCRIPCION__` en `index.html` y `manifest.webmanifest`; `__FECHAS__` en el manifest.
+- `__TITULO__`, `__DESCRIPCION__`, `__FECHAS__` (p. ej. "12 – 13 de mayo") en `index.html` y `manifest.webmanifest`; `__LOGO__` en `index.html` (un emoji del destino, sale en la pantalla de entrada).
+- Color principal (opcional): `#7c2d12` en `style.css` (`--principal` y el degradado de la entrada), `index.html` (theme-color), el manifest y el icono. Cámbialo solo si el destino tiene un color típico o el usuario lo pide.
 - `__SUPABASE_URL__`, `__SUPABASE_ANON_KEY__` en `config.js` (paso 4).
 - Deja `VERSION = 'viaje-v1'` en `sw.js` y súbelo en cada cambio publicado.
 - Crea un `iconos/icono.svg` con un monumento típico del destino y ejecuta `node scripts/iconos.mjs <carpeta>`.
@@ -52,10 +53,24 @@ especificación). Además de lo que describe la especificación, la plantilla le
 - `mesViaje` (p. ej. `"mayo"`): para el texto "Normal en mayo en …" del tiempo.
 - `ciudadesBase`: `[{nombre, lat, lng, radio}]` de las ciudades grandes (la píldora 📍 y el resaltado del esquema).
 - En un día del esquema sin pestaña (la vuelta): `irTexto` (texto del botón) y `nota`.
+- Días SIN varias ciudades: `ciudad`, `lat`, `lng` (el centro de sus visitas) y `clima`; sus calles van sin `parte`.
+- Partes (ciudades de un día): `clima` cada una, y `etiqueta` si el nombre es largo para el mapa del esquema ("Monte Oliveto").
+- `transporte.busCerca` (ids de lugares con un bus útil cerca) con `busAviso` (aviso cuando estás allí) y `busFicha` (texto en la ficha del lugar). Opcional: sin ellos no sale nada.
+- Salidas en tren/bus/coche: lugar con `salida: true` y su hora. Si la salida está en otra ciudad que la parte (el tren desde Lisboa al empezar el día de Sintra), ponla en esa parte con `sinEncuadre: true`; "Siguiente" avanza al marcarla como hecha.
+- Esquema: `tren: true` dibuja la ruta de puntos; `carretera: true` solo indica que la ruta viene de TomTom. Sin TomTom, línea recta entre los puntos clave, empezando y acabando en el hotel.
 
 Coordenadas: si tienes el conector de **TomTom**, úsalo (geocode encuentra el número del
-portal; verifica cada sitio a < 60 m de su POI); si no, Nominatim. Para muchas consultas,
-repártelas en subagentes que devuelvan JSON compacto. Clima: `python3 scripts/clima.py LAT LNG MES DIA_INI DIA_FIN`.
+portal; verifica cada sitio a < 60 m de su POI); si no, Nominatim (máximo 1 petición por
+segundo, con User-Agent propio). Para muchas consultas, repártelas en subagentes que
+devuelvan JSON compacto. Clima: `python3 scripts/clima.py LAT LNG MES DIA_INI DIA_FIN`
+(unos 10 días antes y después del viaje dentro del mismo mes; si falla, deja `clima` sin poner).
+
+Revisa lo que diga el usuario contra la realidad antes de copiarlo: hora del atardecer
+de esas fechas, horarios de apertura según el día de la semana, tiempos entre pueblos.
+Si algo no cuadra (p. ej. "atardecer a las 17:30" en mayo, cuando es a las 20:40),
+pregúntalo. Si te falta un dato y no puedes preguntar (o el usuario dice que sigas),
+pon una suposición razonable y apúntala para decírsela al final; nunca la presentes como
+un dato confirmado.
 
 ### 4. Base de datos (Supabase)
 Proyecto **nuevo** (el plan gratis permite 2 activos; si no hay hueco, avisa). Ejecuta
@@ -64,11 +79,16 @@ clave pública (anon) a `config.js`. Nunca metas datos de prueba en la base real
 
 ### 5. Probar
 `CODIGO=<código> node scripts/prueba_movil.mjs <carpeta_app> "iPhone SE" <fecha del viaje> <lat,lng>`
-y repite con "iPhone 13" y "Pixel 7". Mira las capturas que deja en `capturas/`: nada debe
-salirse de la pantalla ni taparse. La especificación (sección 8) explica las pruebas de
+y repite con "iPhone 13" y "Pixel 7". Mira las capturas que deja en `<carpeta_app>/../capturas/`
+(fuera de la app, para no publicarlas): nada debe salirse de la pantalla ni taparse.
+El script simula todas las llamadas a Supabase, así que funciona antes de crear la base
+de datos y nunca escribe en la real. El fondo del mapa puede salir gris si el entorno no
+deja cargar las teselas: no es un fallo. La especificación (sección 8) explica las pruebas de
 chat, brújula, sin conexión y tiempo (simulando fechas).
 
-### 6. Publicar
+### 6. README y publicar
+Escribe un `README.md` en español para el usuario (cómo se usa cada cosa, como el de la
+especificación) y apunta en él las suposiciones que hayas hecho.
 Repositorio de GitHub (rama main) y Netlify (sitio nuevo "<destino>-viaje"; el permiso de
 despliegue caduca, pide uno nuevo cada vez). Comprueba que la web sirve la `VERSION` nueva.
 Al terminar, dile al usuario: la URL, el código, cómo instalarla en iPhone (Compartir →

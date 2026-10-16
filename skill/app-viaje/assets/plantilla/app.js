@@ -117,6 +117,12 @@ const marcasOtros = new Map();
 // ---------- Conexión con Supabase ----------
 
 function conectar() {
+  // Sin config.js rellenado (o con una URL mal escrita) la app sigue funcionando sin conexión
+  if (!/^https:\/\/[^_]+$/.test(CONFIG.supabaseUrl || '')) {
+    console.warn('config.js sin rellenar: la app funciona sin sincronizar');
+    sb = { rpc: async () => ({ data: null, error: { message: 'sin configurar' } }) };
+    return;
+  }
   sb = window.supabase.createClient(CONFIG.supabaseUrl, CONFIG.supabaseKey, {
     auth: { persistSession: false, autoRefreshToken: false }
   });
@@ -469,10 +475,11 @@ function pintarPanel() {
     }
   }
   if (miPos) {
-    const cercaBus = DATOS.transporte.busCerca
+    // transporte.busCerca: ids de lugares con un bus útil cerca; transporte.busAviso / busFicha: sus textos
+    const cercaBus = (DATOS.transporte.busCerca || [])
       .map((id) => lugares.find((l) => l.id === id))
       .some((l) => l && distancia(miPos, l) < 350);
-    if (cercaBus) avisos.push('<div class="aviso">🚌 Para bajar: buses 12 y 13. Billete 2 € (90 min), puedes pagar acercando la tarjeta.</div>');
+    if (cercaBus && DATOS.transporte.busAviso) avisos.push(`<div class="aviso">🚌 ${esc(DATOS.transporte.busAviso)}</div>`);
   }
   // Consejos: plegados en una línea para no empujar la tarjeta "Siguiente" (los avisos siempre a la vista)
   const consejos = [...(DATOS.consejos[ref] || []), ...(parteRef ? DATOS.consejos[`${ref}:${parteRef}`] || [] : [])];
@@ -641,9 +648,8 @@ function abrirFicha(clave) {
 
   const opcionesDia = DATOS.dias.map((d) => `<option value="${d.fecha}" ${d.fecha === x.dia ? 'selected' : ''}>${esc(d.nombre)}</option>`).join('');
   const tipo = esCalle ? `${x.tipo} · ${x.grupo === 'fuera' ? 'fuera de ruta' : 'imprescindible'}` : x.tipo + (x.opcional ? ' · opcional' : '');
-  const bus = DATOS.transporte.busCerca.includes(x.id) ? `
-      <div class="caja-bus">🚌 <b>Buses 12 y 13</b>: suben hasta el Piazzale y San Miniato. Te ahorran la cuesta y son la mejor forma de bajar de noche o con lluvia.
-      Billete 2 € (90 min). Comprueba el recorrido en la app de Autolinee Toscane.</div>` : '';
+  const bus = (DATOS.transporte.busCerca || []).includes(x.id) && DATOS.transporte.busFicha ? `
+      <div class="caja-bus">🚌 ${esc(DATOS.transporte.busFicha)}</div>` : '';
 
   abrirVentana(`
     <h2>${esc(x.nombre)}</h2>

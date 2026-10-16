@@ -74,7 +74,6 @@ function pintarEsquemaMapa() {
   // Nombres de los hoteles y de cada pueblo del viaje. Cada etiqueta se coloca en el primer
   // lado libre (los hoteles primero); si no cabe, aparece al acercar el mapa.
   // Tocar un pueblo = ir a ese día y ese pueblo.
-  const nombreCorto = { oliveto: 'Monte Oliveto', sanquirico: 'San Quirico' };
   const conHotel = new Set(E.hoteles.map((h) => h.nombre));   // Siena: ya lo dice la etiqueta de su hotel
   const aqui = sitioDondeEstoy();               // pueblo donde estoy según el GPS
   const etiquetas = [];
@@ -88,7 +87,7 @@ function pintarEsquemaMapa() {
   for (const d of DATOS.dias) {
     for (const pt of d.partes || []) {
       etiquetas.push({ tipo: 'pueblo', d, pt, lat: pt.lat, lng: pt.lng, radio: 7, ancho: 7, alto: 19, extra: 14,
-        texto: conHotel.has(pt.nombre) ? '' : (pt.nombre === aqui ? '📍 ' : '') + (nombreCorto[pt.id] || pt.nombre),
+        texto: conHotel.has(pt.nombre) ? '' : (pt.nombre === aqui ? '📍 ' : '') + (pt.etiqueta || pt.nombre),
         aqui: pt.nombre === aqui && !conHotel.has(pt.nombre) });
     }
   }
