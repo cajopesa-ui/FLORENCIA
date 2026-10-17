@@ -338,6 +338,22 @@ DISEÑO
   poder llegar del aeropuerto, y añade en la víspera de la vuelta el plan
   con horas.
 
+- COCHE DE ALQUILER: "esquema.coche" = {compania, grupo, recogida:{fecha,
+  hora, lugar}, devolucion:{fecha, hora, lugar}, incluye:[…], notas:[…],
+  telefono, telefonoTexto} y su oficina como punto del esquema con
+  "id":"coche" y "oculto": true (no se dibuja en el mapa, solo sirve para
+  "🧭 Guiarme"). Sale como tarjeta "🚗 Coche" en "Vuelos y coche" (Todo);
+  ficha con recogida/devolución, qué incluye, notas (cómo llegar a la
+  oficina y la lanzadera si no está en la terminal, cómo devolverlo, qué
+  llevar, fotos al recogerlo, cadenas en invierno, multas de ZTL),
+  Guiarme / A pie / En coche y "📞 Llamar". Privado (bono, conductor,
+  tarifa, precio) en la base de datos, clave "privado:coche", nunca en el
+  JSON. Pide al usuario las "Instrucciones de recogida/devolución" de la
+  reserva: dicen dónde está la oficina y si hay lanzadera. Rehaz el primer
+  día con coche desde la hora de recogida (+ trámites) y el último desde la
+  hora de devolución y del vuelo (salir del hotel, repostar si es
+  lleno-lleno, devolver, lanzadera, terminal).
+
 --------------------------------------------------------------------
 7. ESQUEMA DEL VIAJE (esquema.js) — si hay esquema/PDF
 --------------------------------------------------------------------

@@ -65,46 +65,46 @@
    "nombre": "Viernes 20",
    "corto": "Vie 20",
    "color": "#7e22ce",
-   "zona": "Lucca y Pisa en coche",
+   "zona": "Pisa y Lucca en coche",
    "atardecer": "16:50",
    "transporte": "pisalucca",
    "partes": [
     {
+     "id": "pisa",
+     "nombre": "Pisa",
+     "momento": "Mediodía",
+     "icono": "🌅",
+     "lat": 43.72,
+     "lng": 10.399,
+     "corto": "Pisa",
+     "desde": "12:30",
+     "llegar": {
+      "modo": "driving",
+      "texto": "Unos 61 min en coche desde Centauro (92 km, autopista A11). Aparca en el Parcheggio Pietrasantina, a 10 min a pie de la Torre, y no dejéis las maletas a la vista"
+     },
+     "clima": {
+      "max": 15,
+      "min": 7,
+      "lluvia": 0.42
+     }
+    },
+    {
      "id": "lucca",
      "nombre": "Lucca",
-     "momento": "Mañana",
-     "icono": "🌅",
-     "desde": "10:15",
+     "momento": "Atardecer",
+     "icono": "🌇",
+     "desde": "16:10",
      "lat": 43.843,
      "lng": 10.505,
      "llegar": {
       "modo": "driving",
-      "texto": "Unos 62 min en coche desde el aeropuerto de Florencia (70 km) (autopista A11). Aparca fuera de la muralla (Parcheggio Carducci)"
+      "texto": "Unos 25 min en coche desde el B&B de Pisa (27 km). Aparca en el Parcheggio Carducci, junto a la muralla"
      },
      "corto": "Lucca",
      "clima": {
       "max": 15,
       "min": 7,
       "lluvia": 0.44
-     }
-    },
-    {
-     "id": "pisa",
-     "nombre": "Pisa",
-     "momento": "Tarde",
-     "icono": "🌇",
-     "lat": 43.72,
-     "lng": 10.399,
-     "corto": "Pisa",
-     "desde": "14:30",
-     "llegar": {
-      "modo": "driving",
-      "texto": "Unos 27 min en coche desde Lucca (18 km). Ve primero al B&B (Via Salvestroni) a dejar el coche y las maletas; de allí a la Torre, 15 min a pie"
-     },
-     "clima": {
-      "max": 15,
-      "min": 7,
-      "lluvia": 0.42
      }
     }
    ]
@@ -356,6 +356,7 @@
  ],
  "consejos": {
   "2026-11-17": [
+   "Llegáis en el vuelo VY6070 a las 09:15: tranvía T2 al centro, maletas al hotel y al Uffizi hacia las 10:45 (sin entrada: cuenta con algo de cola).",
    "Atardecer hacia las 16:50: no llegues tarde al Piazzale.",
    "Para bajar del Piazzale de noche o con lluvia: buses 12 y 13."
   ],
@@ -367,21 +368,24 @@
    "Si solo te da tiempo a dos opcionales: Palazzo Vecchio y Museo dell'Opera del Duomo."
   ],
   "2026-11-20": [
-   "Hoy recogéis el coche en el aeropuerto de Florencia: tranvía T2 desde la estación (parada Unità), unos 20 minutos.",
-   "Esta noche se duerme en Pisa (hotel por decidir: mejor con aparcamiento y fuera de la ZTL).",
+   "Hoy: tranvía T2 al aeropuerto a las 10:15 (dejad la habitación antes de las 10:30) y coche en Centauro a las 11:00.",
+   "Pisa a mediodía y Lucca al atardecer. Esta noche se duerme en Pisa (B&B Villa Noemi, entrada de 14:30 a 20:00).",
+   "No dejéis las maletas a la vista en el coche aparcado.",
    "Los centros de Lucca y Pisa son ZTL: no entres con el coche, aparca en los parkings de fuera.",
    "Anochece hacia las 16:50.",
-   "Es temporada de invierno: muchos horarios son más cortos. Compruébalos en las webs oficiales (opapisa.it para la Piazza dei Miracoli)."
+   "Horarios de invierno: compruébalos en opapisa.it para la Piazza dei Miracoli."
   ],
   "2026-11-20:pisa": [
-   "Deja el coche en el B&B (Via Salvestroni): de allí a la Piazza dei Miracoli, unos 15 min a pie.",
-   "Del río al B&B, unos 25 min andando: toca el 🏨 del mapa y luego 🧭 Guiarme.",
-   "La opcional que no te debes perder: las Murallas de Pisa (entrada en la misma Piazza dei Miracoli)."
+   "Aparca en el Parcheggio Pietrasantina, a 10 min a pie de la Torre.",
+   "La Catedral es gratis, pero con entrada de franja horaria (taquilla u opapisa.it).",
+   "Comed cerca de la Piazza dei Miracoli (Via Santa Maria) hacia las 14:30.",
+   "A las 15:15, coche al B&B (3 min) para dejar las maletas antes de ir a Lucca."
   ],
   "2026-11-20:lucca": [
-   "Aparca en el Parcheggio Carducci, junto a la muralla: todo el centro está dentro, a pocos minutos a pie.",
-   "La opcional que no te debes perder aquí: la Torre delle Ore.",
-   "Lucca → Pisa: unos 27 min en coche (18 km)."
+   "Aparca en el Parcheggio Carducci, junto a la muralla.",
+   "Empieza por la Torre Guinigi para ver el atardecer (16:50) desde arriba.",
+   "La opcional que no te debes perder: la Torre delle Ore (cierra a las 17:30).",
+   "Lucca → Pisa: unos 24 min (18 km). Cena en Pisa junto al río."
   ],
   "2026-11-21": [
    "Sales de Pisa con el coche: unos 83 min (82 km) hasta San Gimignano. Sal hacia las 8:30.",
@@ -424,7 +428,8 @@
    "Lunes: algunas bodegas y tiendas pequeñas cierran. Confirma la Officina della Bistecca y las catas al reservar.",
    "Los centros son ZTL: aparca en los parkings de las afueras. Lleva monedas para el parquímetro.",
    "Última noche en Siena. Mañana, vuelta al aeropuerto de Florencia para devolver el coche.",
-   "Mañana, antes de devolver el coche: gasolineras Q8 y Esso en Via Lucchese (Sesto Fiorentino), a 2 km del aeropuerto y de camino."
+   "Mañana, antes de devolver el coche: gasolineras Q8 y Esso en Via Lucchese (Sesto Fiorentino), a 2 km del aeropuerto y de camino.",
+   "Mañana martes: vuelo VY6075 a las 15:15. Salid del hotel a las 10:45, repostad en Via Lucchese, devolved el coche en Centauro a las 12:30 y lanzadera a la terminal."
   ],
   "2026-11-21:sangimignano": [
    "Aparca fuera de la muralla y entra a pie por la Porta San Giovanni.",
@@ -454,13 +459,39 @@
  },
  "lugares": [
   {
+   "id": "t2",
+   "dia": "2026-11-17",
+   "nombre": "🚊 Tranvía T2 al centro",
+   "tipo": "tranvía",
+   "hora": "09:45",
+   "horario": "Cada 5-10 min. Billete 2 € (90 min), también con tarjeta sin contacto.",
+   "nota": "Parada «Aeroporto», a la salida de la terminal. Bajad en Unità (unos 20 min); el hotel está a 5 min a pie.",
+   "opcional": false,
+   "salida": true,
+   "sinEncuadre": true,
+   "lat": 43.802266,
+   "lng": 11.201067
+  },
+  {
+   "id": "maletas",
+   "dia": "2026-11-17",
+   "nombre": "🧳 Dejar las maletas (Hotel Jolì)",
+   "tipo": "hotel",
+   "hora": "10:15",
+   "horario": "Entrada a la habitación desde las 12:30.",
+   "nota": "Dejad las maletas en recepción y salid hacia el Uffizi: unos 15 min a pie.",
+   "opcional": false,
+   "lat": 43.776906,
+   "lng": 11.250264
+  },
+  {
    "id": "uffizi",
    "dia": "2026-11-17",
    "nombre": "Uffizi",
    "tipo": "museo",
-   "hora": "08:15",
+   "hora": "10:45",
    "horario": "Abierto de 8:15 a 18:30.",
-   "nota": "",
+   "nota": "Sin entrada: cola en la puerta (en noviembre suele ser de 20 a 45 min). Mirad antes en el móvil si quedan entradas online para esa mañana (uffizi.it). Calcula unas 2 h 30 min de visita.",
    "opcional": false,
    "lat": 43.768313,
    "lng": 11.255801,
@@ -471,9 +502,9 @@
    "dia": "2026-11-17",
    "nombre": "Piazza della Signoria",
    "tipo": "plaza",
-   "hora": "11:45",
+   "hora": "13:15",
    "horario": "Abierta siempre.",
-   "nota": "",
+   "nota": "Come por aquí cerca.",
    "opcional": false,
    "lat": 43.769574,
    "lng": 11.255864
@@ -483,7 +514,7 @@
    "dia": "2026-11-17",
    "nombre": "Ponte Vecchio",
    "tipo": "puente histórico",
-   "hora": "12:30",
+   "hora": "14:15",
    "horario": "Abierto siempre.",
    "nota": "",
    "opcional": false,
@@ -536,7 +567,7 @@
    "tipo": "palacio y museo",
    "hora": null,
    "horario": "Abierto de 9:00 a 19:00.",
-   "nota": "En la Piazza della Signoria. Sube a la torre. Mejor hoy, porque el jueves cierra a las 14:00.",
+   "nota": "En la Piazza della Signoria. Sube a la torre. Hoy va justo con la llegada del vuelo: si no da tiempo, el miércoles (abre hasta las 19:00); el jueves cierra a las 14:00.",
    "opcional": true,
    "lat": 43.769144,
    "lng": 11.256139,
@@ -703,7 +734,7 @@
    "parte": "pisa",
    "nombre": "Torre de Pisa",
    "tipo": "torre-campanario",
-   "hora": "15:00",
+   "hora": "12:45",
    "horario": "Se ve desde fuera siempre, gratis.",
    "nota": "No subís: la foto clásica, desde el césped de la Piazza dei Miracoli.",
    "opcional": false,
@@ -716,7 +747,7 @@
    "parte": "pisa",
    "nombre": "Catedral de Pisa",
    "tipo": "catedral",
-   "hora": "16:25",
+   "hora": "13:00",
    "horario": "Horario de noviembre no confirmado.",
    "nota": "El interior se visita con reserva de franja horaria. Al salir, la Torre con la luz del atardecer.",
    "opcional": false,
@@ -729,7 +760,7 @@
    "parte": "pisa",
    "nombre": "Baptisterio",
    "tipo": "baptisterio",
-   "hora": "15:55",
+   "hora": "13:35",
    "horario": "Google indica de 9:00 a 20:00. En invierno seguramente cierra antes.",
    "nota": "",
    "opcional": false,
@@ -742,7 +773,7 @@
    "parte": "pisa",
    "nombre": "Camposanto Monumentale",
    "tipo": "cementerio monumental con frescos",
-   "hora": "15:20",
+   "hora": "14:00",
    "horario": "Google indica de 9:00 a 20:00. En invierno seguramente cierra antes.",
    "nota": "",
    "opcional": false,
@@ -755,25 +786,26 @@
    "parte": "pisa",
    "nombre": "Piazza dei Cavalieri",
    "tipo": "plaza",
-   "hora": "17:15",
+   "hora": null,
    "horario": "Abierta siempre.",
-   "nota": "",
-   "opcional": false,
+   "nota": "Esta noche, de camino a cenar: está entre Borgo Stretto y el río.",
+   "opcional": true,
    "lat": 43.719462,
    "lng": 10.400091
   },
   {
    "id": "pontemezzo",
    "dia": "2026-11-20",
-   "parte": "pisa",
-   "nombre": "Lungarni y Ponte di Mezzo",
+   "parte": "lucca",
+   "nombre": "🍝 Cena en Pisa: Lungarni y Ponte di Mezzo",
    "tipo": "paseo junto al río",
-   "hora": "17:45",
+   "hora": "19:30",
    "horario": "Abierto siempre.",
-   "nota": "Cena por aquí. Para volver al B&B, unos 25 min a pie (🧭 Guiarme desde el 🏨 del mapa).",
+   "nota": "Ya de vuelta en Pisa, con el coche en el B&B. Paseo con los palacios iluminados sobre el Arno; de camino, la Piazza dei Cavalieri y Borgo Stretto. Del río al B&B, unos 25 min a pie.",
    "opcional": false,
    "lat": 43.715911,
-   "lng": 10.401912
+   "lng": 10.401912,
+   "sinEncuadre": true
   },
   {
    "id": "murapisa",
@@ -808,9 +840,9 @@
    "parte": "lucca",
    "nombre": "Murallas de Lucca",
    "tipo": "paseo arbolado sobre la muralla",
-   "hora": "10:30",
+   "hora": "17:50",
    "horario": "Abiertas siempre.",
-   "nota": "Sube desde el Parcheggio Carducci (Baluardo San Paolino) o desde cualquier puerta. Se puede alquilar una bici para recorrerla entera (unos 4 km).",
+   "nota": "Paseo por la muralla con las luces encendidas; siempre abierta. Se puede alquilar una bici (unos 4 km) si aún hay luz.",
    "opcional": false,
    "lat": 43.839402,
    "lng": 10.507139
@@ -821,7 +853,7 @@
    "parte": "lucca",
    "nombre": "Duomo di San Martino",
    "tipo": "catedral",
-   "hora": "10:50",
+   "hora": "17:05",
    "horario": "Abierto de 9:30 a 18:00.",
    "nota": "",
    "opcional": false,
@@ -835,7 +867,7 @@
    "parte": "lucca",
    "nombre": "San Michele in Foro",
    "tipo": "iglesia",
-   "hora": "11:25",
+   "hora": "17:35",
    "horario": "Abierta de 9:00 a 18:00.",
    "nota": "",
    "opcional": false,
@@ -849,13 +881,14 @@
    "parte": "lucca",
    "nombre": "Torre Guinigi",
    "tipo": "torre-mirador con árboles en la cima",
-   "hora": "11:50",
+   "hora": "16:20",
    "horario": "Abierta de 10:00 a 18:30.",
-   "nota": "Unos 230 escalones.",
+   "nota": "Unos 230 escalones. Empieza por aquí: el atardecer (16:50) desde arriba, entre los árboles.",
    "opcional": false,
    "lat": 43.843715,
    "lng": 10.506995,
-   "cierra": "18:30"
+   "cierra": "18:30",
+   "antesAtardecer": true
   },
   {
    "id": "anfiteatro",
@@ -863,9 +896,9 @@
    "parte": "lucca",
    "nombre": "Piazza dell'Anfiteatro",
    "tipo": "plaza sobre un anfiteatro romano",
-   "hora": "12:30",
+   "hora": "18:15",
    "horario": "Abierta siempre.",
-   "nota": "Buen sitio para comer.",
+   "nota": "Para un aperitivo antes de volver a Pisa.",
    "opcional": false,
    "lat": 43.84535,
    "lng": 10.506144
@@ -878,7 +911,7 @@
    "tipo": "torre del reloj",
    "hora": null,
    "horario": "Abierta de 10:00 a 17:30.",
-   "nota": "En Via Fillungo. Escaleras de madera y el mecanismo del reloj, con mucha menos gente que la Torre Guinigi. ⭐ Opcional que no te debes perder.",
+   "nota": "En Via Fillungo. Cierra a las 17:30: si te da tiempo, justo después de la Torre Guinigi. ⭐ Opcional que no te debes perder.",
    "opcional": true,
    "lat": 43.843397,
    "lng": 10.504172,
@@ -915,16 +948,16 @@
   {
    "id": "alapisa",
    "dia": "2026-11-20",
-   "parte": "lucca",
-   "nombre": "🚗 Coche a Pisa",
+   "parte": "pisa",
+   "nombre": "🚗 Coche a Lucca",
    "tipo": "salida en coche",
-   "hora": "13:50",
-   "horario": "Unos 27 min hasta Pisa (18 km).",
-   "nota": "Parcheggio Carducci, junto a la muralla. En Pisa, ve directo al B&B Villa Noemi (Via Salvestroni 11) a dejar el coche y las maletas: la entrada es desde las 14:30.",
+   "hora": "15:40",
+   "horario": "Unos 25 min (27 km).",
+   "nota": "Desde el B&B, con las maletas ya dejadas. En Lucca, aparca en el Parcheggio Carducci, junto a la muralla.",
    "opcional": false,
    "salida": true,
-   "lat": 43.83837,
-   "lng": 10.49742
+   "lat": 43.73217,
+   "lng": 10.399046
   },
   {
    "id": "matteotti",
@@ -1600,6 +1633,63 @@
    "sinEncuadre": true,
    "lat": 43.332336,
    "lng": 11.314295
+  },
+  {
+   "id": "t2coche",
+   "dia": "2026-11-20",
+   "parte": "pisa",
+   "nombre": "🚊 Tranvía T2 al aeropuerto",
+   "tipo": "tranvía",
+   "hora": "10:15",
+   "horario": "Cada 5-10 min. Billete 2 € (90 min).",
+   "nota": "Desde la parada Unità, a 5 min del hotel (dejad la habitación antes de las 10:30). Bajad en «Aeroporto» y esperad a la salida de la terminal el autobús de Centauro (parada con su logo, cada 10-15 min).",
+   "opcional": false,
+   "salida": true,
+   "sinEncuadre": true,
+   "lat": 43.776,
+   "lng": 11.2497
+  },
+  {
+   "id": "recogercoche",
+   "dia": "2026-11-20",
+   "parte": "pisa",
+   "nombre": "🔑 Recoger el coche (Centauro)",
+   "tipo": "alquiler de coches",
+   "hora": "11:00",
+   "horario": "Recogida a las 11:00.",
+   "nota": "Oficina en Via Francesco Basili 23 (os lleva su autobús desde la terminal). Llevad carnet, tarjeta de crédito del conductor, DNI y el bono. Fotos del coche antes de salir. Luego, a Pisa: unos 61 min (92 km).",
+   "opcional": false,
+   "salida": true,
+   "sinEncuadre": true,
+   "lat": 43.798987,
+   "lng": 11.202283
+  },
+  {
+   "id": "bnbpisa",
+   "dia": "2026-11-20",
+   "parte": "pisa",
+   "nombre": "🧳 B&B Villa Noemi: entrada y maletas",
+   "tipo": "hotel",
+   "hora": "15:15",
+   "horario": "Entrada de 14:30 a 20:00.",
+   "nota": "Mueve el coche desde Pietrasantina (3 min), deja las maletas y pregunta dónde aparcar esta noche.",
+   "opcional": false,
+   "lat": 43.73217,
+   "lng": 10.399046
+  },
+  {
+   "id": "vueltapisa",
+   "dia": "2026-11-20",
+   "parte": "lucca",
+   "nombre": "🚗 Vuelta a Pisa a dormir",
+   "tipo": "salida en coche",
+   "hora": "18:45",
+   "horario": "Unos 24 min (18 km).",
+   "nota": "Al B&B Villa Noemi; aparca donde te hayan dicho. Luego, a cenar junto al río.",
+   "opcional": false,
+   "salida": true,
+   "lat": 43.83837,
+   "lng": 10.49742
   }
  ],
  "calles": [
@@ -9679,14 +9769,14 @@
     }
    },
    "pisalucca": {
-    "titulo": "Lucca y Pisa en coche (viernes 20)",
-    "resumen": "Hoy vais en coche: lo recogéis en el aeropuerto de Florencia, veis Lucca por la mañana y Pisa por la tarde, y dormís en Pisa. En los dos centros se va a pie.",
+    "titulo": "Pisa y Lucca en coche (viernes 20)",
+    "resumen": "Hoy vais en coche: lo recogéis en Centauro (aeropuerto de Florencia) a las 11:00, veis Pisa a mediodía y Lucca al atardecer, y volvéis a dormir a Pisa. En los dos centros se va a pie.",
     "cuando": [
-     "Aeropuerto de Florencia → Lucca: unos 62 minutos (70 km) por la autopista A11 (peaje).",
+     "Hotel → aeropuerto: tranvía T2 desde Unità (unos 20 min) y lanzadera de Centauro.",
+     "Aeropuerto → Pisa (Parcheggio Pietrasantina): unos 61 minutos (92 km) por la autopista A11 (peaje).",
+     "Pietrasantina → B&B: 3 min en coche. B&B → Lucca: unos 25 min (27 km).",
      "Lucca: aparca en el Parcheggio Carducci, junto a la muralla; todo el centro está dentro, a pocos minutos.",
-     "Lucca → Pisa: unos 27 minutos (18 km).",
-     "Pisa: deja el coche en el B&B (Via Salvestroni, Porta a Lucca) y ve andando: a la Torre, unos 15 minutos. Si el B&B no tiene aparcamiento, el Parcheggio Pietrasantina queda a unos 10 minutos a pie.",
-     "En Lucca puedes alquilar una bici para recorrer la muralla entera (unos 4 km)."
+     "Lucca → Pisa (a dormir): unos 24 min (18 km)."
     ],
     "billetes": [
      "Autopista A11: peaje con tarjeta o efectivo; coge el tique al entrar y paga al salir.",
@@ -9696,7 +9786,7 @@
     "aviso": "Los centros de Pisa y Lucca son zona ZTL (tráfico restringido): entrar sin permiso supone multa automática. Si el hotel de Pisa está dentro de la ZTL, pide que registren tu matrícula. Alcohol: 0,5 g/l (0 con menos de 3 años de carnet).",
     "enlace": {
      "texto": "Abrir la ruta en Google Maps",
-     "url": "https://www.google.com/maps/dir/Aeroporto+di+Firenze/Lucca/Pisa"
+     "url": "https://www.google.com/maps/dir/Aeroporto+di+Firenze/Pisa/Lucca/Pisa"
     }
    },
    "chianti": {
@@ -9782,8 +9872,8 @@
    {
     "fecha": "2026-11-20",
     "corto": "Vie 20",
-    "zona": "Lucca y Pisa",
-    "resumen": "Coche desde el aeropuerto de Florencia. Lucca por la mañana y Pisa por la tarde",
+    "zona": "Pisa y Lucca",
+    "resumen": "Coche en Centauro a las 11:00. Pisa a mediodía, Lucca al atardecer y noche en Pisa",
     "modo": "Coche",
     "icono": "🚗",
     "noche": "pisa",
@@ -9793,52 +9883,32 @@
       11.250264
      ],
      [
-      43.80891,
-      11.20025
+      43.79895,
+      11.20239
      ],
      [
-      43.81141,
-      11.20079
+      43.79989,
+      11.2029
      ],
      [
-      43.81041,
-      11.19796
+      43.80057,
+      11.20137
      ],
      [
-      43.81203,
-      11.19352
+      43.79912,
+      11.20982
      ],
      [
-      43.80614,
-      11.18805
+      43.80132,
+      11.21148
      ],
      [
-      43.80738,
-      11.18551
+      43.80103,
+      11.20104
      ],
      [
-      43.81043,
-      11.18113
-     ],
-     [
-      43.81446,
-      11.18688
-     ],
-     [
-      43.81627,
-      11.18665
-     ],
-     [
-      43.81349,
-      11.18342
-     ],
-     [
-      43.81456,
-      11.1801
-     ],
-     [
-      43.85262,
-      11.12076
+      43.85229,
+      11.12143
      ],
      [
       43.85509,
@@ -9857,12 +9927,16 @@
       11.04046
      ],
      [
-      43.88538,
-      11.02669
+      43.87514,
+      11.03603
      ],
      [
-      43.88812,
-      11.02119
+      43.88494,
+      11.02721
+     ],
+     [
+      43.88784,
+      11.02207
      ],
      [
       43.91099,
@@ -9873,8 +9947,8 @@
       10.90919
      ],
      [
-      43.91134,
-      10.86346
+      43.91138,
+      10.86388
      ],
      [
       43.90722,
@@ -9885,12 +9959,12 @@
       10.84036
      ],
      [
-      43.90211,
-      10.82948
+      43.90238,
+      10.82992
      ],
      [
-      43.89977,
-      10.82763
+      43.90021,
+      10.8278
      ],
      [
       43.89194,
@@ -9909,28 +9983,188 @@
       10.76174
      ],
      [
-      43.82101,
-      10.68522
+      43.82076,
+      10.6848
      ],
      [
       43.81488,
       10.66884
      ],
      [
-      43.82747,
-      10.55437
+      43.82758,
+      10.55306
      ],
      [
-      43.82867,
-      10.5046
+      43.82884,
+      10.50238
      ],
      [
-      43.83132,
-      10.48841
+      43.83681,
+      10.4505
      ],
      [
-      43.83117,
-      10.4941
+      43.83581,
+      10.4423
+     ],
+     [
+      43.82682,
+      10.41482
+     ],
+     [
+      43.82261,
+      10.40988
+     ],
+     [
+      43.81316,
+      10.40815
+     ],
+     [
+      43.808,
+      10.40188
+     ],
+     [
+      43.80674,
+      10.397
+     ],
+     [
+      43.80794,
+      10.37915
+     ],
+     [
+      43.80654,
+      10.37296
+     ],
+     [
+      43.77727,
+      10.3322
+     ],
+     [
+      43.76572,
+      10.34063
+     ],
+     [
+      43.76175,
+      10.34703
+     ],
+     [
+      43.75213,
+      10.35763
+     ],
+     [
+      43.74332,
+      10.37276
+     ],
+     [
+      43.74059,
+      10.37335
+     ],
+     [
+      43.74283,
+      10.37373
+     ],
+     [
+      43.73966,
+      10.38064
+     ],
+     [
+      43.72856,
+      10.38879
+     ],
+     [
+      43.72916,
+      10.39296
+     ],
+     [
+      43.73153,
+      10.3926
+     ],
+     [
+      43.73208,
+      10.40036
+     ],
+     [
+      43.73153,
+      10.3926
+     ],
+     [
+      43.74966,
+      10.38762
+     ],
+     [
+      43.74768,
+      10.37567
+     ],
+     [
+      43.74428,
+      10.37132
+     ],
+     [
+      43.7522,
+      10.35754
+     ],
+     [
+      43.76175,
+      10.34703
+     ],
+     [
+      43.76553,
+      10.34083
+     ],
+     [
+      43.77679,
+      10.33254
+     ],
+     [
+      43.8065,
+      10.3731
+     ],
+     [
+      43.80788,
+      10.37955
+     ],
+     [
+      43.80666,
+      10.397
+     ],
+     [
+      43.80792,
+      10.40195
+     ],
+     [
+      43.81312,
+      10.40827
+     ],
+     [
+      43.82259,
+      10.41
+     ],
+     [
+      43.82674,
+      10.41487
+     ],
+     [
+      43.83524,
+      10.4407
+     ],
+     [
+      43.83675,
+      10.44863
+     ],
+     [
+      43.83105,
+      10.48737
+     ],
+     [
+      43.83,
+      10.48851
+     ],
+     [
+      43.83192,
+      10.48846
+     ],
+     [
+      43.83111,
+      10.49405
      ],
      [
       43.83926,
@@ -9941,20 +10175,16 @@
       10.49746
      ],
      [
-      43.83791,
-      10.49535
-     ],
-     [
-      43.83782,
-      10.49737
+      43.83811,
+      10.49727
      ],
      [
       43.83891,
       10.49767
      ],
      [
-      43.83996,
-      10.49515
+      43.83991,
+      10.49509
      ],
      [
       43.83262,
@@ -9965,16 +10195,20 @@
       10.49191
      ],
      [
-      43.83001,
-      10.4928
+      43.82992,
+      10.49272
      ],
      [
-      43.82959,
-      10.48807
+      43.83021,
+      10.48962
      ],
      [
-      43.82636,
-      10.48667
+      43.82876,
+      10.48735
+     ],
+     [
+      43.82551,
+      10.48663
      ],
      [
       43.82227,
@@ -10009,8 +10243,8 @@
       10.45765
      ],
      [
-      43.76718,
-      10.4457
+      43.76725,
+      10.44579
      ],
      [
       43.76405,
@@ -10029,8 +10263,8 @@
       10.44584
      ],
      [
-      43.7638,
-      10.44449
+      43.76377,
+      10.44447
      ],
      [
       43.7624,
@@ -10061,7 +10295,7 @@
       10.39905
      ]
     ],
-    "rutaTexto": "Coche: hotel → aeropuerto de Florencia (tranvía T2, recoger el coche) → Lucca → Pisa",
+    "rutaTexto": "Tranvía al aeropuerto · coche: aeropuerto → Pisa → Lucca → Pisa",
     "carretera": true
    },
    {
@@ -12229,7 +12463,7 @@
     "color": "#475569",
     "carretera": true,
     "irTexto": "Ir al aeropuerto de Florencia",
-    "nota": "Salid del hotel a las 11:00. Reposta antes de devolver el coche si el contrato lo pide."
+    "nota": "Salid del hotel a las 10:45. Devolución del coche a las 12:30 con el depósito lleno (lleno-lleno)."
    }
   ],
   "hoteles": [
@@ -12261,7 +12495,7 @@
     "lng": 10.399046,
     "notas": [
      "Fuera de la muralla, a unos 15 minutos a pie de la Torre.",
-     "Llegáis en coche desde Lucca: queda de paso al entrar en Pisa por el norte. Pregunta por el aparcamiento.",
+     "Llegáis a Pisa hacia las 12:30, antes de la entrada: pasad a las 15:15 a dejar las maletas y preguntad dónde aparcar esta noche.",
      "Entrada de 14:30 a 20:00: avisa de la hora de llegada.",
      "El 21 salís hacia las 8:30, antes de la hora de salida (10:30)."
     ],
@@ -12308,10 +12542,20 @@
     "titulo": "Aeropuerto de Florencia · coche de alquiler",
     "notas": [
      "Vuelos: ida VY6070 llega el martes 17 a las 09:15; vuelta VY6075 sale el martes 24 a las 15:15.",
-     "Viernes 20: recogéis el coche. Desde el hotel, tranvía T2 (parada Unità), unos 20 minutos.",
-     "Martes 24: lo devolvéis aquí, a unos 80 minutos de Siena (82 km). Reposta antes si el contrato lo pide.",
+     "Viernes 20: recogéis el coche en Centauro a las 11:00 (tranvía T2 desde el hotel, unos 20 min, y su lanzadera).",
+     "Martes 24: lo devolvéis a las 12:30, con el depósito lleno (lleno-lleno). Desde Siena, unos 80 min (82 km).",
      "Para repostar antes de devolver el coche: Q8 (Via Lucchese 35) o Esso (Via Lucchese 141/A), en Sesto Fiorentino, a 1,5-2 km del aeropuerto y de camino desde Siena."
     ]
+   },
+   {
+    "id": "coche",
+    "nombre": "Centauro",
+    "icono": "🚗",
+    "lat": 43.798987,
+    "lng": 11.202283,
+    "titulo": "Centauro Rent a Car (Via Francesco Basili 23)",
+    "oculto": true,
+    "notas": []
    }
   ],
   "vuelos": [
@@ -12354,11 +12598,42 @@
      "hora": "16:55"
     },
     "notas": [
-     "Plan del día: salir del hotel de Siena a las 11:00 (hora de salida), repostar en Via Lucchese (Q8 o Esso), devolver el coche hacia las 12:45 y estar en la terminal a las 13:15.",
+     "Plan del día: salir del hotel de Siena a las 10:45, repostar en Via Lucchese (Q8 o Esso), devolver el coche en Centauro (Via Francesco Basili 23) a las 12:30 y su autobús os lleva a la terminal (sobre las 13:00).",
      "Siena → aeropuerto: unos 80 min (82 km).",
      "Check-in online en la app o la web de Vueling antes de volar."
     ]
    }
-  ]
+  ],
+  "coche": {
+   "compania": "Centauro Rent a Car",
+   "grupo": "Grupo A (tipo Fiat Panda híbrido o similar)",
+   "recogida": {
+    "fecha": "2026-11-20",
+    "hora": "11:00",
+    "lugar": "Florencia · Aeropuerto"
+   },
+   "devolucion": {
+    "fecha": "2026-11-24",
+    "hora": "12:30",
+    "lugar": "Florencia · Aeropuerto"
+   },
+   "incluye": [
+    "Lleno-lleno: se recoge lleno y se devuelve lleno",
+    "Cobertura total sin franquicia",
+    "Conductor adicional gratis",
+    "Cadenas para la nieve"
+   ],
+   "notas": [
+    "Recogida: al salir de llegadas, esperad justo a la salida de la terminal en la parada con el logo de Centauro. Su autobús gratuito pasa cada 10-15 min y os lleva a la oficina.",
+    "Oficina: Via Francesco Basili 23, a unos 400 m de la terminal.",
+    "Devolución: id con el coche directamente a Via Francesco Basili 23, aparcad solo en las plazas de Centauro y, tras revisar el coche, su autobús os lleva a la terminal.",
+    "Llevad: carnet de conducir, tarjeta de crédito del conductor, DNI y el bono (código de barras en la web o la app de Centauro).",
+    "Al recogerlo, haced fotos y un vídeo del coche por fuera y por dentro, y del indicador de combustible.",
+    "Del 15 de noviembre al 15 de abril muchas carreteras de Toscana exigen cadenas o neumáticos de invierno: las cadenas van incluidas.",
+    "Las multas de ZTL llegan meses después a través de Centauro, con recargo: no entréis en los centros históricos."
+   ],
+   "telefono": "+390683662959",
+   "telefonoTexto": "(+39) 06 8366 2959"
+  }
  }
 }
