@@ -48,11 +48,15 @@ function htmlEsquema() {
       <div class="esq-dias">${tarjetas}</div>
       <h3>Noches de hotel</h3>
       <div class="esq-hoteles">${hoteles}</div>
-      ${(E.vuelos || []).length ? `<h3>Vuelos</h3><div class="esq-hoteles">${E.vuelos.map((v) => `
+      ${(E.vuelos || []).length || E.coche ? `<h3>Vuelos y coche</h3><div class="esq-hoteles">${(E.vuelos || []).map((v) => `
       <button class="esq-hotel" data-esq-vuelo="${v.id}">
         <b>✈️ ${esc(v.tipo)}</b> <span>${esc(diaCorto(v.fecha))} · ${esc(v.numero)}</span>
         <small><b class="esq-hotel-nombre">${esc(v.sale.iata)} ${esc(v.sale.hora)} → ${esc(v.llega.iata)} ${esc(v.llega.hora)}</b>${esc(v.compania)}</small>
-      </button>`).join('')}</div>` : ''}
+      </button>`).join('')}${E.coche ? `
+      <button class="esq-hotel" data-esq-coche="1">
+        <b>🚗 Coche</b> <span>${esc(E.coche.compania)}</span>
+        <small><b class="esq-hotel-nombre">${esc(diaCorto(E.coche.recogida.fecha))} ${esc(E.coche.recogida.hora)} → ${esc(diaCorto(E.coche.devolucion.fecha))} ${esc(E.coche.devolucion.hora)}</b>${esc(E.coche.grupo)}</small>
+      </button>` : ''}</div>` : ''}
       <details class="consejos esq-porque" ${porqueAbierto ? 'open' : ''}><summary>💡 Por qué este reparto</summary>
         ${E.porque.map((p) => `<p class="consejo">• ${esc(p)}</p>`).join('')}
       </details>
@@ -88,6 +92,7 @@ function pintarEsquemaMapa() {
       texto: `${h.nombre === aqui ? '📍 ' : ''}${h.nombre} · ${h.noches.split(' (')[0]}`, aqui: h.nombre === aqui });
   }
   for (const p of E.puntos || []) {           // ✈️ aeropuerto, donde se recoge y devuelve el coche
+    if (p.oculto) continue;                  // p. ej. la oficina del coche: solo para Guiarme
     etiquetas.push({ tipo: 'punto', p, lat: p.lat, lng: p.lng, radio: 7, ancho: 7, alto: 19, extra: 14, texto: `${p.icono} ${p.nombre}` });
   }
   for (const d of DATOS.dias) {
@@ -182,6 +187,33 @@ function abrirVuelo(id) {
       <a class="btn" href="${urlComoLlegar(ap.lat, ap.lng, 'driving')}" target="_blank" rel="noopener">🚗 Aeropuerto</a>` : ''}
     </div>
     ${reserva}`);
+}
+
+// Coche de alquiler: lo público en esquema.coche; bono, conductor y precio en "privado:coche"
+function abrirCoche() {
+  const c = DATOS.esquema.coche;
+  if (!c) return;
+  const of = (DATOS.esquema.puntos || []).find((p) => p.id === 'coche');
+  const priv = estadoActual()['privado:coche'];
+  const filas = priv ? Object.entries({ Bono: priv.bono, Conductor: priv.conductor, 'Conductor adicional': priv.adicional, Tarifa: priv.tarifa, Precio: priv.precio })
+    .filter(([, v]) => v).map(([k, v]) => `<li><b>${esc(k)}:</b> ${esc(v)}</li>`).join('') : '';
+  abrirVentana(`
+    <h2>🚗 ${esc(c.compania)}</h2>
+    <p class="tipo">${esc(c.grupo)}</p>
+    <div class="dos">
+      <div class="dato"><span class="etq">🔑 Recogida</span>${esc(diaCorto(c.recogida.fecha))} · <b>${esc(c.recogida.hora)}</b><br>${esc(c.recogida.lugar)}</div>
+      <div class="dato"><span class="etq">↩️ Devolución</span>${esc(diaCorto(c.devolucion.fecha))} · <b>${esc(c.devolucion.hora)}</b><br>${esc(c.devolucion.lugar)}</div>
+    </div>
+    <div class="dato"><span class="etq">Incluye</span><ul class="hotel-notas">${c.incluye.map((n) => `<li>${esc(n)}</li>`).join('')}</ul></div>
+    <div class="dato"><span class="etq">Notas</span><ul class="hotel-notas">${c.notas.map((n) => `<li>${esc(n)}</li>`).join('')}</ul></div>
+    ${of ? `<div class="fila-botones">
+      <button class="btn btn-principal" data-guiar="punto:coche">🧭 Guiarme</button>
+      <a class="btn" href="${urlComoLlegar(of.lat, of.lng, 'walking')}" target="_blank" rel="noopener">🚶 A pie</a>
+      <a class="btn" href="${urlComoLlegar(of.lat, of.lng, 'driving')}" target="_blank" rel="noopener">🚗 En coche</a>
+    </div>` : ''}
+    ${priv ? `<div class="dato"><span class="etq">🔒 Datos de la reserva</span><ul class="hotel-notas">${filas}</ul></div>
+      <p class="consejo">Estos datos solo se ven después de entrar con el código.</p>`
+      : '<p class="consejo">🔒 El bono, el conductor y el precio salen al entrar con el código y con conexión.</p>'}`);
 }
 
 // Para "Guiarme" hasta un punto del esquema (clave "punto:aeropuerto")
@@ -329,6 +361,7 @@ document.addEventListener('click', (e) => {
     }
     return;
   }
+  if (e.target.closest('[data-esq-coche]')) { abrirCoche(); return; }
   const vuelo = e.target.closest('[data-esq-vuelo]');
   if (vuelo) { abrirVuelo(vuelo.dataset.esqVuelo); return; }
   const guardarLoc = e.target.closest('#vuelo-guardar');
