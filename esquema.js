@@ -180,9 +180,11 @@ function abrirVuelo(id) {
       <div class="dato"><span class="etq">🛫 Sale</span>${esc(v.sale.iata)} ${esc(v.sale.ciudad)}<br><b>${esc(v.sale.hora)}</b></div>
       <div class="dato"><span class="etq">🛬 Llega</span>${esc(v.llega.iata)} ${esc(v.llega.ciudad)}<br><b>${esc(v.llega.hora)}</b></div>
     </div>
+    ${v.estado ? `<div class="dato"><span class="etq">📡 Estado del vuelo: ${esc(v.estado.fuente)}</span>${esc(v.estado.ayuda)}
+      <a href="https://www.flightradar24.com/data/flights/${encodeURIComponent(v.numero.toLowerCase())}" target="_blank" rel="noopener">Otra opción: Flightradar24</a></div>` : ''}
     ${v.notas?.length ? `<div class="dato"><span class="etq">Notas</span><ul class="hotel-notas">${v.notas.map((n) => `<li>${esc(n)}</li>`).join('')}</ul></div>` : ''}
     <div class="fila-botones">
-      <a class="btn btn-principal" href="https://www.flightradar24.com/data/flights/${encodeURIComponent(v.numero.toLowerCase())}" target="_blank" rel="noopener">📡 Estado del vuelo</a>
+      <a class="btn btn-principal" href="${esc(v.estado?.url || `https://www.flightradar24.com/data/flights/${encodeURIComponent(v.numero.toLowerCase())}`)}" target="_blank" rel="noopener">📡 Estado del vuelo</a>
       ${ap ? `<button class="btn" data-guiar="punto:${esc(ap.id)}">🧭 Guiarme</button>
       <a class="btn" href="${urlComoLlegar(ap.lat, ap.lng, 'driving')}" target="_blank" rel="noopener">🚗 Aeropuerto</a>` : ''}
     </div>
