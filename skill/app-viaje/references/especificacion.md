@@ -312,6 +312,18 @@ DISEÑO
 - Todo lo que viene de la base de datos se escapa (esc()).
 - La fecha/hora "de hoy" con Intl en la zona horaria del destino.
 
+- ORDEN POR CERCANÍA: botón "📍 Ordenar por cercanía" encima de las visitas
+  del día y la ciudad que se ven (solo con GPS, ≥2 visitas pendientes y
+  alguna a < 5 km). Recorrido seguido desde mi posición (vecino más
+  cercano); lo visitado queda delante y las salidas al final. Solo en este
+  móvil (localStorage, clave "<fecha>|<parte>") y solo el día en que se pide.
+  Con el orden activo: "≈HH:MM" estimada (75 m/min × 1,3 + 40 min por sitio),
+  "⚠️ Cierra a las X" si se llega a < 20 min del cierre y "⚠️ Tiene hora
+  fija" si la nota habla de reserva y se desvía > 30 min. "↩ Orden
+  original" lo quita. Números del mapa y "Siguiente" siguen el nuevo orden;
+  el selector de ciudades y la tarjeta de la siguiente ciudad usan el orden
+  por hora (visitasPorHora).
+
 --------------------------------------------------------------------
 7. ESQUEMA DEL VIAJE (esquema.js) — si hay esquema/PDF
 --------------------------------------------------------------------

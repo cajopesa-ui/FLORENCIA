@@ -27,6 +27,7 @@ las calles recomendadas, el transporte público y lo que vais marcando los dos e
 | Dónde estoy | Junto a ▼ Ocultar / ▲ Mostrar sale **📍 la localidad** según tu GPS |
 | El tiempo | En cada día y ciudad, encima de «Siguiente»: previsión (cielo, máx./mín., lluvia, viento y las horas con lluvia probable). Fiable desde 7 días antes; de 8 a 15 días sale como «orientativa»; antes, el clima normal de noviembre. En **Todo**, cada tarjeta de día lleva solo el símbolo (en días con varios pueblos, el peor; más claro si es orientativo) |
 | Consejos del día | Plegados en «💡 Consejos (n)»: tócalo para verlos |
+| Reordenar por cercanía | **📍 Ordenar por cercanía** encima de las visitas (si estás en ese sitio): recorrido desde donde estás, con hora estimada y ⚠️ si algo cierra antes de llegar. Solo en tu móvil y solo ese día; **↩ Orden original** lo deshace |
 | Ver un lugar | Toca su marcador, su calle o su fila en la lista |
 | Ir a un sitio | **🧭 Guiarme**: flecha que apunta al destino (si apunta hacia arriba, vas bien) · **🗺️ Maps**: abre Google Maps |
 | Hacia dónde miro | Abanico azul en tu punto (brújula del móvil; en iPhone se activa al pulsar 📍 o 🧭) |

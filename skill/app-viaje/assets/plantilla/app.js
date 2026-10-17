@@ -267,11 +267,79 @@ function enParte(x, fecha = x.dia) {
 function parteInfo(fecha, id) { return (partesDe(fecha) || []).find((pt) => pt.id === id); }
 
 // Visitas principales del día (y de su ciudad, si tiene dos) ordenadas por hora.
-function visitasDelDia(lugares, fecha, parte) {
+function visitasPorHora(lugares, fecha, parte) {
   return lugares
     .filter((l) => l.dia === fecha && l.clase === 'lugar' && !l.opcional && l.hora && (!parte || !l.parte || l.parte === parte))
     .sort((a, b) => a.hora.localeCompare(b.hora));
 }
+// Igual, pero con el orden por cercanía si se ha pedido hoy en este móvil
+function visitasDelDia(lugares, fecha, parte) {
+  const lista = visitasPorHora(lugares, fecha, parte);
+  const o = ordenActivo(fecha, parte);
+  if (!o) return lista;
+  const pos = (l) => { const i = o.claves.indexOf(l.clave); return i < 0 ? 1e9 : i; };
+  return lista.sort((a, b) => pos(a) - pos(b));
+}
+
+// ---------- Orden por cercanía (solo en este móvil y solo el día en que se pide) ----------
+let ordenCerca = almacen.leer('viaje-orden', {});     // { "fecha|parte": { hoy, claves: [...] } }
+const claveOrden = (fecha, parte) => `${fecha}|${parte || ''}`;
+function ordenActivo(fecha, parte) {
+  const o = ordenCerca[claveOrden(fecha, parte)];
+  return o && o.hoy === ahora().fecha ? o : null;
+}
+
+// Recorrido seguido: desde donde estoy al sitio más cercano, de ahí al más cercano, etc.
+// Lo ya visitado se queda delante y las salidas (tren, coche…) al final.
+function ordenarPorCercania(fecha, parte) {
+  if (!miPos) return;
+  const lista = visitasPorHora(todosLosLugares(estadoActual()), fecha, parte);
+  const vistas = lista.filter((l) => l.visitado);
+  const salidas = lista.filter((l) => !l.visitado && l.salida);
+  const quedan = lista.filter((l) => !l.visitado && !l.salida);
+  const recorrido = [];
+  let desde = miPos;
+  while (quedan.length) {
+    quedan.sort((a, b) => distancia(desde, a) - distancia(desde, b));
+    desde = quedan.shift();
+    recorrido.push(desde);
+  }
+  ordenCerca[claveOrden(fecha, parte)] = { hoy: ahora().fecha, claves: [...vistas, ...recorrido, ...salidas].map((l) => l.clave) };
+  almacen.guardar('viaje-orden', ordenCerca);
+  pintar();
+}
+function ordenOriginal(fecha, parte) {
+  delete ordenCerca[claveOrden(fecha, parte)];
+  almacen.guardar('viaje-orden', ordenCerca);
+  pintar();
+}
+
+// Con el orden por cercanía: hora estimada de llegada a cada visita pendiente (andando,
+// 40 min en cada sitio) y aviso si se llega tarde a algo que cierra o tiene hora fija.
+function estimarOrden(visitas) {
+  const res = new Map();
+  if (!miPos) return res;
+  let t = ahora().minutos, desde = miPos;
+  for (const l of visitas) {
+    if (l.visitado) continue;
+    t += Math.round(distancia(desde, l) * 1.3 / 75);       // 75 m por minuto, calles no rectas
+    const hh = `${String(Math.floor(t / 60) % 24).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
+    let aviso = '';
+    if (l.cierra && t > aMinutos(l.cierra) - 20) aviso = `⚠️ Cierra a las ${l.cierra}: puede que llegues tarde`;
+    else if (/reserva|hora fija|hora reservada/i.test(`${l.nota} ${l.horario}`) && Math.abs(t - aMinutos(l.hora)) > 30) aviso = `⚠️ Tiene hora fija (${l.hora})`;
+    res.set(l.clave, { llegada: hh, aviso });
+    t += 40; desde = l;
+  }
+  return res;
+}
+
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-ordenar], [data-orden-original]');
+  if (!b) return;
+  const [fecha, parte] = (b.dataset.ordenar || b.dataset.ordenOriginal).split('|');
+  if (b.dataset.ordenar) ordenarPorCercania(fecha, parte || null);
+  else ordenOriginal(fecha, parte || null);
+});
 
 function buscar(clave) {
   const est = estadoActual();
@@ -326,7 +394,7 @@ function pintarDias() {
     nav.classList.toggle('compacto', compacto);
     const lugares = todosLosLugares(estadoActual());
     nav.innerHTML = partes.map((pt) => {
-      const primera = visitasDelDia(lugares, diaSel, pt.id)[0];
+      const primera = visitasPorHora(lugares, diaSel, pt.id)[0];
       const sub = compacto ? (primera ? primera.hora : '') : pt.momento.toLowerCase();
       if (compacto) {   // dos líneas: icono + hora arriba, pueblo abajo (caben 4 o más en el ancho)
         return `<button class="parte ${pt.id === actual ? 'activa' : ''}" data-parte="${pt.id}" aria-label="${esc(pt.nombre)}">
@@ -497,7 +565,7 @@ function pintarPanel() {
   const partesRef = partesDe(ref);
   const siguienteParte = !sig && partesRef ? partesRef[partesRef.findIndex((pt) => pt.id === parteRef) + 1] : null;
   if (siguienteParte) {
-    const destino = visitasDelDia(lugares, ref, siguienteParte.id)[0] || siguienteParte;
+    const destino = visitasPorHora(lugares, ref, siguienteParte.id)[0] || siguienteParte;
     const modo = siguienteParte.llegar?.modo || 'driving';
     const boton = { driving: '🚗 Ir en coche', transit: '🚆 Ir en tren / bus', walking: '🚶 Ir andando' }[modo] || '🗺️ Cómo ir';
     $('#siguiente').innerHTML = `
@@ -570,7 +638,17 @@ function pintarPanel() {
 
     const sub = (titulo) => (diaSel === 'todo' ? `<h3 style="font-size:12px;margin-top:6px">${titulo}</h3>` : `<h3>${titulo}</h3>`);
     html += sub('Visitas');
-    html += visitas.map((l, i) => filaLugar(l, info.color, String(i + 1), false)).join('');
+    // Botón "Ordenar por cercanía": solo en el día y la ciudad que se ven, y estando cerca
+    const activo = ordenActivo(fecha, parte);
+    const k = claveOrden(fecha, parte);
+    if (activo) {
+      html += `<div class="orden-cerca">📍 Ordenado por cercanía (solo en tu móvil) <button class="btn" data-orden-original="${k}">↩ Orden original</button></div>`;
+    } else if (diaSel !== 'todo' && miPos && visitas.filter((l) => !l.visitado && !l.salida).length >= 2
+               && visitas.some((l) => distancia(miPos, l) < 5000)) {
+      html += `<button class="btn btn-orden" data-ordenar="${k}">📍 Ordenar por cercanía</button>`;
+    }
+    const estim = activo ? estimarOrden(visitas) : new Map();
+    html += visitas.map((l, i) => filaLugar(l, info.color, String(i + 1), false, estim.get(l.clave))).join('');
     html += sinHora.map((l) => filaLugar(l, info.color, '•', false)).join('');
     if (opcionales.length && ajustes.opcionales) {
       html += sub('Opcionales');
@@ -603,12 +681,13 @@ function pintarPanel() {
   $('#esquema-panel').innerHTML = diaSel === 'todo' ? htmlEsquema() : '';
 }
 
-function filaLugar(l, color, num, hueco) {
+function filaLugar(l, color, num, hueco, estim) {
   const dist = miPos ? textoDistancia(distancia(miPos, l)).split(' · ')[0] : '';
-  const det = [l.hora, l.tipo, l.comentario ? '💬 ' + l.comentario : ''].filter(Boolean).join(' · ');
+  const hora = estim ? `≈${estim.llegada}` : l.hora;     // con el orden por cercanía, hora estimada
+  const det = [hora, l.tipo, l.comentario ? '💬 ' + l.comentario : ''].filter(Boolean).join(' · ');
   return `<button class="item ${l.visitado ? 'visto' : ''}" data-ficha="${esc(l.clave)}">
       <span class="num ${hueco ? 'hueco' : ''}" style="${hueco ? `border-color:${color}` : `background:${color}`}">${l.visitado ? '✔' : esc(num)}</span>
-      <span class="txt"><span class="nom">${esc(l.nombre)}</span><span class="det">${esc(det)}</span></span>
+      <span class="txt"><span class="nom">${esc(l.nombre)}</span><span class="det">${esc(det)}</span>${estim?.aviso ? `<span class="det aviso-orden">${esc(estim.aviso)}</span>` : ''}</span>
       <span class="dist">${esc(dist)}</span>
     </button>`;
 }

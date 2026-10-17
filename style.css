@@ -454,3 +454,9 @@ input, textarea, select { font: inherit; }
 .esq-tiempo { position: absolute; top: 4px; right: 8px; font-size: 22px; line-height: 1; }
 .esq-tiempo.orientativa { opacity: .55; }
 .marca.parking { width: 24px; height: 24px; margin: 4px; font-size: 13px; border-radius: 6px; }
+
+/* Orden por cercanía */
+.btn-orden { width: 100%; margin: 4px 0 8px; }
+.orden-cerca { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; font-size: 13px; color: var(--suave); margin: 4px 0 8px; }
+.orden-cerca .btn { min-height: 34px; padding: 4px 12px; }
+.aviso-orden { color: #b45309; font-weight: 700; }
