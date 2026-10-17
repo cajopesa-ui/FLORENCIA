@@ -9756,7 +9756,7 @@
     "fecha": "2026-11-17",
     "corto": "Mar 17",
     "zona": "Florencia",
-    "resumen": "Uffizi, Signoria, Ponte Vecchio y Piazzale Michelangelo",
+    "resumen": "Uffizi, Signoria, Ponte Vecchio y Piazzale Michelangelo. Llegada en el vuelo VY6070 a las 09:15",
     "modo": "A pie",
     "icono": "🚶",
     "noche": "florencia"
@@ -11823,7 +11823,7 @@
     "fecha": "2026-11-24",
     "corto": "Mar 24",
     "zona": "Vuelta",
-    "resumen": "Siena → aeropuerto de Florencia (unos 80 min). Devuelves el coche",
+    "resumen": "Siena → aeropuerto de Florencia (unos 80 min). Devuelves el coche y vuelo VY6075 a las 15:15",
     "modo": "Coche",
     "icono": "🚗",
     "noche": null,
@@ -12229,7 +12229,7 @@
     "color": "#475569",
     "carretera": true,
     "irTexto": "Ir al aeropuerto de Florencia",
-    "nota": "Reposta antes de devolver el coche si el contrato lo pide."
+    "nota": "Salid del hotel a las 11:00. Reposta antes de devolver el coche si el contrato lo pide."
    }
   ],
   "hoteles": [
@@ -12307,9 +12307,56 @@
     "lng": 11.201067,
     "titulo": "Aeropuerto de Florencia · coche de alquiler",
     "notas": [
+     "Vuelos: ida VY6070 llega el martes 17 a las 09:15; vuelta VY6075 sale el martes 24 a las 15:15.",
      "Viernes 20: recogéis el coche. Desde el hotel, tranvía T2 (parada Unità), unos 20 minutos.",
      "Martes 24: lo devolvéis aquí, a unos 80 minutos de Siena (82 km). Reposta antes si el contrato lo pide.",
      "Para repostar antes de devolver el coche: Q8 (Via Lucchese 35) o Esso (Via Lucchese 141/A), en Sesto Fiorentino, a 1,5-2 km del aeropuerto y de camino desde Siena."
+    ]
+   }
+  ],
+  "vuelos": [
+   {
+    "id": "ida",
+    "tipo": "Ida",
+    "fecha": "2026-11-17",
+    "compania": "Vueling",
+    "numero": "VY6070",
+    "sale": {
+     "iata": "BCN",
+     "ciudad": "Barcelona",
+     "hora": "07:30"
+    },
+    "llega": {
+     "iata": "FLR",
+     "ciudad": "Florencia",
+     "hora": "09:15"
+    },
+    "notas": [
+     "Del aeropuerto al hotel: tranvía T2 hasta la parada Unità (unos 20 min) y 5 min a pie hasta el Hotel Jolì.",
+     "La entrada del hotel es desde las 12:30: dejad antes las maletas en recepción.",
+     "Check-in online en la app o la web de Vueling antes de volar."
+    ]
+   },
+   {
+    "id": "vuelta",
+    "tipo": "Vuelta",
+    "fecha": "2026-11-24",
+    "compania": "Vueling",
+    "numero": "VY6075",
+    "sale": {
+     "iata": "FLR",
+     "ciudad": "Florencia",
+     "hora": "15:15"
+    },
+    "llega": {
+     "iata": "BCN",
+     "ciudad": "Barcelona",
+     "hora": "16:55"
+    },
+    "notas": [
+     "Plan del día: salir del hotel de Siena a las 11:00 (hora de salida), repostar en Via Lucchese (Q8 o Esso), devolver el coche hacia las 12:45 y estar en la terminal a las 13:15.",
+     "Siena → aeropuerto: unos 80 min (82 km).",
+     "Check-in online en la app o la web de Vueling antes de volar."
     ]
    }
   ]

@@ -55,6 +55,7 @@ especificación). Además de lo que describe la especificación, la plantilla le
 - En un día del esquema sin pestaña (la vuelta): `irTexto` (texto del botón) y `nota`.
 - Días SIN varias ciudades: `ciudad`, `lat`, `lng` (el centro de sus visitas) y `clima`; sus calles van sin `parte`.
 - Partes (ciudades de un día): `clima` cada una, y `etiqueta` si el nombre es largo para el mapa del esquema ("Monte Oliveto").
+- Vuelos en `esquema.vuelos` (ver especificación). Los datos personales de la reserva (nombres, equipaje, localizador) NUNCA en `viaje.json`, que es público: van en la base de datos con la clave `privado:vuelos`.
 - `transporte.busCerca` (ids de lugares con un bus útil cerca) con `busAviso` (aviso cuando estás allí) y `busFicha` (texto en la ficha del lugar). Opcional: sin ellos no sale nada.
 - Salidas en tren/bus/coche: lugar con `salida: true` y su hora. Si la salida está en otra ciudad que la parte (el tren desde Lisboa al empezar el día de Sintra), ponla en esa parte con `sinEncuadre: true`; "Siguiente" avanza al marcarla como hecha.
 - Esquema: `tren: true` dibuja la ruta de puntos; `carretera: true` solo indica que la ruta viene de TomTom. Sin TomTom, línea recta entre los puntos clave, empezando y acabando en el hotel.

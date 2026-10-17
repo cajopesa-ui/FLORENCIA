@@ -319,6 +319,25 @@ DISEÑO
   el selector de ciudades y la tarjeta de la siguiente ciudad usan el orden
   por hora (visitasPorHora).
 
+- VUELOS: "esquema.vuelos": [{id, tipo ("Ida"/"Vuelta"), fecha, compania,
+  numero, sale:{iata, ciudad, hora}, llega:{iata, ciudad, hora}, notas:[…]}].
+  Salen como tarjetas "✈️ Vuelos" en "Todo" (debajo de los hoteles), como
+  aviso arriba el día del vuelo (#vuelo-dia) y como botón en el día sin
+  pestaña de la vuelta. Ficha: sale/llega, notas (cómo ir al hotel; plan
+  hacia atrás desde la hora del vuelo: salir del hotel, repostar, devolver
+  el coche, estar en la terminal), "📡 Estado del vuelo" (flightradar24
+  /data/flights/<número>), "🧭 Guiarme" al aeropuerto (clave
+  "punto:aeropuerto") y "🚗 Aeropuerto".
+  PRIVACIDAD: datos/viaje.json es PÚBLICO (se lee sin el código). Nombres de
+  pasajeros, equipaje, asientos y localizador NUNCA van ahí: van en la base
+  de datos, clave "privado:vuelos" = {pasajeros:[{nombre, equipaje:[…]}],
+  asientos, localizador}, insertada con SQL (insert … on conflict). La
+  ficha los muestra en "🔒" solo tras entrar con el código, y el
+  localizador se puede escribir y guardar desde la app.
+  Al poner los vuelos, comprueba que el primer día no tiene visitas antes de
+  poder llegar del aeropuerto, y añade en la víspera de la vuelta el plan
+  con horas.
+
 --------------------------------------------------------------------
 7. ESQUEMA DEL VIAJE (esquema.js) — si hay esquema/PDF
 --------------------------------------------------------------------

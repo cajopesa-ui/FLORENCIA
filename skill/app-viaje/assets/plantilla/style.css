@@ -460,3 +460,4 @@ input, textarea, select { font: inherit; }
 .orden-cerca { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; font-size: 13px; color: var(--suave); margin: 4px 0 8px; }
 .orden-cerca .btn { min-height: 34px; padding: 4px 12px; }
 .aviso-orden { color: #b45309; font-weight: 700; }
+.vuelo-dia { display: block; width: 100%; text-align: left; font-size: 14px; color: var(--texto); }
