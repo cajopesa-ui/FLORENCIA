@@ -119,7 +119,7 @@ function puntoDestino() {
 }
 
 function guiar(clave) {
-  const x = buscar(clave) || hotelPorClave(clave) || personaPorClave(clave);   // lugar, calle, hotel o la otra persona
+  const x = buscar(clave) || hotelPorClave(clave) || personaPorClave(clave) || puntoPorClave(clave);   // lugar, calle, hotel o la otra persona
   if (!x) return;
   iniciarBrujula();                                     // estamos dentro de un toque: vale para iPhone
   cerrarVentana();
@@ -162,7 +162,7 @@ function actualizarGuia() {
 
   if (metros <= DISTANCIA_LLEGADA) {
     $('#guia-dist').textContent = guia.persona ? '🎉 ¡Os habéis encontrado!' : '🎉 ¡Has llegado!';
-    const yaVisto = guia.persona || guia.clave.startsWith('hotel:') || buscar(guia.clave)?.visitado;   // un hotel o una persona no se marcan
+    const yaVisto = guia.persona || /^(hotel|punto):/.test(guia.clave) || buscar(guia.clave)?.visitado;   // un hotel o una persona no se marcan
     $('#guia-visto').hidden = !!yaVisto;
     if (!llegadaAvisada) { llegadaAvisada = true; if (navigator.vibrate) navigator.vibrate([200, 100, 200]); }
   } else {

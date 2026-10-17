@@ -48,6 +48,11 @@ function htmlEsquema() {
       <div class="esq-dias">${tarjetas}</div>
       <h3>Noches de hotel</h3>
       <div class="esq-hoteles">${hoteles}</div>
+      ${(E.vuelos || []).length ? `<h3>Vuelos</h3><div class="esq-hoteles">${E.vuelos.map((v) => `
+      <button class="esq-hotel" data-esq-vuelo="${v.id}">
+        <b>✈️ ${esc(v.tipo)}</b> <span>${esc(diaCorto(v.fecha))} · ${esc(v.numero)}</span>
+        <small><b class="esq-hotel-nombre">${esc(v.sale.iata)} ${esc(v.sale.hora)} → ${esc(v.llega.iata)} ${esc(v.llega.hora)}</b>${esc(v.compania)}</small>
+      </button>`).join('')}</div>` : ''}
       <details class="consejos esq-porque" ${porqueAbierto ? 'open' : ''}><summary>💡 Por qué este reparto</summary>
         ${E.porque.map((p) => `<p class="consejo">• ${esc(p)}</p>`).join('')}
       </details>
@@ -137,6 +142,62 @@ function fichaHotel(h) {
     </div>`;
 }
 function abrirHotel(h) { abrirVentana(fichaHotel(h)); }
+
+// ---------- Vuelos ----------
+// Lo público (número, horas, aeropuertos) va en datos/florencia.json.
+// Lo privado (pasajeros, equipaje, localizador) va en la base de datos, clave "privado:vuelos":
+// solo llega al móvil después de entrar con el código.
+function diaCorto(fecha) {
+  const d = DATOS.dias.find((x) => x.fecha === fecha) || (DATOS.esquema.dias || []).find((x) => x.fecha === fecha);
+  return d ? d.corto : fecha;
+}
+
+function abrirVuelo(id) {
+  const v = (DATOS.esquema.vuelos || []).find((x) => x.id === id);
+  if (!v) return;
+  const ap = (DATOS.esquema.puntos || []).find((p) => p.id === 'aeropuerto');
+  const priv = estadoActual()['privado:vuelos'];
+  const reserva = priv ? `
+    <div class="dato"><span class="etq">🔒 Pasajeros y equipaje</span>
+      ${(priv.pasajeros || []).map((p) => `<b>${esc(p.nombre)}</b><ul class="hotel-notas">${(p.equipaje || []).map((q) => `<li>${esc(q)}</li>`).join('')}</ul>`).join('')}
+      ${priv.asientos ? `<div>${esc(priv.asientos)}</div>` : ''}
+    </div>
+    <label class="campo">🔒 Localizador de la reserva
+      <input id="vuelo-localizador" maxlength="20" autocomplete="off" value="${esc(priv.localizador || '')}" placeholder="Escríbelo aquí">
+    </label>
+    <button class="btn" id="vuelo-guardar" style="width:100%">💾 Guardar localizador</button>
+    <p class="consejo">Estos datos solo se ven después de entrar con el código.</p>`
+    : '<p class="consejo">🔒 Los datos de la reserva (pasajeros, equipaje, localizador) salen al entrar con el código y con conexión.</p>';
+  abrirVentana(`
+    <h2>✈️ ${esc(v.tipo)} · ${esc(v.numero)}</h2>
+    <p class="tipo">${esc(v.compania)} · ${esc(diaCorto(v.fecha))}</p>
+    <div class="dos">
+      <div class="dato"><span class="etq">🛫 Sale</span>${esc(v.sale.iata)} ${esc(v.sale.ciudad)}<br><b>${esc(v.sale.hora)}</b></div>
+      <div class="dato"><span class="etq">🛬 Llega</span>${esc(v.llega.iata)} ${esc(v.llega.ciudad)}<br><b>${esc(v.llega.hora)}</b></div>
+    </div>
+    ${v.notas?.length ? `<div class="dato"><span class="etq">Notas</span><ul class="hotel-notas">${v.notas.map((n) => `<li>${esc(n)}</li>`).join('')}</ul></div>` : ''}
+    <div class="fila-botones">
+      <a class="btn btn-principal" href="https://www.flightradar24.com/data/flights/${encodeURIComponent(v.numero.toLowerCase())}" target="_blank" rel="noopener">📡 Estado del vuelo</a>
+      ${ap ? `<button class="btn" data-guiar="punto:${esc(ap.id)}">🧭 Guiarme</button>
+      <a class="btn" href="${urlComoLlegar(ap.lat, ap.lng, 'driving')}" target="_blank" rel="noopener">🚗 Aeropuerto</a>` : ''}
+    </div>
+    ${reserva}`);
+}
+
+// Para "Guiarme" hasta un punto del esquema (clave "punto:aeropuerto")
+function puntoPorClave(clave) {
+  if (!String(clave).startsWith('punto:')) return null;
+  const p = (DATOS.esquema?.puntos || []).find((x) => x.id === clave.slice(6));
+  return p ? { nombre: p.titulo || p.nombre, lat: p.lat, lng: p.lng, clase: 'punto' } : null;
+}
+
+// Aviso arriba en el día de un vuelo (p. ej. la llegada)
+function pintarVueloDia() {
+  const caja = $('#vuelo-dia');
+  if (!caja) return;
+  const v = diaSel && diaSel !== 'todo' ? (DATOS.esquema?.vuelos || []).find((x) => x.fecha === diaSel) : null;
+  caja.innerHTML = v ? `<button class="tiempo vuelo-dia" data-esq-vuelo="${v.id}">✈️ <b>${esc(v.numero)}</b> · ${esc(v.sale.iata)} ${esc(v.sale.hora)} → ${esc(v.llega.iata)} ${esc(v.llega.hora)} <span class="tiempo-nota">· toca para ver el vuelo</span></button>` : '';
+}
 
 // Para "Guiarme" hasta un hotel (clave "hotel:siena")
 function hotelPorClave(clave) {
@@ -242,11 +303,13 @@ function irAPueblo(fecha, parte) {
 // Martes 24 (no tiene pestaña): ventana con la vuelta
 function abrirDiaSinPestana(d) {
   const destino = d.ruta ? d.ruta[d.ruta.length - 1] : null;
+  const vuelo = (DATOS.esquema.vuelos || []).find((v) => v.fecha === d.fecha);
   abrirVentana(`
     <h2>${d.icono} ${esc(d.corto)} · ${esc(d.zona)}</h2>
     <p class="tipo">${esc(d.resumen)}.</p>
     ${destino ? `<a class="btn btn-principal" style="width:100%" href="${urlComoLlegar(destino[0], destino[1], 'driving')}" target="_blank" rel="noopener">🚗 Ir al aeropuerto de Florencia</a>` : ''}
-    <p class="consejo" style="margin-top:12px">Reposta antes de devolver el coche si el contrato lo pide.</p>
+    ${vuelo ? `<button class="btn" style="width:100%;margin-top:8px" data-esq-vuelo="${vuelo.id}">✈️ Ver el vuelo ${esc(vuelo.numero)}</button>` : ''}
+    ${d.nota ? `<p class="consejo" style="margin-top:12px">${esc(d.nota)}</p>` : ''}
   `);
 }
 
@@ -264,6 +327,14 @@ document.addEventListener('click', (e) => {
       const d = DATOS.esquema.dias.find((x) => x.fecha === fecha);
       if (d) abrirDiaSinPestana(d);
     }
+    return;
+  }
+  const vuelo = e.target.closest('[data-esq-vuelo]');
+  if (vuelo) { abrirVuelo(vuelo.dataset.esqVuelo); return; }
+  const guardarLoc = e.target.closest('#vuelo-guardar');
+  if (guardarLoc) {
+    cambiar('privado:vuelos', { localizador: $('#vuelo-localizador').value.trim().slice(0, 20) });
+    mostrarToast('Localizador guardado 🔒');
     return;
   }
   const hotel = e.target.closest('[data-esq-hotel]');

@@ -358,6 +358,7 @@ function pintar() {
     pintarDias();
     pintarMapa();
     pintarPanel();
+    pintarVueloDia();      // ✈️ el día de un vuelo (esquema.js)
     pintarTiempo();        // previsión del día y la ciudad que se ven (tiempo.js)
     pintarSync();
   });
