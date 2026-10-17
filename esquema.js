@@ -211,6 +211,7 @@ function abrirCoche() {
       <a class="btn" href="${urlComoLlegar(of.lat, of.lng, 'walking')}" target="_blank" rel="noopener">🚶 A pie</a>
       <a class="btn" href="${urlComoLlegar(of.lat, of.lng, 'driving')}" target="_blank" rel="noopener">🚗 En coche</a>
     </div>` : ''}
+    ${c.telefono ? `<a class="btn" style="width:100%;margin-top:8px" href="tel:${esc(c.telefono)}">📞 Llamar a ${esc(c.compania)} · ${esc(c.telefonoTexto || c.telefono)}</a>` : ''}
     ${priv ? `<div class="dato"><span class="etq">🔒 Datos de la reserva</span><ul class="hotel-notas">${filas}</ul></div>
       <p class="consejo">Estos datos solo se ven después de entrar con el código.</p>`
       : '<p class="consejo">🔒 El bono, el conductor y el precio salen al entrar con el código y con conexión.</p>'}`);
