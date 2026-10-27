@@ -731,6 +731,7 @@ function abrirFicha(clave) {
     ${dist != null ? `<div class="dato"><span class="etq">Desde donde estás</span>${esc(textoDistancia(dist))} a pie</div>` : ''}
     ${x.horario ? `<div class="dato"><span class="etq">Horario</span>${esc(x.horario)}</div>` : ''}
     ${x.nota ? `<div class="dato"><span class="etq">Nota</span>${esc(x.nota)}</div>` : ''}
+    ${x.reservaPrivada ? `<div class="dato"><span class="etq">🔒 Reserva</span>${esc(estadoActual()['privado:reservas']?.[x.id] || 'Sale al entrar con el código y con conexión.')}</div>` : ''}
     ${bus}
     <div class="fila-botones">
       <button class="btn btn-principal" data-guiar="${esc(clave)}">🧭 Guiarme</button>
