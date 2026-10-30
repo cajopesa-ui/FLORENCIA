@@ -33,6 +33,7 @@ las calles recomendadas, el transporte público y lo que vais marcando los dos e
 | Ver un lugar | Toca su marcador, su calle o su fila en la lista |
 | Ir a un sitio | **🧭 Guiarme**: flecha que apunta al destino (si apunta hacia arriba, vas bien) · **🗺️ Maps**: abre Google Maps |
 | Hacia dónde miro | Abanico azul en tu punto (brújula del móvil; en iPhone se activa al pulsar 📍 o 🧭) |
+| Al llegar a una visita | Si el GPS te sitúa en ella: se resalta en el mapa y en la lista («📍 Estás aquí») y sale un aviso para **✔ marcarla como vista** (una vez al día; nunca se marca sola) |
 | Marcar como visto | **✔ Hecho** o **✔ Visitado** (lo ve también la otra persona) |
 | Notas, hora o día | Dentro de la ficha de cada lugar |
 | Añadir un lugar nuevo | Mantén pulsado el mapa, o «＋ Añadir lugar» |

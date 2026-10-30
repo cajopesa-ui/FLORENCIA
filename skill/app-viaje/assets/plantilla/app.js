@@ -354,6 +354,41 @@ function diaReferencia() {
 
 // ---------- Pintar todo ----------
 
+// ---------- Visita donde estoy (GPS) ----------
+// Una visita pendiente del día que se ve está "aquí" si estoy a menos de 50 m
+// (120 m en sitios grandes: plazas, jardines, murallas…), más el error del GPS (hasta 30 m).
+const SITIO_GRANDE = /plaza|jard|parque|muralla|paseo|pueblo|mirador|abad|puente|calle/i;
+const radioVisita = (l) => (SITIO_GRANDE.test(l.tipo || '') ? 120 : 50) + Math.min(miPos?.precision || 0, 30);
+let aquiClave = null;                                     // la visita donde estoy ahora
+function visitaDondeEstoy() {
+  if (!miPos || !DATOS) return null;
+  const fecha = diaSel && diaSel !== 'todo' ? diaSel : ahora().fecha;
+  if (!DATOS.dias.some((d) => d.fecha === fecha)) return null;
+  const parte = partesDe(fecha) ? parteActual(fecha) : null;
+  return visitasDelDia(todosLosLugares(estadoActual()), fecha, parte)
+    .filter((l) => !l.visitado && !l.salida && distancia(miPos, l) <= radioVisita(l))
+    .sort((a, b) => distancia(miPos, a) - distancia(miPos, b))[0] || null;
+}
+
+// Al llegar a una visita: resaltarla y avisar una vez al día ("¿La marcas como vista?")
+let llegadasAvisadas = almacen.leer('viaje-llegadas', {});  // { clave: fecha del aviso }
+function comprobarLlegada() {
+  const l = visitaDondeEstoy();
+  const clave = l ? l.clave : null;
+  if (clave !== aquiClave) pintar();                      // cambia el resaltado
+  if (!l) return;
+  const hoy = ahora().fecha;
+  if (llegadasAvisadas[l.clave] === hoy) return;
+  if (typeof guia !== 'undefined' && guia && guia.clave === l.clave) return;   // ya lo dice la guía
+  llegadasAvisadas[l.clave] = hoy;
+  almacen.guardar('viaje-llegadas', llegadasAvisadas);
+  if (navigator.vibrate) navigator.vibrate(150);
+  mostrarToast(`<b>📍 Has llegado a ${esc(l.nombre)}</b>¿La marcas como vista?
+    <button class="btn btn-ok toast-btn" data-visto="${esc(l.clave)}">✔ Marcar como vista</button>`);
+  clearTimeout(temporizadorToast);
+  temporizadorToast = setTimeout(() => { $('#toast').hidden = true; }, 10000);
+}
+
 let pintarPedido = false;
 function pintar() {
   if (pintarPedido) return;
@@ -361,6 +396,7 @@ function pintar() {
   requestAnimationFrame(() => {
     pintarPedido = false;
     if (!DATOS || !mapa) return;
+    aquiClave = visitaDondeEstoy()?.clave || null;
     pintarDias();
     pintarMapa();
     pintarPanel();
@@ -464,12 +500,13 @@ function pintarMapa() {
     else if (l.opcional) { clases += ' opcional'; texto = '+'; }
     else texto = numeros.get(l.clave) || '•';
     if (l.visitado) { clases += ' visto'; texto = '✔'; }
+    if (l.clave === aquiClave) clases += ' aqui-visita';      // estoy aquí (GPS)
     const borde = l.opcional && !l.parking && !l.visitado ? `border-color:${color};color:${color}` : '';
     const icono = L.divIcon({
       className: '', iconSize: [32, 32], iconAnchor: [16, 16],
       html: `<div class="${clases}" style="background:${color};${borde}">${texto}</div>`
     });
-    const m = L.marker([l.lat, l.lng], { icon: icono, title: l.nombre, zIndexOffset: l.opcional ? 0 : 500 });
+    const m = L.marker([l.lat, l.lng], { icon: icono, title: l.nombre, zIndexOffset: l.clave === aquiClave ? 900 : (l.opcional ? 0 : 500) });
     m.on('click', () => abrirFicha(l.clave));
     capa.addLayer(m);
   }
@@ -585,13 +622,16 @@ function pintarPanel() {
     sig = lugares.filter((l) => l.dia === ref && !l.visitado && enParte(l, ref))
       .sort((a, b) => distancia(miPos, a) - distancia(miPos, b))[0];
   }
+  // Si estoy en una visita pendiente, la tarjeta habla de ella
+  const aqui = aquiClave && !siguienteParte ? lugares.find((l) => l.clave === aquiClave && l.dia === ref) : null;
+  if (aqui) sig = aqui;
   if (siguienteParte) {
     // ya pintada arriba
   } else if (sig) {
     const d = miPos ? textoDistancia(distancia(miPos, sig)) : 'activa el GPS para ver la distancia';
     $('#siguiente').innerHTML = `
       <div class="siguiente">
-        <div class="etq">▶ SIGUIENTE · ${esc(diaInfo(ref).nombre.toUpperCase())}${parteRef ? ' · ' + esc(parteInfo(ref, parteRef).nombre.toUpperCase()) : ''}</div>
+        <div class="etq">${aqui ? '📍 ESTÁS AQUÍ' : '▶ SIGUIENTE'} · ${esc(diaInfo(ref).nombre.toUpperCase())}${parteRef ? ' · ' + esc(parteInfo(ref, parteRef).nombre.toUpperCase()) : ''}</div>
         <h2 class="sig-nombre" data-ficha="${esc(sig.clave)}">${esc(sig.nombre)} <span class="ver">›</span></h2>
         <div class="meta">${sig.hora ? esc(sig.hora) + ' · ' : ''}${esc(d)}</div>
         <div class="fila-botones">
@@ -686,9 +726,10 @@ function filaLugar(l, color, num, hueco, estim) {
   const dist = miPos ? textoDistancia(distancia(miPos, l)).split(' · ')[0] : '';
   const hora = estim ? `≈${estim.llegada}` : l.hora;     // con el orden por cercanía, hora estimada
   const det = [hora, l.tipo, l.comentario ? '💬 ' + l.comentario : ''].filter(Boolean).join(' · ');
-  return `<button class="item ${l.visitado ? 'visto' : ''}" data-ficha="${esc(l.clave)}">
+  const aqui = l.clave === aquiClave;
+  return `<button class="item ${l.visitado ? 'visto' : ''} ${aqui ? 'item-aqui' : ''}" data-ficha="${esc(l.clave)}">
       <span class="num ${hueco ? 'hueco' : ''}" style="${hueco ? `border-color:${color}` : `background:${color}`}">${l.visitado ? '✔' : esc(num)}</span>
-      <span class="txt"><span class="nom">${esc(l.nombre)}</span><span class="det">${esc(det)}</span>${estim?.aviso ? `<span class="det aviso-orden">${esc(estim.aviso)}</span>` : ''}</span>
+      <span class="txt"><span class="nom">${esc(l.nombre)}</span><span class="det">${esc(det)}</span>${aqui ? '<span class="det aqui-etq">📍 Estás aquí</span>' : ''}${estim?.aviso ? `<span class="det aviso-orden">${esc(estim.aviso)}</span>` : ''}</span>
       <span class="dist">${esc(dist)}</span>
     </button>`;
 }
@@ -903,6 +944,7 @@ function alMoverme(pos) {
 
   rumboPorGPS(pos.coords);
   actualizarLocalidad();
+  comprobarLlegada();
   pintarRumbo();
   actualizarGuia();
   comprobarCalles();

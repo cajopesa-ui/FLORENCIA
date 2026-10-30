@@ -359,6 +359,15 @@ DISEÑO
   hora de devolución y del vuelo (salir del hotel, repostar si es
   lleno-lleno, devolver, lanzadera, terminal).
 
+- LLEGADA A UNA VISITA (GPS): si estoy a < 50 m de una visita pendiente
+  numerada del día que se ve (120 m en plazas, jardines, murallas, paseos,
+  pueblos, miradores, puentes; + hasta 30 m de error del GPS), se resalta:
+  marcador más grande con halo que late, fila con fondo azul claro y
+  "📍 Estás aquí", y la tarjeta pasa a "📍 ESTÁS AQUÍ · <día>". Además, un
+  aviso una sola vez al día por visita (vibración + "📍 Has llegado a X ·
+  ¿La marcas como vista? [✔ Marcar como vista]", 10 s). Nunca se marca sola.
+  No avisa si la guía ya va a ese sitio.
+
 --------------------------------------------------------------------
 7. ESQUEMA DEL VIAJE (esquema.js) — si hay esquema/PDF
 --------------------------------------------------------------------

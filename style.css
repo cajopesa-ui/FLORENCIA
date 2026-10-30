@@ -461,3 +461,9 @@ input, textarea, select { font: inherit; }
 .orden-cerca .btn { min-height: 34px; padding: 4px 12px; }
 .aviso-orden { color: #b45309; font-weight: 700; }
 .vuelo-dia { display: block; width: 100%; text-align: left; font-size: 14px; color: var(--texto); }
+
+/* Visita donde estoy (GPS) */
+.marca.aqui-visita { transform: scale(1.25); animation: latido-aqui 1.6s ease-out infinite; }
+.item.item-aqui { background: #eff6ff; border-radius: 10px; }
+.aqui-etq { color: #1d4ed8; font-weight: 700; }
+.toast-btn { display: block; width: 100%; margin-top: 8px; }
