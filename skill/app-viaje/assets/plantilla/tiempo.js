@@ -173,7 +173,7 @@ async function pedirTiempoTodo() {
   tiempoTodoPidiendo = true;
   try {
     const lat = claves.map((c) => c.split(',')[0]).join(','), lng = claves.map((c) => c.split(',')[1]).join(',');
-    const resp = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=weather_code&timezone=auto&forecast_days=16`);
+    const resp = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=weather_code&hourly=weather_code&timezone=auto&forecast_days=16`);
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     let j = await resp.json();
     if (!Array.isArray(j)) j = [j];
