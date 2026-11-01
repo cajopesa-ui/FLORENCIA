@@ -50,11 +50,12 @@ async function pedirTiempo(clave, lat, lng) {
   try {
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}` +
       '&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_speed_10m_max' +
-      '&hourly=precipitation_probability&timezone=auto&forecast_days=16';
+      '&hourly=precipitation_probability,weather_code&current=weather_code,temperature_2m,is_day' +
+      '&timezone=auto&forecast_days=16';
     const resp = await fetch(url);
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const j = await resp.json();
-    tiempoGuardado[clave] = { cuando: Date.now(), daily: j.daily, hourly: j.hourly };
+    tiempoGuardado[clave] = { cuando: Date.now(), daily: j.daily, hourly: j.hourly, current: j.current };
     almacen.guardar('flo-tiempo', tiempoGuardado);
   } catch (e) {
     tiempoFallo[clave] = Date.now();
@@ -62,6 +63,22 @@ async function pedirTiempo(clave, lat, lng) {
     tiempoPidiendo.delete(clave);
     pintarTiempo();
   }
+}
+
+// Cielo del día: el de las horas de visita (9 a 20), no el peor de las 24 h.
+// Open-Meteo da como código del día el más grave de todo el día (p. ej. nubes a las 2
+// de la madrugada); aquí se usa el más repetido de día, y lluvia solo si llueve 2 h o más.
+function codigoDeDia(hourly, fecha) {
+  if (!hourly?.weather_code) return null;
+  const cods = hourly.time.map((t, i) => [t, hourly.weather_code[i]])
+    .filter(([t, c]) => t.startsWith(fecha) && +t.slice(11, 13) >= 9 && +t.slice(11, 13) < 20 && c != null)
+    .map(([, c]) => c);
+  if (!cods.length) return null;
+  const lluvia = cods.filter((c) => c >= 51);
+  if (lluvia.length >= 2) return Math.max(...lluvia);
+  const veces = {};
+  for (const c of cods) veces[c] = (veces[c] || 0) + 1;
+  return +Object.keys(veces).sort((a, b) => veces[b] - veces[a] || a - b)[0];
 }
 
 // "☔ Lluvia probable de 15 a 18 h" (horas de visita, de 9 a 20)
@@ -96,7 +113,7 @@ function pintarTiempo() {
 
   const clave = `${s.lat.toFixed(3)},${s.lng.toFixed(3)}`;
   const g = tiempoGuardado[clave];
-  if (!g || Date.now() - g.cuando > TIEMPO_FRESCO) pedirTiempo(clave, s.lat, s.lng);
+  if (!g || !g.hourly?.weather_code || Date.now() - g.cuando > TIEMPO_FRESCO) pedirTiempo(clave, s.lat, s.lng);
   const i = g ? g.daily.time.indexOf(s.fecha) : -1;
   if (i < 0) {
     caja.innerHTML = `<div class="tiempo">${tiempoPidiendo.has(clave) ? '⏳ Buscando la previsión…' : (textoClima(s) || '🌡️ Previsión no disponible ahora.')}</div>`;
@@ -104,7 +121,10 @@ function pintarTiempo() {
   }
 
   const dd = g.daily;
-  const [icono, cielo] = CIELO[dd.weather_code[i]] || ['🌡️', ''];
+  const [icono, cielo] = CIELO[codigoDeDia(g.hourly, s.fecha) ?? dd.weather_code[i]] || ['🌡️', ''];
+  // Hoy: además, el tiempo de ahora mismo
+  const c = faltan === 0 && g.current && Date.now() - g.cuando < 3 * 60 * 60000 ? g.current : null;
+  const ahoraTxt = c ? `<div class="tiempo-nota">Ahora: ${(c.is_day ? (CIELO[c.weather_code] || [''])[0] : '🌙')} ${Math.round(c.temperature_2m)}° · ${esc((CIELO[c.weather_code] || ['', ''])[1])}</div>` : '';
   const lluvia = horasDeLluvia(g.hourly, s.fecha);
   const antiguedad = Date.now() - g.cuando > 3 * 60 * 60000 ? ` · actualizada ${haceCuanto(new Date(g.cuando).toISOString())}` : '';
   caja.innerHTML = `<div class="tiempo">
@@ -113,7 +133,8 @@ function pintarTiempo() {
         <b>${Math.round(dd.temperature_2m_max[i])}° / ${Math.round(dd.temperature_2m_min[i])}°</b> · 💧 ${dd.precipitation_probability_max[i] ?? '–'} % · 🌬️ ${Math.round(dd.wind_speed_10m_max[i])} km/h</span>
         ${faltan > 7 ? '<span class="tiempo-orient">orientativa</span>' : ''}</div>
       ${lluvia ? `<div class="tiempo-lluvia">${lluvia}</div>` : ''}
-      <div class="tiempo-nota">Previsión de Open-Meteo${antiguedad}</div>
+      ${ahoraTxt}
+      <div class="tiempo-nota">Previsión de Open-Meteo (cielo de 9 a 20 h)${antiguedad}</div>
     </div>`;
 }
 
@@ -132,10 +153,11 @@ function sitiosDelDia(fecha) {
 function iconoTiempoDia(fecha) {
   const faltan = diasHasta(fecha);
   if (faltan < 0 || faltan > 15) return '';               // sin previsión todavía (o día pasado)
-  if (!tiempoTodo || Date.now() - tiempoTodo.cuando > TIEMPO_FRESCO) pedirTiempoTodo();
+  if (!tiempoTodo || !tiempoTodo.conHoras || Date.now() - tiempoTodo.cuando > TIEMPO_FRESCO) pedirTiempoTodo();
   if (!tiempoTodo) return '';
   const codigos = sitiosDelDia(fecha).map((c) => {
     const s = tiempoTodo.sitios[c];
+    if (s?.hourly) return codigoDeDia(s.hourly, fecha);
     const i = s ? s.time.indexOf(fecha) : -1;
     return i < 0 ? null : s.weather_code[i];
   }).filter((c) => c != null);
@@ -151,13 +173,13 @@ async function pedirTiempoTodo() {
   tiempoTodoPidiendo = true;
   try {
     const lat = claves.map((c) => c.split(',')[0]).join(','), lng = claves.map((c) => c.split(',')[1]).join(',');
-    const resp = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=weather_code&timezone=Europe%2FRome&forecast_days=16`);
+    const resp = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=weather_code&hourly=weather_code&timezone=Europe%2FRome&forecast_days=16`);
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     let j = await resp.json();
     if (!Array.isArray(j)) j = [j];
     const sitios = {};
-    claves.forEach((c, i) => { if (j[i]?.daily) sitios[c] = j[i].daily; });
-    tiempoTodo = { cuando: Date.now(), sitios };
+    claves.forEach((c, i) => { if (j[i]?.daily) sitios[c] = Object.assign({}, j[i].daily, { hourly: j[i].hourly }); });
+    tiempoTodo = { cuando: Date.now(), sitios, conHoras: true };
     almacen.guardar('flo-tiempo-todo', tiempoTodo);
     if (diaSel === 'todo') pintar();
   } catch (e) {

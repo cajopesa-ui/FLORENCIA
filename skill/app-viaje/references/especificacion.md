@@ -440,7 +440,10 @@ DISEÑO
 
 - TIEMPO (tiempo.js): recuadro encima de "Siguiente" con la previsión del
   día y la ciudad que se ven (en días con varias ciudades, la elegida):
-  icono y cielo (códigos WMO en español), máx./mín., % de lluvia, viento
+  icono y cielo (códigos WMO en español; OJO: el weather_code diario de
+  Open-Meteo es el PEOR de las 24 h, así que el cielo se calcula con el
+  código horario más repetido de 9 a 20 h, y lluvia solo si llueve ≥2 h;
+  hoy, además, "Ahora: ☀️ 21°" con current), máx./mín., % de lluvia, viento
   y "☔ Lluvia probable de 15 a 18 h" (horas 9-20 con ≥50 %). Fuente:
   Open-Meteo (gratis, sin clave): /v1/forecast con daily weather_code,
   temperature_2m_max/min, precipitation_probability_max,
