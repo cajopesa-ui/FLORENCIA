@@ -467,3 +467,6 @@ input, textarea, select { font: inherit; }
 .item.item-aqui { background: #eff6ff; border-radius: 10px; }
 .aqui-etq { color: #1d4ed8; font-weight: 700; }
 .toast-btn { display: block; width: 100%; margin-top: 8px; }
+.tiempo-pie { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 4px; }
+.tiempo-pie .tiempo-nota { margin-top: 0; }
+.tiempo-refrescar { min-height: 34px; min-width: 40px; padding: 2px 8px; font-size: 16px; flex: none; }

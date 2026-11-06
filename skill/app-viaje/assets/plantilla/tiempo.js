@@ -126,7 +126,10 @@ function pintarTiempo() {
   const c = faltan === 0 && g.current && Date.now() - g.cuando < 3 * 60 * 60000 ? g.current : null;
   const ahoraTxt = c ? `<div class="tiempo-nota">Ahora: ${(c.is_day ? (CIELO[c.weather_code] || [''])[0] : '🌙')} ${Math.round(c.temperature_2m)}° · ${esc((CIELO[c.weather_code] || ['', ''])[1])}</div>` : '';
   const lluvia = horasDeLluvia(g.hourly, s.fecha);
-  const antiguedad = Date.now() - g.cuando > 3 * 60 * 60000 ? ` · actualizada ${haceCuanto(new Date(g.cuando).toISOString())}` : '';
+  // Siempre la hora de la consulta, para comparar entre los dos móviles
+  const hora = new Date(g.cuando).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+  const vieja = Date.now() - g.cuando > 3 * 60 * 60000 ? ` (${haceCuanto(new Date(g.cuando).toISOString())})` : '';
+  const antiguedad = ` · actualizada a las ${hora}${vieja}`;
   caja.innerHTML = `<div class="tiempo">
       <div class="tiempo-linea"><span class="tiempo-icono">${icono}</span>
         <span><b>${esc(s.nombre)}</b> · ${esc(cielo)}<br>
@@ -134,9 +137,25 @@ function pintarTiempo() {
         ${faltan > 7 ? '<span class="tiempo-orient">orientativa</span>' : ''}</div>
       ${lluvia ? `<div class="tiempo-lluvia">${lluvia}</div>` : ''}
       ${ahoraTxt}
-      <div class="tiempo-nota">Previsión de Open-Meteo (cielo de 9 a 20 h)${antiguedad}</div>
+      <div class="tiempo-pie"><span class="tiempo-nota">Previsión de Open-Meteo (cielo de 9 a 20 h)${antiguedad}</span>
+        <button class="btn tiempo-refrescar" data-tiempo-refrescar="${clave}" aria-label="Actualizar la previsión">${tiempoPidiendo.has(clave) ? '⏳' : '🔄'}</button></div>
     </div>`;
 }
+
+// 🔄: pedir la previsión ahora mismo (sin esperar a que pase la hora)
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-tiempo-refrescar]');
+  if (!b) return;
+  const s = sitioTiempo();
+  if (!s) return;
+  const clave = b.dataset.tiempoRefrescar;
+  delete tiempoFallo[clave];
+  tiempoTodoFallo = 0;
+  if (tiempoTodo) tiempoTodo.cuando = 0;                  // también los símbolos de "Todo"
+  pedirTiempo(clave, s.lat, s.lng);
+  pintarTiempo();
+  if (!navigator.onLine) mostrarToast('Sin conexión: se actualizará al volver la cobertura');
+});
 
 // ---------- Pestaña "Todo": un símbolo del tiempo en la tarjeta de cada día ----------
 // Una sola petición con todos los pueblos del viaje. En un día con varios pueblos

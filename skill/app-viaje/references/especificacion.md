@@ -455,7 +455,9 @@ DISEÑO
   lluvia = ≥1 mm) y guardado en "clima" de cada parte o día (los días sin
   partes llevan "ciudad", lat y lng: el centro de sus visitas). Caché en
   localStorage (refrescar pasada 1 h; si falla, reintentar a los 2 min;
-  sin cobertura, la última con "actualizada hace X"). El día de prueba
+  sin cobertura, la última). Debajo, siempre "actualizada a las HH:MM" y
+  un botón 🔄 que la pide al momento (y renueva los símbolos de "Todo"):
+  cada móvil consulta por su cuenta, así se pueden comparar y poner al día. El día de prueba
   usa la fecha de hoy. Probar con page.route simulando la respuesta y
   page.clock.setFixedTime a 5, 12 y 30 días del viaje.
 - En "Todo", cada tarjeta de día lleva SOLO el símbolo del tiempo (arriba
