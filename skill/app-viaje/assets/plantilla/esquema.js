@@ -180,6 +180,7 @@ function abrirVuelo(id) {
       <div class="dato"><span class="etq">🛫 Sale</span>${esc(v.sale.iata)} ${esc(v.sale.ciudad)}${v.sale.terminal ? ' · ' + esc(v.sale.terminal) : ''}<br><b>${esc(v.sale.hora)}</b></div>
       <div class="dato"><span class="etq">🛬 Llega</span>${esc(v.llega.iata)} ${esc(v.llega.ciudad)}<br><b>${esc(v.llega.hora)}</b></div>
     </div>
+    ${v.aena ? '<div class="dato" id="vuelo-vivo"></div>' : ''}
     ${v.embarque ? `<div class="dato"><span class="etq">🎫 Embarque</span><b>${esc(v.embarque)}</b>${v.cierre ? ` · la puerta cierra a las <b>${esc(v.cierre)}</b>` : ''}</div>` : ''}
     ${v.notas?.length ? `<div class="dato"><span class="etq">Notas</span><ul class="hotel-notas">${v.notas.map((n) => `<li>${esc(n)}</li>`).join('')}</ul></div>` : ''}
     <div class="fila-botones">
@@ -188,6 +189,56 @@ function abrirVuelo(id) {
       <a class="btn" href="${urlComoLlegar(ap.lat, ap.lng, 'driving')}" target="_blank" rel="noopener">🚗 Aeropuerto</a>` : ''}
     </div>
     ${reserva}`);
+  if (v.aena) cargarVueloVivo(v);
+}
+
+// Estado del vuelo en directo (Aena, solo aeropuertos españoles), a través de
+// netlify/functions/vuelo.mjs. Aena solo publica los vuelos de hoy y mañana.
+const ESTADOS_AENA = {
+  S: { EMB: '🟢 Embarcando', ULL: '🟠 Última llamada', CER: '🔴 Puerta cerrada', BOR: '🛫 Ha despegado', RET: '🟠 Retrasado', CAN: '❌ Cancelado', DSV: '↪️ Desviado' },
+  L: { FLY: '✈️ En vuelo', LND: '🛬 Ha aterrizado', IBK: '🧳 Equipaje en la cinta', BOR: '✅ Ha llegado', FNL: '✅ Ha llegado', RET: '🟠 Retrasado', CAN: '❌ Cancelado', DSV: '↪️ Desviado' },
+};
+async function cargarVueloVivo(v) {
+  const caja = $('#vuelo-vivo');
+  if (!caja) return;
+  const titulo = `<span class="etq">📡 En directo · Aena ${esc(v.aena.aeropuerto)} (${v.aena.tipo === 'L' ? 'llegadas' : 'salidas'})</span>`;
+  const dias = Math.round((new Date(v.fecha + 'T12:00:00Z') - new Date(ahora().fecha + 'T12:00:00Z')) / 86400000);
+  if (dias > 1) {
+    caja.innerHTML = `${titulo}Saldrá aquí desde el día antes del vuelo (${esc(new Date(addDias(v.fecha, -1) + 'T12:00:00Z').toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', timeZone: 'UTC' }).replace(',', ''))}): Aena solo publica los vuelos de hoy y mañana.`;
+    return;
+  }
+  if (dias < -1) { caja.remove(); return; }
+  caja.innerHTML = `${titulo}Consultando…`;
+  const [, cia, num] = v.numero.match(/^([A-Z0-9]{2})\s*(\d+)$/) || [];
+  const [a, m, d] = v.fecha.split('-');
+  try {
+    const r = await fetch(`/.netlify/functions/vuelo?aeropuerto=${v.aena.aeropuerto}&tipo=${v.aena.tipo}&cia=${cia}&num=${num}&fecha=${d}/${m}/${a}`, { cache: 'no-store' });
+    const j = await r.json();
+    if (!$('#vuelo-vivo')) return;
+    if (!j.ok) throw new Error('aena');
+    const x = j.vuelo;
+    if (!x) { caja.innerHTML = `${titulo}Aena aún no tiene este vuelo. Prueba más tarde. <button class="btn tiempo-refrescar" data-vuelo-vivo="${esc(v.id)}">🔄</button>`; return; }
+    const tarde = x.estimada && x.programada && x.estimada > x.programada;
+    const estado = ESTADOS_AENA[v.aena.tipo][x.estado] || (tarde ? '🟠 Con retraso' : '🟢 En hora');
+    const hora = v.aena.tipo === 'L' ? 'llega' : 'sale';
+    const datos = [
+      x.terminal && `Terminal <b>${esc(x.terminal)}</b>`,
+      x.mostradores && v.aena.tipo === 'S' && `Mostradores ${esc(x.mostradores)}`,
+      x.puerta && `Puerta <b>${esc(x.puerta)}</b>`,
+      x.cinta && v.aena.tipo === 'L' && `Cinta de equipaje <b>${esc(x.cinta)}</b>`,
+    ].filter(Boolean);
+    const hh = new Date(j.consultado).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' });
+    caja.innerHTML = `${titulo}<b>${estado}</b> · ${hora} a las <b>${esc(x.estimada)}</b>${x.estimada !== x.programada ? ` (prevista ${esc(x.programada)})` : ''}
+      ${datos.length ? `<br>${datos.join(' · ')}` : `<br>${v.aena.tipo === 'S' ? 'La puerta se publica poco antes del embarque.' : ''}`}
+      <br><span class="tiempo-nota">Consultado a las ${hh}</span> <button class="btn tiempo-refrescar" data-vuelo-vivo="${esc(v.id)}">🔄 Actualizar</button>`;
+  } catch {
+    if ($('#vuelo-vivo')) caja.innerHTML = `${titulo}No se ha podido consultar ahora (sin conexión o Aena no responde). Usa el botón «📡 Estado del vuelo». <button class="btn tiempo-refrescar" data-vuelo-vivo="${esc(v.id)}">🔄</button>`;
+  }
+}
+function addDias(fecha, n) {
+  const d = new Date(fecha + 'T12:00:00Z');
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
 }
 
 // Coche de alquiler: lo público en esquema.coche; bono, conductor y precio en "privado:coche"
@@ -366,6 +417,8 @@ document.addEventListener('click', (e) => {
   if (e.target.closest('[data-esq-coche]')) { abrirCoche(); return; }
   const vuelo = e.target.closest('[data-esq-vuelo]');
   if (vuelo) { abrirVuelo(vuelo.dataset.esqVuelo); return; }
+  const vivo = e.target.closest('[data-vuelo-vivo]');
+  if (vivo) { const v = (DATOS.esquema.vuelos || []).find((x) => x.id === vivo.dataset.vueloVivo); if (v) cargarVueloVivo(v); return; }
   const guardarLoc = e.target.closest('#vuelo-guardar');
   if (guardarLoc) {
     cambiar('privado:vuelos', { localizador: $('#vuelo-localizador').value.trim().slice(0, 20) });

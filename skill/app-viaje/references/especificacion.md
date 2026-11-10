@@ -344,6 +344,19 @@ DISEÑO
   asientos, localizador, tarjetas:{<id del vuelo>:["Nombre: asiento · grupo · equipaje"]}}, insertada con SQL (insert … on conflict). La
   ficha los muestra en "🔒" solo tras entrar con el código, y el
   localizador se puede escribir y guardar desde la app.
+  ESTADO EN DIRECTO (solo aeropuertos españoles, Aena): pon en el vuelo
+  "aena": {"aeropuerto": "BCN", "tipo": "S"} (S = salida desde ese
+  aeropuerto, L = llegada a él; para la vuelta a España usa L). La ficha
+  llama a netlify/functions/vuelo.mjs (intermediario: Aena no deja leer sus
+  datos desde otra web), que lee
+  aena.es/sites/Satellite?pagename=AENA_ConsultarVuelos&airport=BCN&flightType=S&dosDias=si
+  y devuelve solo ese vuelo: estado, hora prevista/estimada, terminal,
+  mostradores, puerta, cinta. Códigos de salida: EMB embarcando, ULL última
+  llamada, CER puerta cerrada, BOR despegado, RET, CAN; de llegada: FLY en
+  vuelo, LND aterrizado, IBK equipaje en cinta, BOR/FNL llegado; SCH/INI/HOR
+  = en hora. Aena solo publica hoy y mañana: antes la ficha lo explica. El
+  service worker no guarda en caché /.netlify/functions/. Netlify despliega
+  la función solo (carpeta netlify/functions, sin configurar nada).
   El código QR de la tarjeta NO se guarda en la app: se usa el de la app de
   la aerolínea o la cartera del móvil.
   Al poner los vuelos, comprueba que el primer día no tiene visitas antes de

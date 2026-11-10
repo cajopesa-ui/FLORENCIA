@@ -28,6 +28,8 @@ self.addEventListener('fetch', (e) => {
 
   // La base de datos siempre en directo (nunca desde la copia)
   if (url.hostname.endsWith('supabase.co')) return;
+  // El estado del vuelo en directo, tampoco
+  if (url.pathname.startsWith('/.netlify/functions/')) return;
 
   // Trozos del mapa: primero la copia guardada (ya vistos antes), si no, internet
   if (url.hostname === 'tile.openstreetmap.org') {
