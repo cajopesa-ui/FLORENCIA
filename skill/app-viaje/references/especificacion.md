@@ -325,7 +325,12 @@ DISEÑO
   por hora (visitasPorHora).
 
 - VUELOS: "esquema.vuelos": [{id, tipo ("Ida"/"Vuelta"), fecha, compania,
-  numero, sale:{iata, ciudad, hora}, llega:{iata, ciudad, hora}, notas:[…]}].
+  numero, sale:{iata, ciudad, hora, terminal?}, llega:{iata, ciudad, hora},
+  embarque?, cierre?, notas:[…]}]. Con la tarjeta de embarque: pon las horas
+  exactas que salen en ella (pueden cambiar unos minutos respecto a la
+  reserva y hay que cambiarlas en TODOS los textos), la terminal, "embarque"
+  (hora) y "cierre" (la puerta cierra) y una nota "estad en la terminal
+  hacia las …" (unos 55 min antes del embarque).
   Salen como tarjetas "✈️ Vuelos" en "Todo" (debajo de los hoteles), como
   aviso arriba el día del vuelo (#vuelo-dia) y como botón en el día sin
   pestaña de la vuelta. Ficha: sale/llega, notas (cómo ir al hotel; plan
@@ -336,9 +341,11 @@ DISEÑO
   PRIVACIDAD: datos/viaje.json es PÚBLICO (se lee sin el código). Nombres de
   pasajeros, equipaje, asientos y localizador NUNCA van ahí: van en la base
   de datos, clave "privado:vuelos" = {pasajeros:[{nombre, equipaje:[…]}],
-  asientos, localizador}, insertada con SQL (insert … on conflict). La
+  asientos, localizador, tarjetas:{<id del vuelo>:["Nombre: asiento · grupo · equipaje"]}}, insertada con SQL (insert … on conflict). La
   ficha los muestra en "🔒" solo tras entrar con el código, y el
   localizador se puede escribir y guardar desde la app.
+  El código QR de la tarjeta NO se guarda en la app: se usa el de la app de
+  la aerolínea o la cartera del móvil.
   Al poner los vuelos, comprueba que el primer día no tiene visitas antes de
   poder llegar del aeropuerto, y añade en la víspera de la vuelta el plan
   con horas.

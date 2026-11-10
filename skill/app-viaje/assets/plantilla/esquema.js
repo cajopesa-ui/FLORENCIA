@@ -165,6 +165,7 @@ function abrirVuelo(id) {
     <div class="dato"><span class="etq">🔒 Pasajeros y equipaje</span>
       ${(priv.pasajeros || []).map((p) => `<b>${esc(p.nombre)}</b><ul class="hotel-notas">${(p.equipaje || []).map((q) => `<li>${esc(q)}</li>`).join('')}</ul>`).join('')}
       ${priv.asientos ? `<div>${esc(priv.asientos)}</div>` : ''}
+      ${(priv.tarjetas?.[v.id] || []).length ? `<div style="margin-top:6px"><b>🎫 Tarjetas de embarque</b><ul class="hotel-notas">${priv.tarjetas[v.id].map((t) => `<li>${esc(t)}</li>`).join('')}</ul></div>` : ''}
     </div>
     <label class="campo">🔒 Localizador de la reserva
       <input id="vuelo-localizador" maxlength="20" autocomplete="off" value="${esc(priv.localizador || '')}" placeholder="Escríbelo aquí">
@@ -176,9 +177,10 @@ function abrirVuelo(id) {
     <h2>✈️ ${esc(v.tipo)} · ${esc(v.numero)}</h2>
     <p class="tipo">${esc(v.compania)} · ${esc(diaCorto(v.fecha))}</p>
     <div class="dos">
-      <div class="dato"><span class="etq">🛫 Sale</span>${esc(v.sale.iata)} ${esc(v.sale.ciudad)}<br><b>${esc(v.sale.hora)}</b></div>
+      <div class="dato"><span class="etq">🛫 Sale</span>${esc(v.sale.iata)} ${esc(v.sale.ciudad)}${v.sale.terminal ? ' · ' + esc(v.sale.terminal) : ''}<br><b>${esc(v.sale.hora)}</b></div>
       <div class="dato"><span class="etq">🛬 Llega</span>${esc(v.llega.iata)} ${esc(v.llega.ciudad)}<br><b>${esc(v.llega.hora)}</b></div>
     </div>
+    ${v.embarque ? `<div class="dato"><span class="etq">🎫 Embarque</span><b>${esc(v.embarque)}</b>${v.cierre ? ` · la puerta cierra a las <b>${esc(v.cierre)}</b>` : ''}</div>` : ''}
     ${v.notas?.length ? `<div class="dato"><span class="etq">Notas</span><ul class="hotel-notas">${v.notas.map((n) => `<li>${esc(n)}</li>`).join('')}</ul></div>` : ''}
     <div class="fila-botones">
       <a class="btn btn-principal" href="https://www.flightradar24.com/data/flights/${encodeURIComponent(v.numero.toLowerCase())}" target="_blank" rel="noopener">📡 Estado del vuelo</a>
@@ -228,7 +230,7 @@ function pintarVueloDia() {
   const caja = $('#vuelo-dia');
   if (!caja) return;
   const v = diaSel && diaSel !== 'todo' ? (DATOS.esquema?.vuelos || []).find((x) => x.fecha === diaSel) : null;
-  caja.innerHTML = v ? `<button class="tiempo vuelo-dia" data-esq-vuelo="${v.id}">✈️ <b>${esc(v.numero)}</b> · ${esc(v.sale.iata)} ${esc(v.sale.hora)} → ${esc(v.llega.iata)} ${esc(v.llega.hora)} <span class="tiempo-nota">· toca para ver el vuelo</span></button>` : '';
+  caja.innerHTML = v ? `<button class="tiempo vuelo-dia" data-esq-vuelo="${v.id}">✈️ <b>${esc(v.numero)}</b> · ${esc(v.sale.iata)} ${esc(v.sale.hora)} → ${esc(v.llega.iata)} ${esc(v.llega.hora)}${v.embarque ? ` · embarque ${esc(v.embarque)}` : ''} <span class="tiempo-nota">· toca para ver el vuelo</span></button>` : '';
 }
 
 // Para "Guiarme" hasta un hotel (clave "hotel:siena")
