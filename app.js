@@ -1021,6 +1021,7 @@ function sitioParaCartel() {
 }
 
 let cartelBloqueo = null;
+let cartelTurno = 0;
 async function abrirCartel() {
   if (!miPos) { mostrarToast('Buscando tu posición… prueba en unos segundos'); return; }
   const pos = { ...miPos };
@@ -1038,20 +1039,24 @@ async function abrirCartel() {
   $('#cartel').hidden = false;
   setTimeout(() => cerrar.classList.add('oculto'), 2500);   // que no salga en la foto
   try { cartelBloqueo = await navigator.wakeLock?.request('screen'); } catch { /* no disponible */ }
-  // Ni sitio del viaje ni pueblo: preguntar a OpenStreetMap el nombre de la calle
+  // No estoy junto a un sitio de la app: preguntar a la vez por un edificio importante
+  // cercano (iglesia, museo, palacio…) y por la calle; gana el edificio.
   if (!sitio && navigator.onLine) {
-    try {
-      const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=17&accept-language=es&lat=${pos.lat.toFixed(5)}&lon=${pos.lng.toFixed(5)}`;
-      const r = await (await fetch(url, { signal: AbortSignal.timeout(6000) })).json();
-      const a = r.address || {};
-      const calle = a.road || a.pedestrian || a.square || r.name;
-      const lugar = a.city || a.town || a.village || a.municipality || '';
-      if (!$('#cartel').hidden && calle) {
-        ponerTextoCartel(calle);
-        if (!pueblo || pueblo === calle) $('#cartel-pueblo').textContent = lugar !== calle ? lugar : '';
-        else $('#cartel-pueblo').textContent = pueblo;
-      }
-    } catch { /* sin conexión: se queda el pueblo */ }
+    const turno = ++cartelTurno;
+    const pedirEdificio = fetch(`/.netlify/functions/edificio?lat=${pos.lat.toFixed(5)}&lng=${pos.lng.toFixed(5)}&precision=${Math.round(pos.precision || 0)}`, { signal: AbortSignal.timeout(12000) })
+      .then((r) => r.json()).then((j) => j.edificio?.nombre || null).catch(() => null);
+    const pedirCalle = fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=17&accept-language=es&lat=${pos.lat.toFixed(5)}&lon=${pos.lng.toFixed(5)}`, { signal: AbortSignal.timeout(6000) })
+      .then((r) => r.json()).then((r) => {
+        const a = r.address || {};
+        return { calle: a.road || a.pedestrian || a.square || r.name || null, lugar: a.city || a.town || a.village || a.municipality || '' };
+      }).catch(() => ({ calle: null, lugar: '' }));
+    // La calle suele llegar antes: se enseña ya y, si luego hay edificio, se cambia
+    const sigue = () => turno === cartelTurno && !$('#cartel').hidden;
+    const { calle, lugar } = await pedirCalle;
+    const ponerPueblo = (nombre) => { $('#cartel-pueblo').textContent = (pueblo || lugar) !== nombre ? (pueblo || lugar) : ''; };
+    if (sigue() && calle) { ponerTextoCartel(calle); ponerPueblo(calle); }
+    const edificio = await pedirEdificio;
+    if (sigue() && edificio) { ponerTextoCartel(edificio); ponerPueblo(edificio); }
   }
   if (!$('#cartel').hidden && $('#cartel-sitio').textContent === 'Buscando el nombre…') ponerTextoCartel('📍 Sin nombre');
 }
