@@ -244,7 +244,7 @@ PANEL INFERIOR
   sin internet si estoy a <7 km de la ciudad principal o a <4 km de una
   ciudad/pueblo del viaje; si no, reverse de Nominatim (zoom=10,
   accept-language=es) como mucho cada 2 min y si me he movido >1 km.
-- CARTEL PARA LAS FOTOS: botón 📷 a la izquierda del 📍 del mapa
+- CARTEL PARA LAS FOTOS: botón 🎬 (claqueta) a la izquierda del 📍 del mapa
   (position:absolute dentro de .flotantes, para que la columna no crezca y
   no tape las pestañas en 320 px). Abre una capa a pantalla completa con
   el sitio donde estoy (lugar de cualquier día a <60 m, o <120 m si es
