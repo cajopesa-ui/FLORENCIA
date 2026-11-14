@@ -32,12 +32,22 @@ export default async (req) => {
   const precision = Math.min(Math.max(Number(q.get('precision')) || 0, 0), 25);
   if (!Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) return responder({ ok: false, error: 'datos' }, 400);
   const radio = 45 + precision;
-  const consulta = `[out:json][timeout:8];(nwr(around:${radio + 60},${lat},${lng})[name][~"^(historic|tourism|amenity|building|man_made|leisure|place)$"~"."];);out tags center bb 60;`;
+  const R = radio + 60, A = `(around:${R},${lat},${lng})`;
+  // Una consulta por tipo (más rápida que buscar todas las claves con una expresión regular)
+  const consulta = `[out:json][timeout:15];(`
+    + `nwr${A}[name][amenity~"^(place_of_worship|fountain|theatre)$"];`
+    + `nwr${A}[name][historic];`
+    + `nwr${A}[name][tourism~"^(museum|gallery|attraction|artwork|viewpoint)$"];`
+    + `nwr${A}[name][building~"^(church|cathedral|chapel|basilica|monastery|palace|tower|castle)$"];`
+    + `nwr${A}[name][man_made=tower];`
+    + `nwr${A}[name][place=square];`
+    + `nwr${A}[name][leisure~"^(park|garden)$"];`
+    + `);out tags center bb 80;`;
   const fallos = [];
   for (const url of SERVIDORES) {
     try {
       const r = await fetch(url, { method: 'POST', body: 'data=' + encodeURIComponent(consulta),
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'User-Agent': 'viaje-app/1.0' }, signal: AbortSignal.timeout(9000) });
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'User-Agent': 'viaje-app/1.0' }, signal: AbortSignal.timeout(12000) });
       if (!r.ok) { fallos.push(`${new URL(url).host}: ${r.status}`); continue; }
       const j = await r.json();
       const cand = [];
