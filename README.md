@@ -19,7 +19,7 @@ las calles recomendadas, el transporte público y lo que vais marcando los dos e
 | Cambiar de día | Pestañas de arriba (Mar 17 … Lun 23, y Todo) |
 | Viernes: Lucca o Pisa | Debajo de las pestañas: **🌅 Lucca · mañana** / **🌇 Pisa · tarde** (en coche, recogido en el aeropuerto de Florencia; noche en Pisa). Se elige sola según dónde estés o la hora |
 | Sábado: 3 pueblos | Botones **🗼 S. Gimignano · 🏰 Monteriggioni · 🐎 Siena** (con la hora de cada uno; de Pisa a Siena, noche en Siena). Al terminar uno, «Siguiente» propone el siguiente con **🚗 Ir en coche** |
-| Domingo: 5 pueblos | **🏘️ Asciano · ⛪ Oliveto · 🌳 Quirico · ♨️ Vignoni · 🧀 Pienza** (noche en Siena) |
+| Domingo: 5 pueblos | **⛪ Oliveto · 🌳 Quirico · ♨️ Vignoni · 🧀 Pienza · 🍷 Montepulciano** (atardecer en Montepulciano; noche en Siena) |
 | Lunes: Chianti | **🏰 Castellina · 🥩 Panzano · 🍷 Greve** (ida y vuelta a Siena; el martes 24, vuelta al aeropuerto de Florencia a devolver el coche) |
 | Esquema del viaje | Pestaña **Todo** (o ⚙️ → Esquema): tarjetas de los 8 días (toca una para ir a ese día), hoteles y, en el mapa, la ruta de cada día, los 🏨 y el **nombre de cada pueblo** (toca uno para ir a ese día y ese pueblo; el pueblo donde estás sale **resaltado en azul** con 📍) |
 | Hoteles | Toca el **🏨** en el mapa (sale en Todo y en cada día: el de la noche anterior y el de esa noche): nombre, dirección, horas de entrada y salida, **🧭 Guiarme** y cómo llegar en coche o a pie |
