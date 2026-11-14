@@ -33,11 +33,12 @@ export default async (req) => {
   if (!Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) return responder({ ok: false, error: 'datos' }, 400);
   const radio = 45 + precision;
   const consulta = `[out:json][timeout:8];(nwr(around:${radio + 60},${lat},${lng})[name][~"^(historic|tourism|amenity|building|man_made|leisure|place)$"~"."];);out tags center bb 60;`;
+  const fallos = [];
   for (const url of SERVIDORES) {
     try {
       const r = await fetch(url, { method: 'POST', body: 'data=' + encodeURIComponent(consulta),
         headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'User-Agent': 'viaje-app/1.0' }, signal: AbortSignal.timeout(9000) });
-      if (!r.ok) continue;
+      if (!r.ok) { fallos.push(`${new URL(url).host}: ${r.status}`); continue; }
       const j = await r.json();
       const cand = [];
       for (const e of j.elements || []) {
@@ -50,9 +51,9 @@ export default async (req) => {
       }
       cand.sort((a, b) => a.puntos - b.puntos);
       return responder({ ok: true, edificio: cand[0] ? { nombre: cand[0].nombre, d: cand[0].d } : null, otros: cand.slice(1, 4).map((c) => c.nombre) });
-    } catch { /* probar el siguiente servidor */ }
+    } catch (e) { fallos.push(`${new URL(url).host}: ${e.name}`); /* probar el siguiente servidor */ }
   }
-  return responder({ ok: false, error: 'mapa' }, 502);
+  return responder({ ok: false, error: 'mapa', fallos }, 502);
 };
 
 function responder(cuerpo, status = 200) {
