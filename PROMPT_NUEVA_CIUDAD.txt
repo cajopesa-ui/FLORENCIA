@@ -244,7 +244,12 @@ PANEL INFERIOR
   no tape las pestañas en 320 px). Abre una capa a pantalla completa con
   el sitio donde estoy (lugar de cualquier día a <60 m, o <120 m si es
   grande; calle a <30 m; hotel a <60 m; gana el más cercano, sin el emoji
-  del principio; si no hay, reverse de Nominatim zoom=17 con la calle),
+  del principio). Si no es una visita ni un hotel: edificio importante de
+  Wikipedia (list=geosearch, radio 50 m + precisión, origin=* para CORS;
+  primero es, si no it; quitar "(Ciudad)" del título; ventaja a títulos
+  que empiezan por Iglesia/Museo/Palacio/Torre/Plaza…, fuera Archidiócesis/
+  Historia…); si no hay, la calle de la app o la de Nominatim (zoom=17).
+  (Overpass no sirve: desde Netlify da timeouts.) Luego
   el pueblo, "Domingo 22 de noviembre · 16:52" (hora del destino) y las
   coordenadas. Letra lo más grande posible sin salirse; "Toca para
   cerrar" se desvanece a los 2,5 s para que no salga en la foto; Wake Lock

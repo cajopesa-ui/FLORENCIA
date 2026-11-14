@@ -1,0 +1,107 @@
+--- app.js
++++ app.js
+@@ -1005,55 +1005,85 @@ function sitioParaCartel() {
+   for (const l of todosLosLugares(est)) {
+     if (l.borrado || l.parking || l.salida || l.oculto) continue;
+     const d = distancia(miPos, l);
+-    if (d <= (SITIO_GRANDE.test(l.tipo || '') ? 120 : 60) + holgura) cand.push({ nombre: l.nombre, d });
++    if (d <= (SITIO_GRANDE.test(l.tipo || '') ? 120 : 60) + holgura) cand.push({ nombre: l.nombre, d, calle: false });
+   }
+   for (const c of todasLasCalles(est)) {
+     if (c.borrado || !c.trazado) continue;
+     const d = puntoMasCercano(miPos, c.trazado).d;
+-    if (d <= 30 + holgura) cand.push({ nombre: c.nombre, d: d + 10 });   // un lugar concreto gana a la calle
++    if (d <= 30 + holgura) cand.push({ nombre: c.nombre, d: d + 10, calle: true });   // un lugar concreto gana a la calle
+   }
+   for (const h of DATOS.esquema?.hoteles || []) {
+     const d = distancia(miPos, h);
+-    if (d <= 60 + holgura) cand.push({ nombre: h.hotel || h.nombre, d });
++    if (d <= 60 + holgura) cand.push({ nombre: h.hotel || h.nombre, d, calle: false });
+   }
+   cand.sort((a, b) => a.d - b.d);
+-  return cand[0]?.nombre.replace(/^[^\p{L}\p{N}]+/u, '') || null;   // sin el emoji del principio
++  // Devuelve el nombre (sin el emoji del principio) y si es una calle: un edificio importante le gana
++  return cand[0] ? { nombre: cand[0].nombre.replace(/^[^\p{L}\p{N}]+/u, ''), calle: cand[0].calle } : null;
+ }
+ 
+ let cartelBloqueo = null;
++let cartelTurno = 0;
+ async function abrirCartel() {
+   if (!miPos) { mostrarToast('Buscando tu posición… prueba en unos segundos'); return; }
+   const pos = { ...miPos };
+-  const sitio = sitioParaCartel();
++  const encontrado = sitioParaCartel();
++  const sitio = encontrado && !encontrado.calle ? encontrado.nombre : null;   // visita u hotel de la app
++  const calleApp = encontrado?.calle ? encontrado.nombre : null;           // calle de la app
+   const pueblo = sitioDondeEstoy() || localidad.nombre || '';
+   const p = Object.fromEntries(new Intl.DateTimeFormat('es-ES', { timeZone: 'Europe/Rome', weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })
+     .formatToParts(new Date()).map((x) => [x.type, x.value]));
+   const fecha = `${p.weekday} ${p.day} de ${p.month} · ${p.hour}:${p.minute}`;
+-  $('#cartel-pueblo').textContent = sitio && pueblo !== sitio ? pueblo : '';
++  const primero = sitio || calleApp;
++  $('#cartel-pueblo').textContent = primero && pueblo !== primero ? pueblo : '';
+   $('#cartel-fecha').textContent = fecha.charAt(0).toUpperCase() + fecha.slice(1);
+   $('#cartel-coord').textContent = `${pos.lat.toFixed(5)}, ${pos.lng.toFixed(5)}${pos.precision ? ` · ±${Math.round(pos.precision)} m` : ''}`;
+-  ponerTextoCartel(sitio || pueblo || 'Buscando el nombre…');
++  ponerTextoCartel(primero || pueblo || 'Buscando el nombre…');
+   const cerrar = $('#cartel-cerrar');
+   cerrar.classList.remove('oculto');
+   $('#cartel').hidden = false;
+   setTimeout(() => cerrar.classList.add('oculto'), 2500);   // que no salga en la foto
+   try { cartelBloqueo = await navigator.wakeLock?.request('screen'); } catch { /* no disponible */ }
+-  // Ni sitio del viaje ni pueblo: preguntar a OpenStreetMap el nombre de la calle
++  // No estoy junto a una visita ni un hotel de la app: preguntar a la vez por un edificio
++  // importante cercano (iglesia, museo, palacio…) y por la calle; gana el edificio, y si no
++  // lo hay, la calle de la app (si estoy en una) o la del mapa.
+   if (!sitio && navigator.onLine) {
++    const turno = ++cartelTurno;
++    const pedirEdificio = edificioCercano(pos);
++    const pedirCalle = calleApp ? Promise.resolve({ calle: calleApp, lugar: '' }) : fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=17&accept-language=es&lat=${pos.lat.toFixed(5)}&lon=${pos.lng.toFixed(5)}`, { signal: AbortSignal.timeout(6000) })
++      .then((r) => r.json()).then((r) => {
++        const a = r.address || {};
++        return { calle: a.road || a.pedestrian || a.square || r.name || null, lugar: a.city || a.town || a.village || a.municipality || '' };
++      }).catch(() => ({ calle: null, lugar: '' }));
++    // La calle suele llegar antes: se enseña ya y, si luego hay edificio, se cambia
++    const sigue = () => turno === cartelTurno && !$('#cartel').hidden;
++    const { calle, lugar } = await pedirCalle;
++    const ponerPueblo = (nombre) => { $('#cartel-pueblo').textContent = (pueblo || lugar) !== nombre ? (pueblo || lugar) : ''; };
++    if (sigue() && calle) { ponerTextoCartel(calle); ponerPueblo(calle); }
++    const edificio = await pedirEdificio;
++    if (sigue() && edificio) { ponerTextoCartel(edificio); ponerPueblo(edificio); }
++  }
++  if (!$('#cartel').hidden && $('#cartel-sitio').textContent === 'Buscando el nombre…') ponerTextoCartel('📍 Sin nombre');
++}
++
++// Edificio o monumento importante cerca: los que tienen artículo en Wikipedia
++// (primero en español; si no hay, en italiano). Se queda con el más cercano,
++// dando ventaja a iglesias, museos, palacios, torres, plazas…
++const PALABRAS_EDIFICIO = /^(iglesia|catedral|bas[ií]lica|capilla|baptisterio|oratorio|templo|duomo|museo|galer[ií]a|palacio|palazzo|torre|castillo|fortaleza|fortezza|murallas?|puerta|porta|plaza|piazza|fuente|fontana|teatro|monasterio|convento|abad[ií]a|logia|loggia|puente|ponte|monumento|estatua|biblioteca|villa|chiesa|basilica|cattedrale|cappella|battistero|museo|abbazia|santuario|pieve|campanile|campanario|mercado|mercato)(?=[\s,]|$)/i;
++const NO_EDIFICIO = /^(archidi[oó]cesis|di[oó]cesis|arcidiocesi|diocesi|historia|storia|batalla|battaglia|lista|anexo|elenco)(?=[\s,]|$)/i;
++async function edificioCercano(pos) {
++  const radio = Math.round(50 + Math.min(pos.precision || 0, 25));
++  for (const idioma of ['es', 'it']) {
+     try {
+-      const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=17&accept-language=es&lat=${pos.lat.toFixed(5)}&lon=${pos.lng.toFixed(5)}`;
++      const url = `https://${idioma}.wikipedia.org/w/api.php?action=query&list=geosearch&gscoord=${pos.lat.toFixed(5)}%7C${pos.lng.toFixed(5)}&gsradius=${radio}&gslimit=10&format=json&origin=*`;
+       const r = await (await fetch(url, { signal: AbortSignal.timeout(6000) })).json();
+-      const a = r.address || {};
+-      const calle = a.road || a.pedestrian || a.square || r.name;
+-      const lugar = a.city || a.town || a.village || a.municipality || '';
+-      if (!$('#cartel').hidden && calle) {
+-        ponerTextoCartel(calle);
+-        if (!pueblo || pueblo === calle) $('#cartel-pueblo').textContent = lugar !== calle ? lugar : '';
+-        else $('#cartel-pueblo').textContent = pueblo;
+-      }
+-    } catch { /* sin conexión: se queda el pueblo */ }
++      const lista = (r.query?.geosearch || [])
++        .filter((x) => !NO_EDIFICIO.test(x.title))
++        .map((x) => ({ nombre: x.title.replace(/\s*\([^)]*\)\s*$/, ''), puntos: x.dist - (PALABRAS_EDIFICIO.test(x.title) ? 25 : 0) }))
++        .sort((a, b) => a.puntos - b.puntos);
++      if (lista.length) return lista[0].nombre;
++    } catch { /* sin conexión o sin respuesta: probar el otro idioma */ }
+   }
+-  if (!$('#cartel').hidden && $('#cartel-sitio').textContent === 'Buscando el nombre…') ponerTextoCartel('📍 Sin nombre');
++  return null;
+ }
+ 
+ // El nombre lo más grande posible sin salirse de la pantalla
