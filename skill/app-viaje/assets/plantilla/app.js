@@ -1001,6 +1001,86 @@ async function actualizarLocalidad() {
   if (localidad.nombre) pintarLocalidad(localidad.nombre);
 }
 
+// ---------- Cartel para las fotos ----------
+// Pantalla completa con el sitio donde estoy, el pueblo, la fecha y la hora:
+// se fotografía antes de la tanda de fotos de cada sitio para saber luego dónde se hicieron.
+function sitioParaCartel() {
+  const est = estadoActual();
+  const holgura = Math.min(miPos.precision || 0, 30);
+  const cand = [];
+  for (const l of todosLosLugares(est)) {
+    if (l.borrado || l.parking || l.salida || l.oculto) continue;
+    const d = distancia(miPos, l);
+    if (d <= (SITIO_GRANDE.test(l.tipo || '') ? 120 : 60) + holgura) cand.push({ nombre: l.nombre, d });
+  }
+  for (const c of todasLasCalles(est)) {
+    if (c.borrado || !c.trazado) continue;
+    const d = puntoMasCercano(miPos, c.trazado).d;
+    if (d <= 30 + holgura) cand.push({ nombre: c.nombre, d: d + 10 });   // un lugar concreto gana a la calle
+  }
+  for (const h of DATOS.esquema?.hoteles || []) {
+    const d = distancia(miPos, h);
+    if (d <= 60 + holgura) cand.push({ nombre: h.hotel || h.nombre, d });
+  }
+  cand.sort((a, b) => a.d - b.d);
+  return cand[0]?.nombre.replace(/^[^\p{L}\p{N}]+/u, '') || null;   // sin el emoji del principio
+}
+
+let cartelBloqueo = null;
+async function abrirCartel() {
+  if (!miPos) { mostrarToast('Buscando tu posición… prueba en unos segundos'); return; }
+  const pos = { ...miPos };
+  const sitio = sitioParaCartel();
+  const pueblo = sitioDondeEstoy() || localidad.nombre || '';
+  const p = Object.fromEntries(new Intl.DateTimeFormat('es-ES', { timeZone: DATOS.zonaHoraria || 'Europe/Madrid', weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })
+    .formatToParts(new Date()).map((x) => [x.type, x.value]));
+  const fecha = `${p.weekday} ${p.day} de ${p.month} · ${p.hour}:${p.minute}`;
+  $('#cartel-pueblo').textContent = sitio && pueblo !== sitio ? pueblo : '';
+  $('#cartel-fecha').textContent = fecha.charAt(0).toUpperCase() + fecha.slice(1);
+  $('#cartel-coord').textContent = `${pos.lat.toFixed(5)}, ${pos.lng.toFixed(5)}${pos.precision ? ` · ±${Math.round(pos.precision)} m` : ''}`;
+  ponerTextoCartel(sitio || pueblo || 'Buscando el nombre…');
+  const cerrar = $('#cartel-cerrar');
+  cerrar.classList.remove('oculto');
+  $('#cartel').hidden = false;
+  setTimeout(() => cerrar.classList.add('oculto'), 2500);   // que no salga en la foto
+  try { cartelBloqueo = await navigator.wakeLock?.request('screen'); } catch { /* no disponible */ }
+  // Ni sitio del viaje ni pueblo: preguntar a OpenStreetMap el nombre de la calle
+  if (!sitio && navigator.onLine) {
+    try {
+      const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=17&accept-language=es&lat=${pos.lat.toFixed(5)}&lon=${pos.lng.toFixed(5)}`;
+      const r = await (await fetch(url, { signal: AbortSignal.timeout(6000) })).json();
+      const a = r.address || {};
+      const calle = a.road || a.pedestrian || a.square || r.name;
+      const lugar = a.city || a.town || a.village || a.municipality || '';
+      if (!$('#cartel').hidden && calle) {
+        ponerTextoCartel(calle);
+        if (!pueblo || pueblo === calle) $('#cartel-pueblo').textContent = lugar !== calle ? lugar : '';
+        else $('#cartel-pueblo').textContent = pueblo;
+      }
+    } catch { /* sin conexión: se queda el pueblo */ }
+  }
+  if (!$('#cartel').hidden && $('#cartel-sitio').textContent === 'Buscando el nombre…') ponerTextoCartel('📍 Sin nombre');
+}
+
+// El nombre lo más grande posible sin salirse de la pantalla
+function ponerTextoCartel(texto) {
+  const el = $('#cartel-sitio');
+  el.textContent = texto;
+  const maxAlto = innerHeight * 0.5;
+  let t = Math.min(innerWidth * 0.16, 96);
+  el.style.fontSize = t + 'px';
+  while (t > 22 && (el.scrollHeight > maxAlto || el.scrollWidth > el.clientWidth + 1)) {
+    t -= 2;
+    el.style.fontSize = t + 'px';
+  }
+}
+
+function cerrarCartel() {
+  $('#cartel').hidden = true;
+  try { cartelBloqueo?.release(); } catch { /* ya liberado */ }
+  cartelBloqueo = null;
+}
+
 function pintarLocalidad(nombre) {
   const el = $('#localidad');
   if (el && el.textContent !== '📍 ' + nombre) { el.textContent = '📍 ' + nombre; el.title = 'Estás en ' + nombre; }
@@ -1099,6 +1179,8 @@ function conectarEventos() {
     $('#btn-centrar').classList.add('activo');
     mapa.setView([miPos.lat, miPos.lng], Math.max(mapa.getZoom(), 17));
   };
+  $('#btn-cartel').onclick = abrirCartel;
+  $('#cartel').onclick = cerrarCartel;
   $('#btn-otro').onclick = () => {
     const m = [...marcasOtros.values()][0];
     if (m) { seguir = false; $('#btn-centrar').classList.remove('activo'); mapa.setView(m.getLatLng(), 17); }

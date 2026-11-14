@@ -244,6 +244,16 @@ PANEL INFERIOR
   sin internet si estoy a <7 km de la ciudad principal o a <4 km de una
   ciudad/pueblo del viaje; si no, reverse de Nominatim (zoom=10,
   accept-language=es) como mucho cada 2 min y si me he movido >1 km.
+- CARTEL PARA LAS FOTOS: botón 📷 a la izquierda del 📍 del mapa
+  (position:absolute dentro de .flotantes, para que la columna no crezca y
+  no tape las pestañas en 320 px). Abre una capa a pantalla completa con
+  el sitio donde estoy (lugar de cualquier día a <60 m, o <120 m si es
+  grande; calle a <30 m; hotel a <60 m; gana el más cercano, sin el emoji
+  del principio; si no hay, reverse de Nominatim zoom=17 con la calle),
+  el pueblo, "Domingo 22 de noviembre · 16:52" (hora del destino) y las
+  coordenadas. Letra lo más grande posible sin salirse; "Toca para
+  cerrar" se desvanece a los 2,5 s para que no salga en la foto; Wake Lock
+  mientras está abierto. Sin GPS: aviso "Buscando tu posición…".
 - Avisos (solo si el día que miro es hoy, con la hora del destino):
   "⏰ X cierra a las HH:MM (quedan N min)" (<=60 min, rojo <=30);
   "🌅 El atardecer es hacia las X: no llegues tarde a Y" (80 min antes,

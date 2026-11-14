@@ -470,3 +470,20 @@ input, textarea, select { font: inherit; }
 .tiempo-pie { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 4px; }
 .tiempo-pie .tiempo-nota { margin-top: 0; }
 .tiempo-refrescar { min-height: 34px; min-width: 40px; padding: 2px 8px; font-size: 16px; flex: none; }
+
+/* ===== Cartel para las fotos (pantalla completa) ===== */
+.cartel {
+  position: fixed; inset: 0; z-index: 3000;
+  background: var(--principal); color: #fff; text-align: center;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: calc(24px + var(--arriba, 0px)) 20px 24px; gap: 14px;
+}
+.cartel[hidden] { display: none; }
+.cartel-sitio { font-weight: 800; line-height: 1.1; overflow-wrap: anywhere; max-width: 100%; }
+.cartel-pueblo { font-size: min(8vw, 34px); font-weight: 700; opacity: .95; }
+.cartel-fecha { font-size: min(5.5vw, 24px); opacity: .9; }
+.cartel-coord { font-size: 13px; opacity: .7; font-variant-numeric: tabular-nums; }
+.cartel-cerrar { position: absolute; bottom: 18px; left: 0; right: 0; font-size: 13px; opacity: .6; transition: opacity 1s; }
+.cartel-cerrar.oculto { opacity: 0; }
+/* El botón 📷 va a la izquierda del 📍 (así la columna de botones no crece y no tapa nada) */
+#btn-cartel { position: absolute; right: 60px; bottom: 0; }
