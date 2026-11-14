@@ -473,17 +473,30 @@ input, textarea, select { font: inherit; }
 
 /* ===== Cartel para las fotos (pantalla completa) ===== */
 .cartel {
-  position: fixed; inset: 0; z-index: 3000;
+  position: fixed; inset: 0; z-index: 3000; overflow: hidden;
   background: var(--principal); color: #fff; text-align: center;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  padding: calc(24px + var(--arriba, 0px)) 20px 24px; gap: 14px;
 }
 .cartel[hidden] { display: none; }
+/* La caja con el texto: en vertical ocupa la pantalla; en horizontal se gira 90° con
+   el ancho y el alto cambiados (la app está fijada en vertical, así que se gira aquí) */
+.cartel-caja {
+  position: absolute; left: 50%; top: 50%;
+  width: var(--cartel-ancho, 100vw); height: var(--cartel-alto, 100vh);
+  transform: translate(-50%, -50%) rotate(var(--cartel-giro, 0deg));
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: calc(24px + var(--arriba, 0px)) 20px 24px; gap: 14px; box-sizing: border-box;
+}
 .cartel-sitio { font-weight: 800; line-height: 1.1; overflow-wrap: anywhere; max-width: 100%; }
 .cartel-pueblo { font-size: min(8vw, 34px); font-weight: 700; opacity: .95; }
 .cartel-fecha { font-size: min(5.5vw, 24px); opacity: .9; }
 .cartel-coord { font-size: 13px; opacity: .7; font-variant-numeric: tabular-nums; }
 .cartel-cerrar { position: absolute; bottom: 18px; left: 0; right: 0; font-size: 13px; opacity: .6; transition: opacity 1s; }
 .cartel-cerrar.oculto { opacity: 0; }
+.cartel-girar {
+  position: absolute; top: calc(12px + var(--arriba, 0px)); right: 12px;
+  width: 48px; height: 48px; border-radius: 50%; border: 0; font-size: 22px;
+  background: rgba(255,255,255,.2); transition: opacity 1s;
+}
+.cartel-girar.oculto { opacity: 0; }
 /* El botón 📷 va a la izquierda del 📍 (así la columna de botones no crece y no tapa nada) */
 #btn-cartel { position: absolute; right: 60px; bottom: 0; }

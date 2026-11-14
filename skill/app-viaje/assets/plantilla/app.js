@@ -1044,10 +1044,9 @@ async function abrirCartel() {
   $('#cartel-fecha').textContent = fecha.charAt(0).toUpperCase() + fecha.slice(1);
   $('#cartel-coord').textContent = `${pos.lat.toFixed(5)}, ${pos.lng.toFixed(5)}${pos.precision ? ` · ±${Math.round(pos.precision)} m` : ''}`;
   ponerTextoCartel(primero || pueblo || 'Buscando el nombre…');
-  const cerrar = $('#cartel-cerrar');
-  cerrar.classList.remove('oculto');
+  aplicarGiroCartel();
   $('#cartel').hidden = false;
-  setTimeout(() => cerrar.classList.add('oculto'), 2500);   // que no salga en la foto
+  mostrarAyudaCartel();
   try { cartelBloqueo = await navigator.wakeLock?.request('screen'); } catch { /* no disponible */ }
   // No estoy junto a una visita ni un hotel de la app: buscar un edificio importante cerca
   // (primero en el mapa, si no en Wikipedia); si no hay, la calle (la de la app o la del mapa).
@@ -1130,11 +1129,46 @@ async function edificioCercano(pos) {
 }
 
 // El nombre lo más grande posible sin salirse de la pantalla
+// "Toca para cerrar" y el botón 🔄 se ven unos segundos y luego desaparecen (que no salgan en la foto)
+let cartelAyuda = null;
+function mostrarAyudaCartel() {
+  const ayuda = [$('#cartel-cerrar'), $('#cartel-girar')];
+  ayuda.forEach((x) => x.classList.remove('oculto'));
+  clearTimeout(cartelAyuda);
+  cartelAyuda = setTimeout(() => ayuda.forEach((x) => x.classList.add('oculto')), 3000);
+}
+
+// Girar el cartel: vertical → horizontal (móvil girado a la izquierda) → horizontal (a la derecha).
+// La app está fijada en vertical, así que el giro se hace aquí; se recuerda para la próxima vez.
+const GIROS_CARTEL = [0, 90, -90];
+let giroCartel = almacen.leer('viaje-cartel-giro', 0);
+function aplicarGiroCartel() {
+  const caja = $('#cartel-caja');
+  const horizontal = giroCartel !== 0;
+  caja.style.setProperty('--cartel-giro', giroCartel + 'deg');
+  caja.style.setProperty('--cartel-ancho', (horizontal ? innerHeight : innerWidth) + 'px');
+  caja.style.setProperty('--cartel-alto', (horizontal ? innerWidth : innerHeight) + 'px');
+  caja.style.padding = horizontal ? '20px 64px' : '';      // en horizontal, sitio para el botón 🔄
+  const texto = $('#cartel-sitio').textContent;
+  if (texto) ponerTextoCartel(texto);
+}
+function girarCartel(e) {
+  e.stopPropagation();                                   // que no cierre el cartel
+  giroCartel = GIROS_CARTEL[(GIROS_CARTEL.indexOf(giroCartel) + 1) % GIROS_CARTEL.length];
+  almacen.guardar('viaje-cartel-giro', giroCartel);
+  aplicarGiroCartel();
+  mostrarAyudaCartel();
+}
+
 function ponerTextoCartel(texto) {
   const el = $('#cartel-sitio');
   el.textContent = texto;
-  const maxAlto = innerHeight * 0.5;
-  let t = Math.min(innerWidth * 0.16, 96);
+  const caja = $('#cartel-caja');
+  const ancho = parseFloat(caja.style.getPropertyValue('--cartel-ancho')) || innerWidth;
+  const alto = parseFloat(caja.style.getPropertyValue('--cartel-alto')) || innerHeight;
+  const maxAlto = alto * 0.5;
+  // (el ancho útil lo marca la propia caja, con su margen)
+  let t = Math.min(ancho * 0.16, alto * 0.3, 110);
   el.style.fontSize = t + 'px';
   while (t > 22 && (el.scrollHeight > maxAlto || el.scrollWidth > el.clientWidth + 1)) {
     t -= 2;
@@ -1248,6 +1282,7 @@ function conectarEventos() {
   };
   $('#btn-cartel').onclick = abrirCartel;
   $('#cartel').onclick = cerrarCartel;
+  $('#cartel-girar').onclick = girarCartel;
   $('#btn-otro').onclick = () => {
     const m = [...marcasOtros.values()][0];
     if (m) { seguir = false; $('#btn-centrar').classList.remove('activo'); mapa.setView(m.getLatLng(), 17); }

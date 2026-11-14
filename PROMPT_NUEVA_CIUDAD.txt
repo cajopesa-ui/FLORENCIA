@@ -259,6 +259,10 @@ PANEL INFERIOR
   coordenadas. Letra lo más grande posible sin salirse; "Toca para
   cerrar" se desvanece a los 2,5 s para que no salga en la foto; Wake Lock
   mientras está abierto. Sin GPS: aviso "Buscando tu posición…".
+  Botón 🔄 (esquina): gira el cartel 0° → 90° → -90° con CSS (la app está
+  fijada en vertical en el manifest): caja con ancho y alto cambiados y
+  rotate(); se guarda en localStorage; el 🔄 y "Toca para cerrar" se
+  desvanecen a los 3 s; stopPropagation para que no cierre.
 - Avisos (solo si el día que miro es hoy, con la hora del destino):
   "⏰ X cierra a las HH:MM (quedan N min)" (<=60 min, rojo <=30);
   "🌅 El atardecer es hacia las X: no llegues tarde a Y" (80 min antes,
