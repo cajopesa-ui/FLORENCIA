@@ -1043,26 +1043,63 @@ async function abrirCartel() {
   $('#cartel').hidden = false;
   setTimeout(() => cerrar.classList.add('oculto'), 2500);   // que no salga en la foto
   try { cartelBloqueo = await navigator.wakeLock?.request('screen'); } catch { /* no disponible */ }
-  // No estoy junto a una visita ni un hotel de la app: preguntar a la vez por un edificio
-  // importante cercano (iglesia, museo, palacio…) y por la calle; gana el edificio, y si no
-  // lo hay, la calle de la app (si estoy en una) o la del mapa.
+  // No estoy junto a una visita ni un hotel de la app: buscar un edificio importante cerca
+  // (primero en el mapa, si no en Wikipedia); si no hay, la calle (la de la app o la del mapa).
   if (!sitio && navigator.onLine) {
     const turno = ++cartelTurno;
-    const pedirEdificio = edificioCercano(pos);
-    const pedirCalle = calleApp ? Promise.resolve({ calle: calleApp, lugar: '' }) : fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=17&accept-language=es&lat=${pos.lat.toFixed(5)}&lon=${pos.lng.toFixed(5)}`, { signal: AbortSignal.timeout(6000) })
-      .then((r) => r.json()).then((r) => {
-        const a = r.address || {};
-        return { calle: a.road || a.pedestrian || a.square || r.name || null, lugar: a.city || a.town || a.village || a.municipality || '' };
-      }).catch(() => ({ calle: null, lugar: '' }));
-    // La calle suele llegar antes: se enseña ya y, si luego hay edificio, se cambia
     const sigue = () => turno === cartelTurno && !$('#cartel').hidden;
-    const { calle, lugar } = await pedirCalle;
-    const ponerPueblo = (nombre) => { $('#cartel-pueblo').textContent = (pueblo || lugar) !== nombre ? (pueblo || lugar) : ''; };
-    if (sigue() && calle) { ponerTextoCartel(calle); ponerPueblo(calle); }
-    const edificio = await pedirEdificio;
-    if (sigue() && edificio) { ponerTextoCartel(edificio); ponerPueblo(edificio); }
+    const pedirWiki = edificioCercano(pos);              // Wikipedia, a la vez
+    // 1) El nombre que sale en el mapa (Nominatim pide no hacerle dos consultas a la vez)
+    const mapa = await edificioEnMapa(pos);
+    const pedirCalle = () => calleApp ? Promise.resolve({ calle: calleApp, lugar: '' })
+      : new Promise((ok) => setTimeout(ok, 1100)).then(() => fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=17&accept-language=es&lat=${pos.lat.toFixed(5)}&lon=${pos.lng.toFixed(5)}`, { signal: AbortSignal.timeout(6000) }))
+        .then((r) => r.json()).then((r) => {
+          const a = r.address || {};
+          return { calle: a.road || a.pedestrian || a.square || r.name || null, lugar: a.city || a.town || a.village || a.municipality || '' };
+        }).catch(() => ({ calle: null, lugar: '' }));
+    const ponerPueblo = (nombre, lugar = '') => { $('#cartel-pueblo').textContent = (pueblo || lugar) && (pueblo || lugar) !== nombre ? (pueblo || lugar) : ''; };
+    if (mapa) { if (sigue()) { ponerTextoCartel(mapa.nombre); ponerPueblo(mapa.nombre, mapa.lugar); } }
+    else {
+      // 2) Si no, Wikipedia; 3) si tampoco, la calle (la de la app o la del mapa)
+      const calleP = pedirCalle();
+      const wiki = await pedirWiki;
+      if (wiki) { if (sigue()) { ponerTextoCartel(wiki); ponerPueblo(wiki); } }
+      else {
+        const { calle, lugar } = await calleP;
+        if (sigue() && calle) { ponerTextoCartel(calle); ponerPueblo(calle, lugar); }
+      }
+    }
   }
   if (!$('#cartel').hidden && $('#cartel-sitio').textContent === 'Buscando el nombre…') ponerTextoCartel('📍 Sin nombre');
+}
+
+// Edificio o monumento con nombre en el mapa (OpenStreetMap), a unos 50 m:
+// Nominatim da el punto de interés más cercano; solo vale si es de un tipo que interesa
+// (no tiendas, bares ni hoteles). El nombre sale tal cual está en el mapa.
+const TIPOS_MAPA = {
+  amenity: /^(place_of_worship|fountain|theatre|townhall|library|monastery|arts_centre|marketplace)$/,
+  tourism: /^(museum|gallery|attraction|artwork|viewpoint)$/,
+  historic: /./,
+  building: /^(church|cathedral|chapel|basilica|monastery|palace|tower|castle|religious|temple)$/,
+  man_made: /^(tower|lighthouse|obelisk|bridge)$/,
+  leisure: /^(park|garden)$/,
+  place: /^square$/,
+};
+async function edificioEnMapa(pos) {
+  const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=18&layer=poi,manmade&lat=${pos.lat.toFixed(5)}&lon=${pos.lng.toFixed(5)}`;
+  for (let intento = 0; intento < 2; intento++) {           // si falla (servidor ocupado), un reintento
+    try {
+      const resp = await fetch(url, { signal: AbortSignal.timeout(6000) });
+      if (!resp.ok) throw new Error(resp.status);
+      const r = await resp.json();
+      if (!r.name || !TIPOS_MAPA[r.category]?.test(r.type || '')) return null;
+      const d = distancia(pos, { lat: Number(r.lat), lng: Number(r.lon) });
+      if (d > 60 + Math.min(pos.precision || 0, 25)) return null;
+      const a = r.address || {};
+      return { nombre: r.name, lugar: a.city || a.town || a.village || a.municipality || '' };
+    } catch { await new Promise((ok) => setTimeout(ok, 1200)); }
+  }
+  return null;
 }
 
 // Edificio o monumento importante cerca: los que tienen artículo en Wikipedia

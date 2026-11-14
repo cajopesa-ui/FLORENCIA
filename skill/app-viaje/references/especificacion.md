@@ -249,7 +249,12 @@ PANEL INFERIOR
   no tape las pestañas en 320 px). Abre una capa a pantalla completa con
   el sitio donde estoy (lugar de cualquier día a <60 m, o <120 m si es
   grande; calle a <30 m; hotel a <60 m; gana el más cercano, sin el emoji
-  del principio). Si no es una visita ni un hotel: edificio importante de
+  del principio). Si no es una visita ni un hotel: 1) el punto de interés
+  del mapa (Nominatim reverse zoom=18 layer=poi,manmade, sin idioma: el
+  nombre tal cual) si es de un tipo que interesa (place_of_worship,
+  museum, historic…, NO tiendas/bares/hoteles) y está a <60 m; un
+  reintento a los 1,2 s si falla; Nominatim pide 1 consulta por segundo,
+  así que la de la calle va 1,1 s después. 2) Si no, edificio de
   Wikipedia (list=geosearch, radio 50 m + precisión, origin=* para CORS;
   primero es, si no it; quitar "(Ciudad)" del título; ventaja a títulos
   que empiezan por Iglesia/Museo/Palacio/Torre/Plaza…, fuera Archidiócesis/
