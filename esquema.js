@@ -179,7 +179,7 @@ function abrirVuelo(id) {
     <p class="tipo">${esc(v.compania)} · ${esc(diaCorto(v.fecha))}</p>
     <div class="dos">
       <div class="dato"><span class="etq">🛫 Sale</span>${esc(v.sale.iata)} ${esc(v.sale.ciudad)}${v.sale.terminal ? ' · ' + esc(v.sale.terminal) : ''}<br><b>${esc(v.sale.hora)}</b></div>
-      <div class="dato"><span class="etq">🛬 Llega</span>${esc(v.llega.iata)} ${esc(v.llega.ciudad)}<br><b>${esc(v.llega.hora)}</b></div>
+      <div class="dato"><span class="etq">🛬 Llega</span>${esc(v.llega.iata)} ${esc(v.llega.ciudad)}${v.llega.terminal ? ' · ' + esc(v.llega.terminal) : ''}<br><b>${esc(v.llega.hora)}</b></div>
     </div>
     ${v.aena ? '<div class="dato" id="vuelo-vivo"></div>' : ''}
     ${v.estado ? `<div class="dato"><span class="etq">📡 Estado del vuelo: ${esc(v.estado.fuente)}</span>${esc(v.estado.ayuda)}
