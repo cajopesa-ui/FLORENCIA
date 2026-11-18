@@ -368,6 +368,10 @@ DISEÑO
   asientos, localizador, tarjetas:{<id del vuelo>:["Nombre: asiento · grupo · equipaje"]}}, insertada con SQL (insert … on conflict). La
   ficha los muestra en "🔒" solo tras entrar con el código, y el
   localizador se puede escribir y guardar desde la app.
+  WEB DE LA AEROLÍNEA: "aerolinea": {texto, url, ayuda} añade un botón y
+  una línea en la ficha (p. ej. la página pública "Estado de vuelos" de
+  Vueling, sin iniciar sesión: origen, destino y fecha). Nunca usar el
+  usuario y la contraseña de la aerolínea ni de Aena.
   ESTADO EN DIRECTO (solo aeropuertos españoles, Aena): pon en el vuelo
   "aena": {"aeropuerto": "BCN", "tipo": "S"} (S = salida desde ese
   aeropuerto, L = llegada a él; para la vuelta a España usa L). La ficha
