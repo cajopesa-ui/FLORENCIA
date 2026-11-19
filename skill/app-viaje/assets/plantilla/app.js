@@ -844,10 +844,11 @@ function abrirFicha(clave) {
       <div class="tiempo-nota">${esc(x.avisos.revisado || '')}</div></div>` : ''}
     ${x.trafico?.length ? `<div class="dato"><span class="etq">🚦 Tráfico ahora</span>
       ${x.trafico.filter((t) => !t.oficial).map((t, k) => `<a class="btn ${k === 0 ? 'btn-principal' : ''}" style="width:100%;margin-top:6px" href="${esc(t.url)}" target="_blank" rel="noopener">${esc(t.texto)}</a>${t.nota ? `<div class="tiempo-nota">${esc(t.nota)}</div>` : ''}`).join('')}
-      ${x.trafico.some((t) => t.oficial) ? `<details style="margin-top:8px"><summary>Webs oficiales (en italiano)</summary>
+      ${x.trafico.some((t) => t.oficial) ? `<details style="margin-top:8px"><summary>Webs oficiales</summary>
         ${x.trafico.filter((t) => t.oficial).map((t) => `<a class="btn" style="width:100%;margin-top:6px" href="${esc(t.url)}" target="_blank" rel="noopener">${esc(t.texto)}</a>${t.nota ? `<div class="tiempo-nota">${esc(t.nota)}</div>` : ''}`).join('')}</details>` : ''}</div>` : ''}
     ${x.rutas?.length ? `<div class="dato"><span class="etq">🔀 Rutas (si hay problemas en la principal)</span>
       ${x.rutas.map((r) => `<a class="btn" style="width:100%;margin-top:6px" href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.texto)}</a>${r.nota ? `<div class="tiempo-nota">${esc(r.nota)}</div>` : ''}`).join('')}</div>` : ''}
+    ${x.reservaPrivada ? `<div class="dato"><span class="etq">🔒 Reserva</span>${esc(estadoActual()['privado:reservas']?.[x.id] || 'Sale al entrar con el código y con conexión.')}</div>` : ''}
     ${bus}
     <div class="fila-botones">
       <button class="btn btn-principal" data-guiar="${esc(clave)}">🧭 Guiarme</button>

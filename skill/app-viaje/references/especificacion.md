@@ -372,8 +372,12 @@ DISEÑO
   aviso arriba el día del vuelo (#vuelo-dia) y como botón en el día sin
   pestaña de la vuelta. Ficha: sale/llega, notas (cómo ir al hotel; plan
   hacia atrás desde la hora del vuelo: salir del hotel, repostar, devolver
-  el coche, estar en la terminal), "📡 Estado del vuelo" (flightradar24
-  /data/flights/<número>), "🧭 Guiarme" al aeropuerto (clave
+  el coche, estar en la terminal), "📡 Estado del vuelo" (por defecto flightradar24
+  /data/flights/<número>; con "estado": {fuente, url, ayuda} abre la web
+  oficial del aeropuerto, ya buscando ese vuelo si su URL lo permite, p. ej.
+  firenze-airport.it/it/passeggeri/voli/partenze?flightNumber=%22VY%2006075%22,
+  y deja Flightradar24 como "Otra opción"; en "ayuda" qué se ve y desde
+  cuándo, porque muchos aeropuertos solo publican los vuelos del día), "🧭 Guiarme" al aeropuerto (clave
   "punto:aeropuerto") y "🚗 Aeropuerto".
   PRIVACIDAD: datos/viaje.json es PÚBLICO (se lee sin el código). Nombres de
   pasajeros, equipaje, asientos y localizador NUNCA van ahí: van en la base
@@ -439,6 +443,13 @@ DISEÑO
   día con coche desde la hora de recogida (+ trámites) y el último desde la
   hora de devolución y del vuelo (salir del hotel, repostar si es
   lleno-lleno, devolver, lanzadera, terminal).
+
+- RESERVA PRIVADA DE UNA VISITA (free tour, entradas con hora…): el lugar
+  lleva "reservaPrivada": true y el número, nombre y datos de la reserva
+  van en la base de datos, clave "privado:reservas" = {<id del lugar>:
+  "texto"}, nunca en el JSON. La ficha muestra «🔒 Reserva» con ese texto
+  solo tras entrar con el código; sin él, «Sale al entrar con el código y
+  con conexión».
 
 - LLEGADA A UNA VISITA (GPS): si estoy a < 50 m de una visita pendiente
   numerada del día que se ve (120 m en plazas, jardines, murallas, paseos,
@@ -542,7 +553,9 @@ DISEÑO
   usa la fecha de hoy. Probar con page.route simulando la respuesta y
   page.clock.setFixedTime a 5, 12 y 30 días del viaje.
 - En "Todo", cada tarjeta de día lleva SOLO el símbolo del tiempo (arriba
-  a la derecha, sin texto; title con el cielo). Una sola petición a
+  a la derecha, sin texto; title con el cielo), calculado con el cielo de
+  las horas de visita y no con el peor de las 24 h (pide también
+  hourly=weather_code). Una sola petición a
   Open-Meteo con todos los pueblos (latitude y longitude separados por
   comas devuelven una lista). En días con varios pueblos, el peor (código
   WMO más alto). De 8 a 15 días, el símbolo más claro (opacidad .55).

@@ -181,11 +181,13 @@ function abrirVuelo(id) {
       <div class="dato"><span class="etq">🛬 Llega</span>${esc(v.llega.iata)} ${esc(v.llega.ciudad)}${v.llega.terminal ? ' · ' + esc(v.llega.terminal) : ''}<br><b>${esc(v.llega.hora)}</b></div>
     </div>
     ${v.aena ? '<div class="dato" id="vuelo-vivo"></div>' : ''}
+    ${v.estado ? `<div class="dato"><span class="etq">📡 Estado del vuelo: ${esc(v.estado.fuente)}</span>${esc(v.estado.ayuda)}
+      <a href="https://www.flightradar24.com/data/flights/${encodeURIComponent(v.numero.toLowerCase())}" target="_blank" rel="noopener">Otra opción: Flightradar24</a></div>` : ''}
     ${v.aerolinea?.ayuda ? `<div class="dato"><span class="etq">✈️ ${esc(v.aerolinea.texto)}</span>${esc(v.aerolinea.ayuda)}</div>` : ''}
     ${v.embarque ? `<div class="dato"><span class="etq">🎫 Embarque</span><b>${esc(v.embarque)}</b>${v.cierre ? ` · la puerta cierra a las <b>${esc(v.cierre)}</b>` : ''}</div>` : ''}
     ${v.notas?.length ? `<div class="dato"><span class="etq">Notas</span><ul class="hotel-notas">${v.notas.map((n) => `<li>${esc(n)}</li>`).join('')}</ul></div>` : ''}
     <div class="fila-botones">
-      <a class="btn btn-principal" href="https://www.flightradar24.com/data/flights/${encodeURIComponent(v.numero.toLowerCase())}" target="_blank" rel="noopener">📡 Estado del vuelo</a>
+      <a class="btn btn-principal" href="${esc(v.estado?.url || `https://www.flightradar24.com/data/flights/${encodeURIComponent(v.numero.toLowerCase())}`)}" target="_blank" rel="noopener">📡 Estado del vuelo</a>
       ${v.aerolinea ? `<a class="btn" href="${esc(v.aerolinea.url)}" target="_blank" rel="noopener">✈️ ${esc(v.aerolinea.texto)}</a>` : ''}
       ${ap ? `<button class="btn" data-guiar="punto:${esc(ap.id)}">🧭 Guiarme</button>
       <a class="btn" href="${urlComoLlegar(ap.lat, ap.lng, 'driving')}" target="_blank" rel="noopener">🚗 Aeropuerto</a>` : ''}

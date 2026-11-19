@@ -197,8 +197,8 @@ async function pedirTiempoTodo() {
     let j = await resp.json();
     if (!Array.isArray(j)) j = [j];
     const sitios = {};
-    claves.forEach((c, i) => { if (j[i]?.daily) sitios[c] = j[i].daily; });
-    tiempoTodo = { cuando: Date.now(), sitios };
+    claves.forEach((c, i) => { if (j[i]?.daily) sitios[c] = Object.assign({}, j[i].daily, { hourly: j[i].hourly }); });
+    tiempoTodo = { cuando: Date.now(), sitios, conHoras: true };
     almacen.guardar('viaje-tiempo-todo', tiempoTodo);
     if (diaSel === 'todo') pintar();
   } catch (e) {
