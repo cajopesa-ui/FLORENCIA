@@ -1,6 +1,6 @@
 ---
 name: app-viaje
-description: Crea una app web (PWA) de viaje compartida entre 2 personas para cualquier destino, copiando una app real que ya funciona (la del viaje a Florencia y Toscana) y cambiando solo los datos. Mapa con GPS, visitas de cada día con horas, calles recomendadas, varios pueblos por día, transporte, brújula y "Guiarme", chat con fotos/voz/ubicación, guiar hasta la otra persona, tiempo previsto, hoteles, parkings, esquema del viaje y sincronización en tiempo real con código de 4 dígitos (Supabase) publicada en Netlify. Úsala SIEMPRE que el usuario quiera una app, guía o mapa para un viaje o una escapada ("hazme la app de Roma", "quiero lo mismo que Florencia para Lisboa", "app con los sitios a visitar y el GPS", "guía compartida del viaje con mi pareja"), aunque no diga "app" ni "skill", y también para añadir días, ciudades, hoteles o cambios a una app de viaje hecha con esta plantilla.
+description: "Crea una app web (PWA) de viaje para 2 personas copiando la plantilla real de Florencia y cambiando solo los datos: mapa con GPS, visitas por día, calles, transporte, brújula, chat, tiempo, hoteles y esquema, sincronizada con código de 4 dígitos (Supabase) y publicada en Netlify. Úsala SIEMPRE que el usuario quiera una app, un mapa con GPS o algo para el móvil o para compartir con su pareja en un viaje (\"hazme la app de Roma\", \"lo mismo que Florencia para Lisboa\", \"algo para el móvil con el mapa de Oporto para ir con mi mujer\"), aunque no diga \"app\", y para añadir días, ciudades u hoteles a una app ya hecha. No es para una guía o itinerario en texto (eso es guia-viaje-v2)."
 ---
 
 # App de viaje compartida
@@ -39,7 +39,9 @@ esté claro en vez de suponerlo (el usuario agradece "entiendes? no hagas nada":
 lo diga, solo explica y espera).
 
 ### 2. Copiar la plantilla
-Copia `assets/plantilla/` a la carpeta del proyecto. Sustituye los marcadores:
+Copia `assets/plantilla/` a la carpeta del proyecto. Antes de publicar, comprueba que no
+hay archivos `*.orig` ni la carpeta `capturas/` dentro: Netlify los publicaría.
+Sustituye los marcadores:
 - `__TITULO__`, `__DESCRIPCION__`, `__FECHAS__` (p. ej. "12 – 13 de mayo") en `index.html` y `manifest.webmanifest`; `__LOGO__` en `index.html` (un emoji del destino, sale en la pantalla de entrada).
 - Color principal (opcional): `#7c2d12` en `style.css` (`--principal` y el degradado de la entrada), `index.html` (theme-color), el manifest y el icono. Cámbialo solo si el destino tiene un color típico o el usuario lo pide.
 - `__SUPABASE_URL__`, `__SUPABASE_ANON_KEY__` en `config.js` (paso 4).
@@ -56,14 +58,18 @@ especificación). Además de lo que describe la especificación, la plantilla le
 - Días SIN varias ciudades: `ciudad`, `lat`, `lng` (el centro de sus visitas) y `clima`; sus calles van sin `parte`.
 - Partes (ciudades de un día): `clima` cada una, y `etiqueta` si el nombre es largo para el mapa del esquema ("Monte Oliveto").
 - Vuelos en `esquema.vuelos` (ver especificación). Si salen o llegan a un aeropuerto español, añade `aena: {aeropuerto, tipo}` y la ficha enseña el estado en directo. Los datos personales de la reserva (nombres, equipaje, localizador) NUNCA en `viaje.json`, que es público: van en la base de datos con la clave `privado:vuelos`.
-- Coche de alquiler en `esquema.coche` + punto oculto `coche` (ver especificación); bono, conductor y precio en la base de datos con la clave `privado:coche`.
+- Coche de alquiler en `esquema.coche` + punto oculto `coche` (ver especificación), con `horario` y `mapa` de la oficina si salen en el bono; bono, conductor y precio en la base de datos con la clave `privado:coche`.
+- Vuelos: `aerolinea: {texto, url, ayuda}` añade el botón a la web pública de estado de la compañía, y `llega.terminal` la terminal de llegada.
+- Salidas en coche importantes (el día del vuelo): `trafico`, `rutas` y `avisos` en ese lugar (ver especificación). Los avisos los buscas y resumes tú; si el usuario quiere, programa revisiones antes de salir.
+- Audioguías en `datos/audioguias.json` (`{"lugar:id" o "calle:id": texto}`): visitas 2-3 min y calles algo más de 1 min, escritas para oírse. Si el usuario no las quiere, deja `{}`.
 - `transporte.busCerca` (ids de lugares con un bus útil cerca) con `busAviso` (aviso cuando estás allí) y `busFicha` (texto en la ficha del lugar). Opcional: sin ellos no sale nada.
 - Salidas en tren/bus/coche: lugar con `salida: true` y su hora. Si la salida está en otra ciudad que la parte (el tren desde Lisboa al empezar el día de Sintra), ponla en esa parte con `sinEncuadre: true`; "Siguiente" avanza al marcarla como hecha.
 - Esquema: `tren: true` dibuja la ruta de puntos; `carretera: true` solo indica que la ruta viene de TomTom. Sin TomTom, línea recta entre los puntos clave, empezando y acabando en el hotel.
 
 Coordenadas: si tienes el conector de **TomTom**, úsalo (geocode encuentra el número del
 portal; verifica cada sitio a < 60 m de su POI); si no, Nominatim (máximo 1 petición por
-segundo, con User-Agent propio). Para muchas consultas, repártelas en subagentes que
+segundo, con User-Agent propio). Para el trazado de las calles se usa Nominatim (sección 3
+de la especificación), porque TomTom no da la forma de la calle. Para muchas consultas, repártelas en subagentes que
 devuelvan JSON compacto. Clima: `python3 scripts/clima.py LAT LNG MES DIA_INI DIA_FIN`
 (unos 10 días antes y después del viaje dentro del mismo mes; si falla, deja `clima` sin poner).
 

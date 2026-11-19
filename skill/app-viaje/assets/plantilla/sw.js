@@ -5,7 +5,7 @@ const MAPA = 'viaje-mapa';
 const MAX_TESELAS = 3000;
 
 const ARCHIVOS = [
-  './', 'index.html', 'style.css', 'app.js', 'chat.js', 'brujula.js', 'esquema.js', 'tiempo.js', 'config.js', 'datos/viaje.json',
+  './', 'index.html', 'style.css', 'app.js', 'chat.js', 'brujula.js', 'esquema.js', 'tiempo.js', 'config.js', 'datos/viaje.json', 'datos/audioguias.json',
   'manifest.webmanifest', 'iconos/icono.svg', 'iconos/icono-192.png'
 ];
 

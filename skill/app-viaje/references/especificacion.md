@@ -1,6 +1,6 @@
 # Especificación completa de la app de viaje
 
-> Es el antiguo PROMPT_NUEVA_CIUDAD.txt. En la plantilla de la skill los datos van en `datos/viaje.json` (no `datos/<destino>.json`), las claves de localStorage empiezan por `viaje-` y la zona horaria, el mes del viaje y las ciudades grandes salen del JSON (`zonaHoraria`, `mesViaje`, `ciudadesBase`).
+> Es el antiguo PROMPT_NUEVA_CIUDAD.txt. En la plantilla de la skill los datos van en `datos/viaje.json` (no `datos/viaje.json`), las claves de localStorage empiezan por `viaje-` y la zona horaria, el mes del viaje y las ciudades grandes salen del JSON (`zonaHoraria`, `mesViaje`, `ciudadesBase`).
 
 ```text
 ====================================================================
@@ -75,7 +75,7 @@ Archivos (mismos nombres y reparto):
   esquema.js      esquema del viaje (pestaña "Todo")
   tiempo.js       previsión del tiempo (Open-Meteo)
   config.js       URL y clave pública de Supabase
-  datos/<destino>.json   todos los datos del viaje
+  datos/viaje.json   todos los datos del viaje
   sw.js, manifest.webmanifest, netlify.toml
   iconos/icono.svg + icono-180/192/512.png (monumento típico del destino,
          PNG generados con Chromium/Playwright a partir del SVG)
@@ -103,7 +103,7 @@ Código comentado en español; variables y funciones en español.
 - Calcular la hora del atardecer de cada día si hay miradores.
 
 --------------------------------------------------------------------
-4. DATOS (datos/<destino>.json)
+4. DATOS (datos/viaje.json)
 --------------------------------------------------------------------
 Generado con un script a partir de mis ficheros, copiando mis textos tal
 cual (sin inventar horarios; si un horario "no está confirmado", no poner
@@ -248,13 +248,15 @@ PANEL INFERIOR
   que el estado («lugar:id» o «calle:id»). Visitas 2-3 min (unas 200-330
   palabras); calles imprescindibles y fuera de ruta 1-1,5 min (unas
   150-220); una calle que coincide con una visita reutiliza su texto.
-  Español sencillo, escrito para oírse: sin
-  abreviaturas, siglos y papas en palabras, sin cifras romanas). Botón
-  «🎧 Escuchar la audioguía» en la ficha; voz del móvil (speechSynthesis,
-  es-ES, rate 0.95) troceada por frases para poder pausar en cualquier
-  móvil (pausa = cancel y seguir desde la frase actual) y que no se corte;
-  barra flotante con ⏸/▶ y ⏹ sobre el mapa. El service worker guarda el
-  JSON para usarlo sin conexión. Comprueba los datos históricos.
+  Gasolineras, parkings, hoteles y salidas no llevan audioguía.
+  Español sencillo, escrito para oírse: sin abreviaturas, siglos y papas
+  en palabras, sin cifras romanas. Botón «🎧 Escuchar la audioguía» en la
+  ficha; voz del móvil (speechSynthesis, es-ES, rate 0.95) troceada por
+  frases para poder pausar en cualquier móvil (pausa = cancel y seguir
+  desde la frase actual) y que no se corte; barra flotante con ⏸/▶ y ⏹
+  sobre el mapa. El service worker guarda el JSON para usarlo sin
+  conexión (si no hay audioguías, deja el archivo como {}). Comprueba los
+  datos históricos antes de guardarlos.
 - CARTEL PARA LAS FOTOS: botón 🎬 (claqueta) a la izquierda del 📍 del mapa
   (position:absolute dentro de .flotantes, para que la columna no crezca y
   no tape las pestañas en 320 px). Abre una capa a pantalla completa con
@@ -379,18 +381,6 @@ DISEÑO
   asientos, localizador, tarjetas:{<id del vuelo>:["Nombre: asiento · grupo · equipaje"]}}, insertada con SQL (insert … on conflict). La
   ficha los muestra en "🔒" solo tras entrar con el código, y el
   localizador se puede escribir y guardar desde la app.
-  TRÁFICO Y RUTAS (lugares de salida en coche, p. ej. el día del vuelo):
-  "trafico": [{texto, url, nota}] (fuentes oficiales: ANAS «VAI» para las
-  carreteras ANAS, CCISS «Viaggiare Informati», Autostrade per l'Italia,
-  la web del ayuntamiento, y Google Maps con la ruta para el tráfico del
-  momento) y "rutas": [{texto, url, nota}] (principal y alternativas
-  calculadas con TomTom, con Google Maps …/dir/?api=1&origin&destination
-  &waypoints para forzar cada alternativa). La ficha del lugar los enseña
-  como botones. Comprueba con TomTom el tiempo y si hay peaje.
-  WEB DE LA AEROLÍNEA: "aerolinea": {texto, url, ayuda} añade un botón y
-  una línea en la ficha (p. ej. la página pública "Estado de vuelos" de
-  Vueling, sin iniciar sesión: origen, destino y fecha). Nunca usar el
-  usuario y la contraseña de la aerolínea ni de Aena.
   ESTADO EN DIRECTO (solo aeropuertos españoles, Aena): pon en el vuelo
   "aena": {"aeropuerto": "BCN", "tipo": "S"} (S = salida desde ese
   aeropuerto, L = llegada a él; para la vuelta a España usa L). La ficha
@@ -406,19 +396,43 @@ DISEÑO
   la función solo (carpeta netlify/functions, sin configurar nada).
   El código QR de la tarjeta NO se guarda en la app: se usa el de la app de
   la aerolínea o la cartera del móvil.
+  TRÁFICO Y RUTAS (lugares de salida en coche, p. ej. el día del vuelo):
+  "trafico": [{texto, url, nota, oficial?}]. Primero lo que se entiende
+  de un vistazo: Google Maps con la ruta y la capa de tráfico
+  (…/dir/?api=1&origin&destination&travelmode=driving) y Waze; las webs
+  oficiales (ANAS «VAI», CCISS «Viaggiare Informati», Autostrade per
+  l'Italia, ayuntamiento) llevan "oficial": true y salen plegadas en
+  «Webs oficiales». "rutas": [{texto, url, nota}]: principal y
+  alternativas calculadas con TomTom (tiempo, km, peaje), con Google Maps
+  &waypoints para forzar cada alternativa.
+  "avisos": {revisado, items:[…]}: Claude busca él mismo (TinyFish si hace
+  falta) obras, cortes, huelgas y eventos en esa ruta y ese día, y los
+  pone resumidos en español («📋 Avisos oficiales en vuestra ruta»), con
+  la fecha y hora de la revisión. El usuario no tiene que buscar nada.
+  Si el usuario lo pide, programa revisiones (send_later): la víspera por
+  la noche, por la mañana y un rato antes de cada salida en coche; en
+  cada una se actualizan los avisos, se publica y se avisa al usuario.
+  WEB DE LA AEROLÍNEA: "aerolinea": {texto, url, ayuda} añade un botón y
+  una línea en la ficha del vuelo (p. ej. la página pública "Estado de
+  vuelos" de la compañía, sin iniciar sesión, y en "ayuda" qué hay que
+  escribir: origen, destino y fecha). "llega" admite "terminal". Nunca
+  usar el usuario y la contraseña de la aerolínea ni de Aena.
   Al poner los vuelos, comprueba que el primer día no tiene visitas antes de
   poder llegar del aeropuerto, y añade en la víspera de la vuelta el plan
   con horas.
 
 - COCHE DE ALQUILER: "esquema.coche" = {compania, grupo, recogida:{fecha,
   hora, lugar}, devolucion:{fecha, hora, lugar}, incluye:[…], notas:[…],
-  telefono, telefonoTexto} y su oficina como punto del esquema con
+  telefono, telefonoTexto} y su oficina  telefono, telefonoTexto, horario?, mapa?} y su oficina como punto del esquema con
   "id":"coche" y "oculto": true (no se dibuja en el mapa, solo sirve para
   "🧭 Guiarme"). Sale como tarjeta "🚗 Coche" en "Vuelos y coche" (Todo);
   ficha con recogida/devolución, qué incluye, notas (cómo llegar a la
   oficina y la lanzadera si no está en la terminal, cómo devolverlo, qué
   llevar, fotos al recogerlo, cadenas en invierno, multas de ZTL),
-  Guiarme / A pie / En coche y "📞 Llamar". Privado (bono, conductor,
+  Guiarme / A pie / En coche y "📞 Llamar".
+  "horario" (de la oficina) sale en la ficha y "mapa" (URL del plano
+  oficial de recogida y devolución del bono) como botón «🗺️ Mapa oficial
+  de la oficina». Privado (bono, conductor,
   tarifa, precio) en la base de datos, clave "privado:coche", nunca en el
   JSON. Pide al usuario las "Instrucciones de recogida/devolución" de la
   reserva: dicen dónde está la oficina y si hay lanzadera. Rehaz el primer
@@ -483,9 +497,9 @@ DISEÑO
   puntos:[{id, nombre, icono, lat, lng, titulo, notas:[…]}], porque:[…] }.
   Con la reserva (captura de Booking, etc.) saca nombre, estrellas,
   dirección y horas de entrada/salida, y geolocaliza la dirección exacta
-  con Nominatim. Ojo: en Booking los CUADRADITOS amarillos son una
+  con TomTom (geocode) o, si no hay TomTom, con Nominatim. Ojo: en Booking los CUADRADITOS amarillos son una
   valoración de Booking, no estrellas oficiales (no los pongas como ★).
-  Si Nominatim solo encuentra la calle (sin el número), avísame de que
+  Si solo se encuentra la calle (sin el número), avísame de que
   el punto es aproximado. Sin dirección, el hotel va en su ZONA.
 - Las rutas del esquema empiezan y acaban en las coordenadas EXACTAS del
   hotel (si no, la línea parece "desajustada"). Si el coche se recoge o
