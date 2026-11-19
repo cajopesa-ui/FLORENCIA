@@ -772,8 +772,10 @@ function abrirFicha(clave) {
     ${dist != null ? `<div class="dato"><span class="etq">Desde donde estás</span>${esc(textoDistancia(dist))} a pie</div>` : ''}
     ${x.horario ? `<div class="dato"><span class="etq">Horario</span>${esc(x.horario)}</div>` : ''}
     ${x.nota ? `<div class="dato"><span class="etq">Nota</span>${esc(x.nota)}</div>` : ''}
-    ${x.trafico?.length ? `<div class="dato"><span class="etq">🚦 Tráfico ahora (fuentes oficiales)</span>
-      ${x.trafico.map((t) => `<a class="btn" style="width:100%;margin-top:6px" href="${esc(t.url)}" target="_blank" rel="noopener">${esc(t.texto)}</a>${t.nota ? `<div class="tiempo-nota">${esc(t.nota)}</div>` : ''}`).join('')}</div>` : ''}
+    ${x.trafico?.length ? `<div class="dato"><span class="etq">🚦 Tráfico ahora</span>
+      ${x.trafico.filter((t) => !t.oficial).map((t, k) => `<a class="btn ${k === 0 ? 'btn-principal' : ''}" style="width:100%;margin-top:6px" href="${esc(t.url)}" target="_blank" rel="noopener">${esc(t.texto)}</a>${t.nota ? `<div class="tiempo-nota">${esc(t.nota)}</div>` : ''}`).join('')}
+      ${x.trafico.some((t) => t.oficial) ? `<details style="margin-top:8px"><summary>Avisos oficiales de cortes y obras (en italiano)</summary>
+        ${x.trafico.filter((t) => t.oficial).map((t) => `<a class="btn" style="width:100%;margin-top:6px" href="${esc(t.url)}" target="_blank" rel="noopener">${esc(t.texto)}</a>${t.nota ? `<div class="tiempo-nota">${esc(t.nota)}</div>` : ''}`).join('')}</details>` : ''}</div>` : ''}
     ${x.rutas?.length ? `<div class="dato"><span class="etq">🔀 Rutas (si hay problemas en la principal)</span>
       ${x.rutas.map((r) => `<a class="btn" style="width:100%;margin-top:6px" href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.texto)}</a>${r.nota ? `<div class="tiempo-nota">${esc(r.nota)}</div>` : ''}`).join('')}</div>` : ''}
     ${x.reservaPrivada ? `<div class="dato"><span class="etq">🔒 Reserva</span>${esc(estadoActual()['privado:reservas']?.[x.id] || 'Sale al entrar con el código y con conexión.')}</div>` : ''}
