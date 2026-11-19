@@ -244,8 +244,11 @@ PANEL INFERIOR
   sin internet si estoy a <7 km de la ciudad principal o a <4 km de una
   ciudad/pueblo del viaje; si no, reverse de Nominatim (zoom=10,
   accept-language=es) como mucho cada 2 min y si me he movido >1 km.
-- AUDIOGUÍA: datos/audioguias.json = {id del lugar: texto} (2-3 min,
-  unas 200-330 palabras, español sencillo, escrito para oírse: sin
+- AUDIOGUÍA: datos/audioguias.json = {clave: texto}, con la misma clave
+  que el estado («lugar:id» o «calle:id»). Visitas 2-3 min (unas 200-330
+  palabras); calles imprescindibles y fuera de ruta 1-1,5 min (unas
+  150-220); una calle que coincide con una visita reutiliza su texto.
+  Español sencillo, escrito para oírse: sin
   abreviaturas, siglos y papas en palabras, sin cifras romanas). Botón
   «🎧 Escuchar la audioguía» en la ficha; voz del móvil (speechSynthesis,
   es-ES, rate 0.95) troceada por frases para poder pausar en cualquier

@@ -34,7 +34,7 @@ las calles recomendadas, el transporte público y lo que vais marcando los dos e
 | Consejos del día | Plegados en «💡 Consejos (n)»: tócalo para verlos |
 | Reordenar por cercanía | **📍 Ordenar por cercanía** encima de las visitas (si estás en ese sitio): recorrido desde donde estás, con hora estimada y ⚠️ si algo cierra antes de llegar. Solo en tu móvil y solo ese día; **↩ Orden original** lo deshace |
 | Ver un lugar | Toca su marcador, su calle o su fila en la lista |
-| Audioguía | En la ficha de las visitas del 20 al 24: **🎧 Escuchar la audioguía** (unos 1-3 min). La lee la voz del móvil, en español y sin internet. Mientras suena, una barra sobre el mapa con **⏸/▶** y **⏹**; se puede seguir usando la app. Si la pantalla se bloquea, en algunos móviles se para |
+| Audioguía | En la ficha de las visitas y de las calles (imprescindibles y fuera de ruta) del 20 al 24: **🎧 Escuchar la audioguía** (visitas unos 2-3 min, calles algo más de 1 min). La lee la voz del móvil, en español y sin internet. Mientras suena, una barra sobre el mapa con **⏸/▶** y **⏹**; se puede seguir usando la app. Si la pantalla se bloquea, en algunos móviles se para |
 | Ir a un sitio | **🧭 Guiarme**: flecha que apunta al destino (si apunta hacia arriba, vas bien) · **🗺️ Maps**: abre Google Maps |
 | Hacia dónde miro | Abanico azul en tu punto (brújula del móvil; en iPhone se activa al pulsar 📍 o 🧭) |
 | Al llegar a una visita | Si el GPS te sitúa en ella: se resalta en el mapa y en la lista («📍 Estás aquí») y sale un aviso para **✔ marcarla como vista** (una vez al día; nunca se marca sola) |
