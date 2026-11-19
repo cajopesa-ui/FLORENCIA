@@ -261,6 +261,7 @@ function abrirCoche() {
       <div class="dato"><span class="etq">🔑 Recogida</span>${esc(diaCorto(c.recogida.fecha))} · <b>${esc(c.recogida.hora)}</b><br>${esc(c.recogida.lugar)}</div>
       <div class="dato"><span class="etq">↩️ Devolución</span>${esc(diaCorto(c.devolucion.fecha))} · <b>${esc(c.devolucion.hora)}</b><br>${esc(c.devolucion.lugar)}</div>
     </div>
+    ${c.horario ? `<div class="dato"><span class="etq">🕗 Horario de la oficina</span>${esc(c.horario)}</div>` : ''}
     <div class="dato"><span class="etq">Incluye</span><ul class="hotel-notas">${c.incluye.map((n) => `<li>${esc(n)}</li>`).join('')}</ul></div>
     <div class="dato"><span class="etq">Notas</span><ul class="hotel-notas">${c.notas.map((n) => `<li>${esc(n)}</li>`).join('')}</ul></div>
     ${of ? `<div class="fila-botones">
@@ -268,6 +269,7 @@ function abrirCoche() {
       <a class="btn" href="${urlComoLlegar(of.lat, of.lng, 'walking')}" target="_blank" rel="noopener">🚶 A pie</a>
       <a class="btn" href="${urlComoLlegar(of.lat, of.lng, 'driving')}" target="_blank" rel="noopener">🚗 En coche</a>
     </div>` : ''}
+    ${c.mapa ? `<a class="btn" style="width:100%;margin-top:8px" href="${esc(c.mapa)}" target="_blank" rel="noopener">🗺️ Mapa oficial de la oficina (recogida y devolución)</a>` : ''}
     ${c.telefono ? `<a class="btn" style="width:100%;margin-top:8px" href="tel:${esc(c.telefono)}">📞 Llamar a ${esc(c.compania)} · ${esc(c.telefonoTexto || c.telefono)}</a>` : ''}
     ${priv ? `<div class="dato"><span class="etq">🔒 Datos de la reserva</span><ul class="hotel-notas">${filas}</ul></div>
       <p class="consejo">Estos datos solo se ven después de entrar con el código.</p>`
