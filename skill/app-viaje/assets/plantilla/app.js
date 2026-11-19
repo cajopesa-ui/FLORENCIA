@@ -751,6 +751,65 @@ function abrirVentana(html) {
   const v = $('#ventana');
   if (!v.open) v.showModal();
 }
+// ---------- Audioguía ----------
+// Textos en datos/audioguias.json (id del lugar → texto). Los lee la voz del propio móvil
+// (speechSynthesis), en español y sin internet. Se trocea por frases: así se puede pausar
+// en cualquier móvil (algunos Android no saben pausar) y no se corta en los textos largos.
+let AUDIOS = null;
+const audio = { id: null, nombre: '', trozos: [], i: 0, sonando: false, pausado: false };
+const hayVoz = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+async function cargarAudios() {
+  if (AUDIOS) return AUDIOS;
+  try { AUDIOS = await (await fetch('datos/audioguias.json')).json(); } catch { AUDIOS = {}; }
+  return AUDIOS;
+}
+function audioguiaDisponible(x) { return hayVoz && AUDIOS && x && !x.clase?.startsWith('calle') && AUDIOS[x.id]; }
+function vozEspanola() {
+  const voces = speechSynthesis.getVoices();
+  return voces.find((v) => v.lang === 'es-ES' && /local|monica|mónica|google/i.test(v.name + (v.localService ? ' local' : '')))
+    || voces.find((v) => v.lang === 'es-ES') || voces.find((v) => v.lang?.startsWith('es')) || null;
+}
+function hablarDesde(i) {
+  speechSynthesis.cancel();
+  audio.i = i;
+  const voz = vozEspanola();
+  for (let k = i; k < audio.trozos.length; k++) {
+    const u = new SpeechSynthesisUtterance(audio.trozos[k]);
+    u.lang = 'es-ES'; if (voz) u.voice = voz; u.rate = 0.95;
+    u.onstart = () => { audio.i = k; };
+    if (k === audio.trozos.length - 1) u.onend = () => { if (!audio.pausado) pararAudio(); };
+    speechSynthesis.speak(u);
+  }
+  audio.sonando = true; audio.pausado = false;
+  pintarBarraAudio();
+}
+function empezarAudio(x) {
+  const texto = AUDIOS?.[x.id];
+  if (!texto) return;
+  audio.id = x.id; audio.nombre = x.nombre.replace(/^[^\p{L}\p{N}]+/u, '');
+  audio.trozos = texto.replace(/\n+/g, ' ').match(/[^.!?]+[.!?]*/g).map((t) => t.trim()).filter(Boolean);
+  hablarDesde(0);
+}
+function pausarAudio() {
+  if (!audio.sonando) return;
+  if (audio.pausado) { hablarDesde(audio.i); return; }
+  audio.pausado = true; speechSynthesis.cancel(); pintarBarraAudio();
+}
+function pararAudio() {
+  audio.sonando = false; audio.pausado = false; audio.id = null;
+  if (hayVoz) speechSynthesis.cancel();
+  pintarBarraAudio();
+}
+function pintarBarraAudio() {
+  const barra = $('#audio-barra');
+  if (!barra) return;
+  barra.hidden = !audio.sonando;
+  $('#audio-titulo').textContent = '🎧 ' + audio.nombre;
+  $('#audio-pausa').textContent = audio.pausado ? '▶' : '⏸';
+  const b = document.querySelector('[data-audio]');
+  if (b) b.textContent = audio.id === b.dataset.audio && audio.sonando ? '⏹ Parar la audioguía' : '🎧 Escuchar la audioguía (unos 2 min)';
+}
+
 function cerrarVentana() { const v = $('#ventana'); if (v.open) v.close(); }
 
 function abrirFicha(clave) {
@@ -778,6 +837,7 @@ function abrirFicha(clave) {
     ${dist != null ? `<div class="dato"><span class="etq">Desde donde estás</span>${esc(textoDistancia(dist))} a pie</div>` : ''}
     ${x.horario ? `<div class="dato"><span class="etq">Horario</span>${esc(x.horario)}</div>` : ''}
     ${x.nota ? `<div class="dato"><span class="etq">Nota</span>${esc(x.nota)}</div>` : ''}
+    ${audioguiaDisponible(x) ? `<button class="btn btn-principal btn-audio" data-audio="${esc(x.id)}">${audio.id === x.id && audio.sonando ? '⏹ Parar la audioguía' : '🎧 Escuchar la audioguía (unos 2 min)'}</button>` : ''}
     ${x.avisos?.items?.length ? `<div class="dato"><span class="etq">📋 Avisos oficiales en vuestra ruta</span>
       <ul class="hotel-notas">${x.avisos.items.map((a) => `<li>${esc(a)}</li>`).join('')}</ul>
       <div class="tiempo-nota">${esc(x.avisos.revisado || '')}</div></div>` : ''}
@@ -1290,6 +1350,16 @@ function conectarEventos() {
     mapa.setView([miPos.lat, miPos.lng], Math.max(mapa.getZoom(), 17));
   };
   $('#btn-cartel').onclick = abrirCartel;
+  $('#audio-pausa').onclick = pausarAudio;
+  $('#audio-parar').onclick = pararAudio;
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-audio]');
+    if (!b) return;
+    if (audio.sonando && audio.id === b.dataset.audio) { pararAudio(); return; }
+    const x = buscar('lugar:' + b.dataset.audio);
+    if (x) empezarAudio(x);
+  });
+  if (hayVoz) { cargarAudios(); speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices(); }
   $('#cartel').onclick = cerrarCartel;
   $('#cartel-girar').onclick = girarCartel;
   $('#btn-otro').onclick = () => {

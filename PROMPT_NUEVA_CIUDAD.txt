@@ -239,6 +239,14 @@ PANEL INFERIOR
   sin internet si estoy a <7 km de la ciudad principal o a <4 km de una
   ciudad/pueblo del viaje; si no, reverse de Nominatim (zoom=10,
   accept-language=es) como mucho cada 2 min y si me he movido >1 km.
+- AUDIOGUÍA: datos/audioguias.json = {id del lugar: texto} (2-3 min,
+  unas 200-330 palabras, español sencillo, escrito para oírse: sin
+  abreviaturas, siglos y papas en palabras, sin cifras romanas). Botón
+  «🎧 Escuchar la audioguía» en la ficha; voz del móvil (speechSynthesis,
+  es-ES, rate 0.95) troceada por frases para poder pausar en cualquier
+  móvil (pausa = cancel y seguir desde la frase actual) y que no se corte;
+  barra flotante con ⏸/▶ y ⏹ sobre el mapa. El service worker guarda el
+  JSON para usarlo sin conexión. Comprueba los datos históricos.
 - CARTEL PARA LAS FOTOS: botón 🎬 (claqueta) a la izquierda del 📍 del mapa
   (position:absolute dentro de .flotantes, para que la columna no crezca y
   no tape las pestañas en 320 px). Abre una capa a pantalla completa con

@@ -500,3 +500,15 @@ input, textarea, select { font: inherit; }
 .cartel-girar.oculto { opacity: 0; }
 /* El botón 📷 va a la izquierda del 📍 (así la columna de botones no crece y no tapa nada) */
 #btn-cartel { position: absolute; right: 60px; bottom: 0; }
+
+/* ===== Audioguía ===== */
+.audio-barra {
+  position: absolute; left: 12px; right: 140px; z-index: 950;
+  bottom: calc(var(--alto-panel, 200px) + 12px);
+  display: flex; align-items: center; gap: 6px; padding: 6px 6px 6px 12px;
+  background: var(--principal); color: #fff; border-radius: 999px; box-shadow: var(--sombra);
+}
+.audio-barra[hidden] { display: none; }
+.audio-titulo { flex: 1; min-width: 0; font-weight: 700; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.audio-barra .btn { width: 38px; height: 38px; min-height: 0; min-width: 0; padding: 0; border-radius: 50%; font-size: 16px; flex: none; }
+.btn-audio { width: 100%; margin-top: 8px; }
